@@ -17,7 +17,7 @@ body {
 #mainWrapper {
   flex: 1;
   display: grid;
-  grid-template-columns: 200px 5px 1fr 5px 200px;
+  grid-template-columns: 65px 5px 1fr 5px 200px;
   overflow: hidden;
 }
 
@@ -26,6 +26,19 @@ body {
   border-right: 1px solid #ccc;
   overflow: auto;
 }
+
+/* #toolsWrapper {
+  background: #f0f0f0;
+  border-right: 1px solid #ccc;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px;
+}
+#toolsWrapper .btn {
+  flex: 0 0 auto;
+  margin: 2px;
+} */
 
 #resizer1,
 #resizer2 {
