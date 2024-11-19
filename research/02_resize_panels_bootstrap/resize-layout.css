@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#menuWrapper {
+  /* height: 40px; */
+  background: #ddd;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+}
+
+#mainWrapper {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 5px 1fr 5px 200px;
+  overflow: hidden;
+}
+
+#toolsWrapper {
+  background: #f0f0f0;
+  border-right: 1px solid #ccc;
+  overflow: auto;
+}
+
+#resizer1,
+#resizer2 {
+  background: #ccc;
+  cursor: ew-resize;
+}
+
+#resizer3 {
+  background: #ccc;
+  cursor: ns-resize;
+  height: 5px;
+}
+
+#canvasWrapper {
+  background: #e0e0e0;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#propertiesWrapper {
+  background: #f0f0f0;
+  border-left: 1px solid #ccc;
+  overflow: auto;
+}
+
+#timelineWrapper {
+  height: 100px;
+  background: #ddd;
+  border-top: 1px solid #ccc;
+  overflow: auto;
+}
