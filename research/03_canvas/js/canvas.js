@@ -2,13 +2,13 @@ import { Globals } from './globals.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
+let IS_DEBUG = true;
+
 export function init() {
-	console.info('canvas.js');
+	if (IS_DEBUG) console.info('init');
 	// let Globals.zoomScale = 1;
 
 	initSvg();
-
-
 
 	// Add zoom functionality
 	document.getElementById('zoomIn').addEventListener('click', () => {
@@ -35,17 +35,10 @@ export function init() {
 		Globals.zoomScale = scale;
 		svgElement.style.transform = `scale(${Globals.zoomScale})`;
 	});
-
-	// document.getElementById('zoomToFit').addEventListener('click', function () {
-	// 	const canvasWidth = document.querySelector('.canvas-panel').clientWidth;
-	// 	const canvasHeight = document.querySelector('.canvas-panel').clientHeight;
-	// 	const scale = Math.min(canvasWidth / svgWidth, canvasHeight / svgHeight);
-	// 	zoomScale = scale;
-	// 	svgElement.style.transform = `scale(${zoomScale})`;
-	// });
 }
 
 function initSvg() {
+	if (IS_DEBUG) console.info('initSvg');
 	const svgContainer = document.getElementById(Globals.svgContainerID);
 
 	// Create SVG element
@@ -57,11 +50,11 @@ function initSvg() {
 	// Create a rectangle element with transparent color
 	const rectElement = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
 	rectElement.setAttribute('id', 'Background Layer');
-	rectElement.setAttribute('x', '0');
-	rectElement.setAttribute('y', '0');
-	rectElement.setAttribute('width', `${Globals.defaultSvgWidth}`);
-	rectElement.setAttribute('height', `${Globals.defaultSvgHeight}`);
-	rectElement.setAttribute('fill', 'rgba(0,0,0,0)'); // Adjust the transparency as needed
+	rectElement.setAttribute('x', '20');
+	rectElement.setAttribute('y', '20');
+	rectElement.setAttribute('width', `${Globals.defaultSvgWidth - 40}`);
+	rectElement.setAttribute('height', `${Globals.defaultSvgHeight - 40}`);
+	rectElement.setAttribute('fill', 'rgba(255,255,255,0.5)'); // Adjust the transparency as needed
 
 	// Append rectangle to SVG
 	svgElement.appendChild(rectElement);
@@ -73,14 +66,10 @@ function initSvg() {
 	textElement.setAttribute('y', '50%');
 	textElement.setAttribute('dominant-baseline', 'middle');
 	textElement.setAttribute('text-anchor', 'middle');
-	textElement.setAttribute('fill', 'pink'); // Set the text color to pink
-	textElement.setAttribute('font-size', '100'); // Set the font size to 100
+	textElement.setAttribute('fill', '#800080'); // Set the text color to pink
+	textElement.setAttribute('font-size', '80'); // Set the font size to 100
 	textElement.setAttribute('font-family', 'Arial');
 	textElement.textContent = 'SparkStudio'; // Set the text content
-
-	// <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="black" id="id-osgfjmigo">
-	// 	Hello, SVG World!
-	// </text>
 
 	// Append text element to SVG
 	svgElement.appendChild(textElement);
@@ -88,33 +77,50 @@ function initSvg() {
 	// Append SVG to container
 	svgContainer.appendChild(svgElement);
 
-	// start timeline and properties
-	// Canvas.setSvg(svgElement);
-	Timeline.setSvg(svgElement);
-	Properties.setDocument(svgElement);
-
+	// Start timeline and properties
+	setSvg(svgElement.outerHTML);
+	// Timeline.setSvg(svgElement);
+	// Properties.setDocument(svgElement);
 }
 
 function setSvg(svgContent) {
+	if (IS_DEBUG) console.info('setSvg');
+
 	const svgContainer = document.getElementById(Globals.svgContainerID);
 	svgContainer.innerHTML = svgContent;
 
 	Timeline.setSvg(svgContent);
 	Properties.setDocument(svgContent);
+
+	// Introduce a short delay before initializing drag functionality
+	setTimeout(() => initGrab(svgContainer.querySelector('svg')), 100);
 }
 
-function initGrab() {
-	const svgElement = document.querySelector('svg');
+function initGrab(svgElement) {
+	if (IS_DEBUG) console.info('initGrab');
+
 	let selectedElement = null;
 	let offset = { x: 0, y: 0 };
 
-	svgElement.addEventListener('mouseover', (event) => {
+	function removeEventListeners() {
+		if (IS_DEBUG) console.info('removeEventListeners');
+
+		svgElement.removeEventListener('mouseover', handleMouseOver);
+		svgElement.removeEventListener('mousedown', handleMouseDown);
+		svgElement.removeEventListener('mousemove', handleMouseMove);
+		svgElement.removeEventListener('mouseup', handleMouseUp);
+		svgElement.removeEventListener('mouseleave', handleMouseLeave);
+	}
+
+	function handleMouseOver(event) {
+		if (IS_DEBUG) console.info('handleMouseOver');
 		if (event.target.nodeName !== 'svg') {
 			event.target.style.cursor = 'grab';
 		}
-	});
+	}
 
-	svgElement.addEventListener('mousedown', (event) => {
+	function handleMouseDown(event) {
+		if (IS_DEBUG) console.info('handleMouseDown');
 		if (event.target.nodeName !== 'svg') {
 			selectedElement = event.target;
 			const bbox = selectedElement.getBBox();
@@ -122,43 +128,59 @@ function initGrab() {
 			offset.y = event.clientY - bbox.y;
 			selectedElement.style.cursor = 'grabbing';
 		}
-	});
+	}
 
-	svgElement.addEventListener('mousemove', (event) => {
+	function handleMouseMove(event) {
+		if (IS_DEBUG) console.info('handleMouseMove');
 		if (selectedElement) {
 			const x = event.clientX - offset.x;
 			const y = event.clientY - offset.y;
-			selectedElement.setAttribute('x', x);
-			selectedElement.setAttribute('y', y);
 
 			if (selectedElement.tagName === 'circle') {
-				selectedElement.setAttribute('cx', x + selectedElement.getAttribute('r'));
-				selectedElement.setAttribute('cy', y + selectedElement.getAttribute('r'));
-			}
-
-			if (selectedElement.tagName === 'text') {
-				selectedElement.setAttribute('x', event.clientX);
-				selectedElement.setAttribute('y', event.clientY);
+				selectedElement.setAttribute('cx', x + parseFloat(selectedElement.getAttribute('r')));
+				selectedElement.setAttribute('cy', y + parseFloat(selectedElement.getAttribute('r')));
+			} else if (selectedElement.tagName === 'text') {
+				const bbox = selectedElement.getBBox();
+				selectedElement.setAttribute('x', x + bbox.width / 2);
+				selectedElement.setAttribute('y', y + bbox.height / 2);
+			} else {
+				selectedElement.setAttribute('x', x);
+				selectedElement.setAttribute('y', y);
 			}
 		}
-	});
+	}
 
-	svgElement.addEventListener('mouseup', () => {
+	function handleMouseUp() {
+		if (IS_DEBUG) console.info('handleMouseUp');
 		if (selectedElement) {
 			selectedElement.style.cursor = 'grab';
 			selectedElement = null;
 		}
-	});
+	}
 
-	svgElement.addEventListener('mouseleave', () => {
+	function handleMouseLeave() {
+		if (IS_DEBUG) console.info('handleMouseLeave');
 		if (selectedElement) {
 			selectedElement.style.cursor = 'grab';
 			selectedElement = null;
 		}
-	});
-};
+	}
 
+	// Remove existing listeners
+	removeEventListeners();
 
+	// Add new listeners
+	svgElement.addEventListener('mouseover', handleMouseOver);
+	svgElement.addEventListener('mousedown', handleMouseDown);
+	svgElement.addEventListener('mousemove', handleMouseMove);
+	svgElement.addEventListener('mouseup', handleMouseUp);
+	svgElement.addEventListener('mouseleave', handleMouseLeave);
+}
+
+// Helper function for logging function calls
+function info(functionName) {
+	if (IS_DEBUG) console.info(functionName);
+}
 
 // Export an object to group the functions
 export const Canvas = {
@@ -166,4 +188,3 @@ export const Canvas = {
 	initSvg,
 	setSvg,
 };
-
