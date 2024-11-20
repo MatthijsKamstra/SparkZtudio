@@ -6,12 +6,10 @@ body {
 }
 
 #menuWrapper {
-  /* height: 40px; */
-  background: #ddd;
-  border-bottom: 1px solid #ccc;
+  /* background: #ddd; */
+  /* background: red; */
   display: flex;
   align-items: center;
-  /* justify-content: center; */
 }
 
 #mainWrapper {
@@ -23,22 +21,14 @@ body {
 
 #toolsWrapper {
   background: #f0f0f0;
+  /* background: yellow; */
   border-right: 1px solid #ccc;
   overflow: auto;
 }
 
-/* #toolsWrapper {
-  background: #f0f0f0;
-  border-right: 1px solid #ccc;
-  overflow: auto;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 5px;
-}
 #toolsWrapper .btn {
-  flex: 0 0 auto;
   margin: 2px;
-} */
+}
 
 #resizer1,
 #resizer2 {
@@ -53,7 +43,8 @@ body {
 }
 
 #canvasWrapper {
-  background: #e0e0e0;
+  /* background: #e0e0e0; */
+  /* background: pink; */
   overflow: auto;
   display: flex;
   justify-content: center;

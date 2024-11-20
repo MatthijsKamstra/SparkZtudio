@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const reader = new FileReader();
 			reader.onload = function (e) {
 				const svgContent = e.target.result;
-				document.getElementById('canvasWrapper').innerHTML = svgContent;
+				document.getElementById('svg-container').innerHTML = svgContent;
 
 				// Load SVG properties
 				const parser = new DOMParser();
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					const height = svgElement.getAttribute('height') || 'N/A';
 					const viewBox = svgElement.getAttribute('viewBox') || 'N/A';
 
-					document.getElementById('propertiesWrapper').innerHTML = `
+					document.getElementById('propertiesDocument').innerHTML = `
                         <div class="card">
                             <div class="card-header">
                                 SVG Properties
@@ -105,11 +105,4 @@ document.addEventListener('DOMContentLoaded', function () {
 	document.getElementById('helpTopics').onclick = function () { alert('Help Topics'); };
 	document.getElementById('about').onclick = function () { alert('About'); };
 
-	// Tools buttons
-	document.getElementById('selectTool').onclick = function () { alert('Select Tool'); };
-	document.getElementById('drawRectTool').onclick = function () { alert('Draw Rectangle'); };
-	document.getElementById('drawCircleTool').onclick = function () { alert('Draw Circle'); };
-	document.getElementById('drawLineTool').onclick = function () { alert('Draw Line'); };
-	document.getElementById('drawTextTool').onclick = function () { alert('Draw Text'); };
-	document.getElementById('zoomTool').onclick = function () { alert('Zoom Tool'); };
 });
