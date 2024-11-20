@@ -1,3 +1,5 @@
+import { Globals } from './globals.js';
+
 
 const svgNS = "http://www.w3.org/2000/svg";
 let zoomScale = 1;
@@ -5,7 +7,11 @@ let zoomScale = 1;
 const svgWidth = 600;
 const svgHeight = 400;
 
-function injectSVG() {
+export function initCanvas() {
+
+	console.info('canvas.js');
+
+
 	const svgContainer = document.getElementById('svg-container');
 
 	// Create SVG element
@@ -58,8 +64,16 @@ function injectSVG() {
 		zoomScale = scale;
 		svgElement.style.transform = `scale(${zoomScale})`;
 	});
+
+	// document.getElementById('zoomToFit').addEventListener('click', function () {
+	// 	const canvasWidth = document.querySelector('.canvas-panel').clientWidth;
+	// 	const canvasHeight = document.querySelector('.canvas-panel').clientHeight;
+	// 	const scale = Math.min(canvasWidth / svgWidth, canvasHeight / svgHeight);
+	// 	zoomScale = scale;
+	// 	svgElement.style.transform = `scale(${zoomScale})`;
+	// });
 }
 
 // Inject SVG on page load
-window.addEventListener('load', injectSVG);
+// window.addEventListener('load', initCanvas);
 

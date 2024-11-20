@@ -1,4 +1,9 @@
-document.addEventListener('DOMContentLoaded', function () {
+import { Globals } from './globals.js';
+
+
+export function initMenu() {
+	console.info('menu.js');
+
 	// File menu items
 	document.getElementById('newFile').onclick = function () {
 		const modal = new bootstrap.Modal(document.getElementById('svgPropertiesModal'));
@@ -79,6 +84,60 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 	};
 
+	document.addEventListener('keydown', function (event) {
+		// console.log('keydown');
+
+		if (event.metaKey && event.key === 's') {
+			event.preventDefault(); // Prevent the default action
+			saveFile(); // Call the save file function
+		} else if (event.metaKey && event.key === 'o') {
+			event.preventDefault(); // Prevent the default action
+			openFileInput.click(); // Trigger the open file input
+		} else if (event.metaKey && event.key === 'n') {
+			// might never work ????
+			event.preventDefault(); // Prevent the default action
+			newFile(); // Call the new file function
+		} else if (event.metaKey && event.key === 'w') {
+			event.preventDefault(); // Prevent the default action
+			closeFile(); // Call the new file function
+
+		} else if (event.shiftKey && event.metaKey && event.key === 's') {
+			event.preventDefault(); // Prevent the default action
+			saveAsFile(); // Call the new file function
+		}
+	});
+
+	function saveFile() {
+		// Implement your save file logic here
+		console.log('Save file triggered');
+	}
+
+	function saveAsFile() {
+		// Implement your save file logic here
+		console.log('saveAsFile file triggered');
+	}
+
+	function closeFile() {
+		// Implement your save file logic here
+		console.log('closeFile file triggered');
+	}
+
+	function newFile() {
+		// Implement your new file logic here
+		console.log('New file triggered');
+	}
+
+	const openFileInput = document.getElementById('openFileInput');
+	openFileInput.addEventListener('change', function () {
+		const file = openFileInput.files[0];
+		if (file) {
+			// Implement your open file logic here
+			console.log('File opened:', file.name);
+		}
+	});
+
+
+
 	// Edit menu items
 	document.getElementById('undo').onclick = function () { alert('Undo'); };
 	document.getElementById('redo').onclick = function () { alert('Redo'); };
@@ -104,5 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	// Help menu items
 	document.getElementById('helpTopics').onclick = function () { alert('Help Topics'); };
 	document.getElementById('about').onclick = function () { alert('About'); };
+}
 
-});
+// document.addEventListener('DOMContentLoaded', initMenu());

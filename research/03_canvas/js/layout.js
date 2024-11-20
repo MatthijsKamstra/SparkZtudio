@@ -1,4 +1,11 @@
-document.addEventListener('DOMContentLoaded', function () {
+import { Globals } from './globals.js';
+
+
+
+
+export function initLayout() {
+	console.info('layout.js');
+
 	const resizer1 = document.getElementById('resizer1');
 	const resizer2 = document.getElementById('resizer2');
 	const resizer3 = document.getElementById('resizer3');
@@ -76,4 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Initialize grid columns based on initial widths
 	mainWrapper.style.gridTemplateColumns = `${initialToolWidth}px 5px 1fr 5px ${initialPropertiesWidth}px`;
-});
+}
+
+
+// document.addEventListener('DOMContentLoaded', initResize());
