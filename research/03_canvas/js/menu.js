@@ -1,5 +1,52 @@
 import { Globals } from './globals.js';
 import { Properties } from './properties.js';
+import { Timeline } from './timeline.js';
+
+function exportSvgToPng(svgData, width, height) {
+	// Parse the SVG data string
+	const parser = new DOMParser();
+	const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
+	const svgElement = svgDoc.documentElement;
+
+	// Create a canvas element
+	const canvas = document.createElement('canvas');
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext('2d');
+
+	// Create a Blob from the SVG data
+	const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+	const url = URL.createObjectURL(svgBlob);
+
+	// Create an image element and draw the SVG on the canvas
+	const img = new Image();
+	img.onload = function () {
+		ctx.drawImage(img, 0, 0, width, height);
+		URL.revokeObjectURL(url);
+
+		// Convert canvas to PNG and trigger download
+		const pngData = canvas.toDataURL('image/png');
+		const downloadLink = document.createElement('a');
+		downloadLink.href = pngData;
+		downloadLink.download = 'exported_image.png';
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+	};
+	img.src = url;
+}
+
+// // Example usage with an SVG string
+// const svgString = `
+// <svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+//     <rect x="0" y="0" width="600" height="400" fill="rgba(0,0,0,0)" />
+// </svg>
+// `;
+
+// // Call the function to export and download the PNG
+// exportSvgToPng(svgString, 600, 400);
+
+
 
 
 export function initMenu() {
@@ -11,7 +58,10 @@ export function initMenu() {
 		modal.show();
 	};
 	document.getElementById('saveFile').onclick = function () { alert('Save File'); };
+	// document.getElementById('openFile').onclick = openFileFunc();
 	document.getElementById('saveAsFile').onclick = function () { alert('Save As File'); };
+	document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
+	document.getElementById('exportFile').onclick = function () { alert('Edsport As File'); };
 	document.getElementById('closeFile').onclick = function () { alert('Close File'); };
 
 	// Open file input
@@ -23,31 +73,9 @@ export function initMenu() {
 				const svgContent = e.target.result;
 				document.getElementById('svg-container').innerHTML = svgContent;
 
-
+				// start timeline and properties
+				Timeline.setSvg(svgContent);
 				Properties.setDocument(svgContent);
-
-				// Load SVG properties
-				const parser = new DOMParser();
-				const doc = parser.parseFromString(svgContent, "image/svg+xml");
-				const svgElement = doc.querySelector('svg');
-				if (svgElement) {
-					const width = svgElement.getAttribute('width') || 'N/A';
-					const height = svgElement.getAttribute('height') || 'N/A';
-					const viewBox = svgElement.getAttribute('viewBox') || 'N/A';
-
-					document.getElementById('propertiesDocument').innerHTML = `
-                        <div class="card">
-                            <div class="card-header">
-                                SVG Properties
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Width:</strong> ${width}</p>
-                                <p><strong>Height:</strong> ${height}</p>
-                                <p><strong>ViewBox:</strong> ${viewBox}</p>
-                            </div>
-                        </div>
-                    `;
-				}
 			};
 			reader.readAsText(file);
 		}
@@ -109,7 +137,49 @@ export function initMenu() {
 			event.preventDefault(); // Prevent the default action
 			saveAsFile(); // Call the new file function
 		}
+		else if (event.shiftKey && event.metaKey && event.key === 'e') {
+			event.preventDefault(); // Prevent the default action
+			exportFile(); // Call the new file function
+		}
 	});
+
+
+
+
+
+
+	function exportFile() {
+		// Implement your save file logic here
+		console.log('exportFile file triggered');
+
+		// // Example usage with an SVG string
+		// const svgString = ` <svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+		// <rect x="0" y="0" width="300" height="400" fill="red" />
+		// </svg> `;
+
+
+		const svgContainer = document.getElementById('svg-container');
+		const svgElement = svgContainer.querySelector('svg');
+		if (!svgElement) {
+			console.error('SVG element not found in the container'); return;
+		}
+		// Serialize the SVG element to a string
+		const serializer = new XMLSerializer();
+		const svgString = serializer.serializeToString(svgElement);
+
+		// Get width and height from the SVG element
+		const width = svgElement.getAttribute('width');
+		const height = svgElement.getAttribute('height');
+		if (!width || !height) {
+			console.error('Width or height attribute not found on the SVG element');
+			return;
+		}
+
+		// Call the function to export and download the PNG
+		exportSvgToPng(svgString, width, height);
+	}
+
+
 
 	function saveFile() {
 		// Implement your save file logic here
@@ -168,3 +238,10 @@ export function initMenu() {
 	document.getElementById('helpTopics').onclick = function () { alert('Help Topics'); };
 	document.getElementById('about').onclick = function () { alert('About'); };
 }
+
+
+
+// Export an object to group the functions
+export const Menu = {
+	init: initMenu,
+};

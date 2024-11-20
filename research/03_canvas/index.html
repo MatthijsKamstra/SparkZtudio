@@ -17,6 +17,7 @@
 
 <body>
 
+
 	<div id="menuWrapper" class="bg-light border-bottom">
 		<nav class="navbar navbar-expand-md navbar-light bg-light">
 			<div class="container-fluid">
@@ -28,19 +29,32 @@
 							File
 						</a>
 						<ul class="dropdown-menu" aria-labelledby="fileDropdown">
-							<li><a class="dropdown-item" href="#" id="newFile">New <span
+							<li><a class="dropdown-item" href="#" id="newFile">New... <span
 										class="opacity-25 float-end">⌘N</span>
 								</a>
 							</li>
 							<li>
-								<label for="openFileInput" class="dropdown-item">Open <span
+								<label for="openFileInput" class="dropdown-item">Open... <span
 										class="opacity-25 float-end">⌘O</span></label>
 								<input type="file" id="openFileInput" accept=".svg" style="display: none;">
+							</li>
+							<li>
+								<hr class="dropdown-divider">
 							</li>
 							<li><a class="dropdown-item disabled" href="#" id="saveFile">Save <span
 										class="opacity-25 float-end">⌘S</span></a></li>
 							<li><a class="dropdown-item disabled" href="#" id="saveAsFile">Save As... <span
 										class="opacity-25 float-end">⇧⌘S</span></a></li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li><a class="dropdown-item disabled" href="#" id="importFile">Import... <span
+										class="opacity-25 float-end">⌘I</span></a></li>
+							<li><a class="dropdown-item disabled" href="#" id="exportFile">Export... <span
+										class="opacity-25 float-end">⇧⌘E</span></a></li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
 							<li><a class="dropdown-item disabled" href="#" id="closeFile">Close <span
 										class="opacity-25 float-end">⌘W</span></a></li>
 						</ul>
@@ -235,21 +249,21 @@
 		crossorigin="anonymous"></script>
 
 	<script type="module">
-		import { initCanvas } from './js/canvas.js';
+		import { Canvas } from './js/canvas.js';
 		import { Globals } from './js/globals.js';
 		import { initLayout } from './js/layout.js';
 		import { initMenu } from './js/menu.js';
-		import { initTimeline } from './js/timeline.js';
+		import { Timeline } from './js/timeline.js';
 		import { Properties } from './js/properties.js';
 		import { initTools } from './js/tools.js';
 
 		document.addEventListener('DOMContentLoaded', () => {
 			console.log(`version: ${Globals.version}`);
 
-			initCanvas();
+			Canvas.init();
 			initLayout();
 			initMenu();
-			initTimeline();
+			Timeline.init();
 			Properties.init();
 			initTools();
 		});

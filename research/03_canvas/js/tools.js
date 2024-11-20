@@ -12,3 +12,7 @@ export function initTools() {
 	document.getElementById('zoomTool').onclick = function () { alert('Zoom Tool'); };
 }
 
+// Export an object to group the functions
+export const Tools = {
+	init: initTools,
+};

@@ -7,6 +7,8 @@ export const Globals = {
   defaultSvgWidth: 600,
   defaultSvgHeight: 400,
 
+  svgContainerID: 'svg-container',
+
   currentTool: 'pencil',
   canvas: null,
   timeline: [],
