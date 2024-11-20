@@ -73,7 +73,12 @@ function initSvg() {
 	textElement.setAttribute('text-anchor', 'middle');
 	textElement.setAttribute('fill', 'pink'); // Set the text color to pink
 	textElement.setAttribute('font-size', '100'); // Set the font size to 100
+	textElement.setAttribute('font-family', 'Arial');
 	textElement.textContent = 'SparkStudio'; // Set the text content
+
+	// <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="black" id="id-osgfjmigo">
+	// 	Hello, SVG World!
+	// </text>
 
 	// Append text element to SVG
 	svgElement.appendChild(textElement);

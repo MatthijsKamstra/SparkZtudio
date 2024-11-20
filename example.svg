@@ -2,7 +2,9 @@
 	<!-- Background Rectangle -->
 	<rect id="background" x="0" y="0" width="600" height="400" fill="#f0f0f0" opacity="0.5" />
 	<!-- Image -->
-	<image href="https://placehold.co/600x400/FF3333/000000" x="0" y="0" width="600" height="400" />
+	<image id="image" href="https://placehold.co/600x200/FF3333/000000" x="0" y="200" width="600" height="200" />
+	<!-- half image -->
+	<rect id="half pink" x="300" y="0" width="600" height="400" fill="pink" opacity="0.7" />
 	<!-- Text Element -->
 	<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="black">
 		Hello, SVG World!
