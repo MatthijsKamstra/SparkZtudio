@@ -1,3 +1,4 @@
+import { Canvas } from './canvas.js';
 import { Globals } from './globals.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
@@ -178,7 +179,7 @@ export function initMenu() {
 	// document.getElementById('openFile').onclick = openFileFunc();
 	document.getElementById('saveAsFile').onclick = function () { alert('Save As File'); };
 	document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
-	document.getElementById('exportFile').onclick = function () { alert('Edsport As File'); };
+	document.getElementById('exportFile').onclick = function () { exportFile(); };
 	document.getElementById('closeFile').onclick = function () { alert('Close File'); };
 
 	// Open file input
@@ -188,9 +189,10 @@ export function initMenu() {
 			const reader = new FileReader();
 			reader.onload = function (e) {
 				const svgContent = e.target.result;
-				document.getElementById('svg-container').innerHTML = svgContent;
+				// document.getElementById('svg-container').innerHTML = svgContent;
 
 				// start timeline and properties
+				Canvas.setSvg(svgContent);
 				Timeline.setSvg(svgContent);
 				Properties.setDocument(svgContent);
 			};

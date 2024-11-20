@@ -3,7 +3,7 @@ import { Globals } from './globals.js';
 
 
 
-export function initLayout() {
+function initLayout() {
 	console.info('layout.js');
 
 	const resizer1 = document.getElementById('resizer1');
@@ -84,3 +84,10 @@ export function initLayout() {
 	// Initialize grid columns based on initial widths
 	mainWrapper.style.gridTemplateColumns = `${initialToolWidth}px 5px 1fr 5px ${initialPropertiesWidth}px`;
 }
+
+
+
+// Export an object to group the functions
+export const Layout = {
+	init: initLayout,
+};

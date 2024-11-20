@@ -50,7 +50,7 @@
 							</li>
 							<li><a class="dropdown-item disabled" href="#" id="importFile">Import... <span
 										class="opacity-25 float-end">⌘I</span></a></li>
-							<li><a class="dropdown-item disabled" href="#" id="exportFile">Export... <span
+							<li><a class="dropdown-item" href="#" id="exportFile">Export... <span
 										class="opacity-25 float-end">⇧⌘E</span></a></li>
 							<li>
 								<hr class="dropdown-divider">
@@ -251,21 +251,21 @@
 	<script type="module">
 		import { Canvas } from './js/canvas.js';
 		import { Globals } from './js/globals.js';
-		import { initLayout } from './js/layout.js';
-		import { initMenu } from './js/menu.js';
+		import { Layout } from './js/layout.js';
+		import { Menu } from './js/menu.js';
 		import { Timeline } from './js/timeline.js';
 		import { Properties } from './js/properties.js';
-		import { initTools } from './js/tools.js';
+		import { Tools } from './js/tools.js';
 
 		document.addEventListener('DOMContentLoaded', () => {
 			console.log(`version: ${Globals.version}`);
 
 			Canvas.init();
-			initLayout();
-			initMenu();
+			Layout.init();
+			Menu.init();
 			Timeline.init();
 			Properties.init();
-			initTools();
+			Tools.init();
 		});
 	</script>
 

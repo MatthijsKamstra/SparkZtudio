@@ -8,6 +8,8 @@ export function init() {
 
 	initSvg();
 
+
+
 	// Add zoom functionality
 	document.getElementById('zoomIn').addEventListener('click', () => {
 		Globals.zoomScale += 0.1;
@@ -44,7 +46,7 @@ export function init() {
 }
 
 function initSvg() {
-	const svgContainer = document.getElementById('svg-container');
+	const svgContainer = document.getElementById(Globals.svgContainerID);
 
 	// Create SVG element
 	const svgElement = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
@@ -87,15 +89,81 @@ function initSvg() {
 	svgContainer.appendChild(svgElement);
 
 	// start timeline and properties
+	// Canvas.setSvg(svgElement);
 	Timeline.setSvg(svgElement);
 	Properties.setDocument(svgElement);
 
 }
+
+function setSvg(svgContent) {
+	const svgContainer = document.getElementById(Globals.svgContainerID);
+	svgContainer.innerHTML = svgContent;
+
+	Timeline.setSvg(svgContent);
+	Properties.setDocument(svgContent);
+}
+
+function initGrab() {
+	const svgElement = document.querySelector('svg');
+	let selectedElement = null;
+	let offset = { x: 0, y: 0 };
+
+	svgElement.addEventListener('mouseover', (event) => {
+		if (event.target.nodeName !== 'svg') {
+			event.target.style.cursor = 'grab';
+		}
+	});
+
+	svgElement.addEventListener('mousedown', (event) => {
+		if (event.target.nodeName !== 'svg') {
+			selectedElement = event.target;
+			const bbox = selectedElement.getBBox();
+			offset.x = event.clientX - bbox.x;
+			offset.y = event.clientY - bbox.y;
+			selectedElement.style.cursor = 'grabbing';
+		}
+	});
+
+	svgElement.addEventListener('mousemove', (event) => {
+		if (selectedElement) {
+			const x = event.clientX - offset.x;
+			const y = event.clientY - offset.y;
+			selectedElement.setAttribute('x', x);
+			selectedElement.setAttribute('y', y);
+
+			if (selectedElement.tagName === 'circle') {
+				selectedElement.setAttribute('cx', x + selectedElement.getAttribute('r'));
+				selectedElement.setAttribute('cy', y + selectedElement.getAttribute('r'));
+			}
+
+			if (selectedElement.tagName === 'text') {
+				selectedElement.setAttribute('x', event.clientX);
+				selectedElement.setAttribute('y', event.clientY);
+			}
+		}
+	});
+
+	svgElement.addEventListener('mouseup', () => {
+		if (selectedElement) {
+			selectedElement.style.cursor = 'grab';
+			selectedElement = null;
+		}
+	});
+
+	svgElement.addEventListener('mouseleave', () => {
+		if (selectedElement) {
+			selectedElement.style.cursor = 'grab';
+			selectedElement = null;
+		}
+	});
+};
+
 
 
 // Export an object to group the functions
 export const Canvas = {
 	init,
 	initSvg,
+	setSvg,
 };
 

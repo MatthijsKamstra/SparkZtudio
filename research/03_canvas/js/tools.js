@@ -1,7 +1,7 @@
 import { Globals } from './globals.js';
 
 
-export function initTools() {
+function initTools() {
 	console.info('tools.js');
 	// Tools buttons
 	document.getElementById('selectTool').onclick = function () { alert('Select Tool'); };
