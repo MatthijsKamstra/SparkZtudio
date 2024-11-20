@@ -8,4 +8,3 @@ export function initTimeline() {
 
 	console.info('timeline.js');
 }
-// document.addEventListener('DOMContentLoaded', initTimeline());

@@ -11,4 +11,4 @@ export function initTools() {
 	document.getElementById('drawTextTool').onclick = function () { alert('Draw Text'); };
 	document.getElementById('zoomTool').onclick = function () { alert('Zoom Tool'); };
 }
-// document.addEventListener('DOMContentLoaded', initTools());
+

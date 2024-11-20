@@ -17,7 +17,6 @@
 
 <body>
 
-
 	<div id="menuWrapper" class="bg-light border-bottom">
 		<nav class="navbar navbar-expand-md navbar-light bg-light">
 			<div class="container-fluid">
@@ -231,13 +230,9 @@
 		</div>
 	</div>
 
-
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
 		crossorigin="anonymous"></script>
-
-
-
 
 	<script type="module">
 		import { initCanvas } from './js/canvas.js';
@@ -245,6 +240,7 @@
 		import { initLayout } from './js/layout.js';
 		import { initMenu } from './js/menu.js';
 		import { initTimeline } from './js/timeline.js';
+		import { Properties } from './js/properties.js';
 		import { initTools } from './js/tools.js';
 
 		document.addEventListener('DOMContentLoaded', () => {
@@ -254,6 +250,7 @@
 			initLayout();
 			initMenu();
 			initTimeline();
+			Properties.init();
 			initTools();
 		});
 	</script>

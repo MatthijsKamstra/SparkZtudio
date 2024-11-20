@@ -84,6 +84,3 @@ export function initLayout() {
 	// Initialize grid columns based on initial widths
 	mainWrapper.style.gridTemplateColumns = `${initialToolWidth}px 5px 1fr 5px ${initialPropertiesWidth}px`;
 }
-
-
-// document.addEventListener('DOMContentLoaded', initResize());

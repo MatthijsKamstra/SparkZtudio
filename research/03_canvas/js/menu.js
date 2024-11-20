@@ -1,4 +1,5 @@
 import { Globals } from './globals.js';
+import { Properties } from './properties.js';
 
 
 export function initMenu() {
@@ -21,6 +22,9 @@ export function initMenu() {
 			reader.onload = function (e) {
 				const svgContent = e.target.result;
 				document.getElementById('svg-container').innerHTML = svgContent;
+
+
+				Properties.setDocument(svgContent);
 
 				// Load SVG properties
 				const parser = new DOMParser();
@@ -164,5 +168,3 @@ export function initMenu() {
 	document.getElementById('helpTopics').onclick = function () { alert('Help Topics'); };
 	document.getElementById('about').onclick = function () { alert('About'); };
 }
-
-// document.addEventListener('DOMContentLoaded', initMenu());

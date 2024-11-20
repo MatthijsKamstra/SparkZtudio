@@ -74,6 +74,4 @@ export function initCanvas() {
 	// });
 }
 
-// Inject SVG on page load
-// window.addEventListener('load', initCanvas);
 
