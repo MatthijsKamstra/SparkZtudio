@@ -292,6 +292,10 @@ export function initMenu() {
 			return;
 		}
 
+		console.log(width);
+		console.log(height);
+
+
 		// Call the function to export and download the PNG
 		exportSvgToPng1(svgString, width, height);
 	}
