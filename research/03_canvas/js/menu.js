@@ -34,19 +34,17 @@ export function initMenu() {
 	// document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
 	// Open file input
 	document.getElementById('importFile3').addEventListener('change', function (event) {
-		console.log('importFile');
+		if (IS_DEBUG) console.log('importFile');
 
 		const file = event.target.files[0];
 		if (file) {
 			const reader = new FileReader();
 			reader.onload = function (e) {
-				const svgContent = e.target.result;
-				// document.getElementById('svg-container').innerHTML = svgContent;
-
-				// start timeline and properties
-				Canvas.setSvg(svgContent);
-				Timeline.setSvg(svgContent);
-				Properties.setDocument(svgContent);
+				const svgString = e.target.result;
+				const parser = new DOMParser();
+				const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+				const svgElement = svgDoc.querySelector('svg');
+				Project.setSvgElement(svgElement)
 			};
 			reader.readAsText(file);
 		}
@@ -61,14 +59,9 @@ export function initMenu() {
 			const reader = new FileReader();
 			reader.onload = function (e) {
 				const projectFile = e.target.result;
-				// console.log(projectFile);
+				console.log(projectFile);
 				Project.file(projectFile);
-				// document.getElementById('svg-container').innerHTML = svgContent;
 
-				// // start timeline and properties
-				// Canvas.setSvg(svgContent);
-				// Timeline.setSvg(svgContent);
-				// Properties.setDocument(svgContent);
 			};
 			reader.readAsText(file);
 		}

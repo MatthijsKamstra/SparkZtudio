@@ -1,7 +1,7 @@
 import { Globals } from './globals.js';
 import { ProjectVars } from './project.js';
 
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
 // Function to generate a random ID
 function generateId() {
@@ -164,8 +164,7 @@ function setSvg(data) {
 	if (IS_DEBUG) console.info('> setSvg');
 	if (IS_DEBUG) console.info(data);
 
-	setFrameRate();
-	setTotalFrames();
+	update();
 
 	// Check if data is a string
 	if (typeof data !== 'string') {
@@ -190,17 +189,11 @@ function setSvg(data) {
 		if (element.nodeName !== 'svg') elementIds.push({ id: element.id, type: element.nodeName });
 	});
 
-	console.log('xx');
-
-
 	// Display the shuffled array of IDs as layers in the panel
 	const timelineTableBody = document.getElementById('timelineTableBody');
 	timelineTableBody.innerHTML = ''; // clear content
 	elementIds.forEach(({ id, type }) => {
-		// console.log(id, type);
-
 		const layerRow = createLayerRow(id, type);
-		console.log(layerRow);
 		timelineTableBody.appendChild(layerRow);
 	});
 
@@ -232,11 +225,18 @@ function setTotalFrames() {
 	const el = document.getElementById('timeLineTotalFrames');
 	el.value = ProjectVars.frameLength;
 }
+function setTotalTime() {
+	if (IS_DEBUG) console.log('setTotalTime');
+	const el = document.getElementById('timeLineTotalTime');
+	el.value = ProjectVars.frameLength / ProjectVars.frameRate;
+}
 
 function update() {
 	if (IS_DEBUG) console.log('update');
 	setFrameRate();
 	setTotalFrames();
+	setTotalTime();
+
 }
 
 

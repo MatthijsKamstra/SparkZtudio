@@ -8,7 +8,7 @@ import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
 // import { Project, ProjectVars } from './project.js';
 
-const IS_DEBUG = false;
+const IS_DEBUG = true;
 
 function initProject() {
 	if (IS_DEBUG) console.info(`init project.js`);
@@ -62,6 +62,14 @@ function initProjectFile(jsonString) {
 	ProjectVars.frameLength = frameLength;
 	ProjectVars.frames = frames;
 
+
+	// console.log(frames);
+	// console.log(frames[0]);
+	// console.log(frames[0].svg);
+
+	setSvgString2Element(frames[0].svg);
+
+
 	return {
 		exportName,
 		projectName,
@@ -76,6 +84,15 @@ function initProjectFile(jsonString) {
 	};
 
 
+}
+
+
+function setSvgString2Element(svgString) {
+	// Parse the string to create a document fragment
+	const parser = new DOMParser();
+	const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+	const svgElement = svgDoc.querySelector('svg');
+	setSvgElement(svgElement);
 }
 
 function setSvg(data) {
