@@ -34,9 +34,9 @@
 								</a>
 							</li>
 							<li>
-								<label for="openFileInput" class="dropdown-item">Open... <span
+								<label for="openFileInput3" class="dropdown-item">Open... <span
 										class="opacity-25 float-end">⌘O</span></label>
-								<input type="file" id="openFileInput" accept=".svg" style="display: none;">
+								<input type="file" id="openFileInput3" accept=".json, .spark" style="display: none;">
 							</li>
 							<li>
 								<hr class="dropdown-divider">
@@ -48,8 +48,18 @@
 							<li>
 								<hr class="dropdown-divider">
 							</li>
-							<li><a class="dropdown-item disabled" href="#" id="importFile">Import... <span
-										class="opacity-25 float-end">⌘I</span></a></li>
+
+							<li>
+								<label for="importFile3" class="dropdown-item">Import... <span
+										class="opacity-25 float-end">⌘I</span></label>
+								<input type="file" id="importFile3" accept=".svg" style="display: none;">
+							</li>
+
+
+
+
+							<!-- <li><a class="dropdown-item" href="#" id="importFile">Import... <span
+										class="opacity-25 float-end">⌘I</span></a></li> -->
 							<li><a class="dropdown-item" href="#" id="exportFile">Export... <span
 										class="opacity-25 float-end">⇧⌘E</span></a></li>
 							<li>
@@ -249,25 +259,10 @@
 		crossorigin="anonymous"></script>
 
 	<script type="module">
-		import { Canvas } from './js/canvas.js';
-		import { Globals } from './js/globals.js';
-		import { Layout } from './js/layout.js';
-		import { Menu } from './js/menu.js';
-		import { Timeline } from './js/timeline.js';
-		import { Properties } from './js/properties.js';
-		import { Tools } from './js/tools.js';
-		import { Shortcuts } from './js/shortcuts.js';
+		import { Project } from './js/project.js';
 
 		document.addEventListener('DOMContentLoaded', () => {
-			console.log(`version: ${Globals.version}`);
-
-			Canvas.init();
-			Layout.init();
-			Menu.init();
-			Timeline.init();
-			Properties.init();
-			Tools.init();
-			Shortcuts.init();
+			Project.init();
 		});
 	</script>
 

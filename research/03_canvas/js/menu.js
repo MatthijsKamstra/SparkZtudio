@@ -1,11 +1,8 @@
 import { Canvas } from './canvas.js';
 import { Globals } from './globals.js';
+import { Project } from './project.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
-
-
-
-
 
 
 export function initMenu() {
@@ -19,12 +16,14 @@ export function initMenu() {
 	document.getElementById('saveFile').onclick = function () { alert('Save File'); };
 	// document.getElementById('openFile').onclick = openFileFunc();
 	document.getElementById('saveAsFile').onclick = function () { alert('Save As File'); };
-	document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
+	// document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
 	document.getElementById('exportFile').onclick = function () { exportFile(); };
 	document.getElementById('closeFile').onclick = function () { alert('Close File'); };
 
 	// Open file input
-	document.getElementById('openFileInput').addEventListener('change', function (event) {
+	document.getElementById('importFile3').addEventListener('change', function (event) {
+		console.log('importFile');
+
 		const file = event.target.files[0];
 		if (file) {
 			const reader = new FileReader();
@@ -36,6 +35,27 @@ export function initMenu() {
 				Canvas.setSvg(svgContent);
 				Timeline.setSvg(svgContent);
 				Properties.setDocument(svgContent);
+			};
+			reader.readAsText(file);
+		}
+	});
+
+	// Open file input
+	document.getElementById('openFileInput3').addEventListener('change', function (event) {
+		console.log('openFileInput');
+		const file = event.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const projectFile = e.target.result;
+				// console.log(projectFile);
+				Project.file(projectFile);
+				// document.getElementById('svg-container').innerHTML = svgContent;
+
+				// // start timeline and properties
+				// Canvas.setSvg(svgContent);
+				// Timeline.setSvg(svgContent);
+				// Properties.setDocument(svgContent);
 			};
 			reader.readAsText(file);
 		}
