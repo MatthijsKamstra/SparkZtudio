@@ -8,6 +8,7 @@
   "height": 300,
   "frameRate": 24,
   "frameLength": 240,
+  "totalTime": 10,
   "frames": [
     {
       "frameNumber": 1,

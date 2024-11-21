@@ -161,6 +161,13 @@ function setSvgElement(svgElement) {
 	Properties.projectFile(); // usefull
 }
 
+function update() {
+	console.log('update');
+	Canvas.update();
+	Timeline.update();
+	Properties.update();
+}
+
 // Shared global variables
 export const ProjectVars = {
 	exportName: 'sparkztudio-project',
@@ -181,5 +188,6 @@ export const Project = {
 	init: initProject,
 	file: initProjectFile,
 	setSvg: setSvg,
-	setSvgElement
+	setSvgElement,
+	update
 };

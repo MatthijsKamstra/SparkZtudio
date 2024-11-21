@@ -68,7 +68,7 @@ function defaultSVG() {
 	textElement.setAttribute('text-anchor', 'middle');
 	textElement.setAttribute('fill', '#800080'); // Set the text color to pink
 	textElement.setAttribute('font-size', '80'); // Set the font size to 100
-	textElement.setAttribute('font-family', '"Kenia", sans-serif');
+	textElement.setAttribute('font-family', 'Kenia, sans-serif');
 	textElement.setAttribute('font-weight', '400');
 	textElement.setAttribute('font-style', 'normal');
 	textElement.textContent = 'SparkZtudio'; // Set the text content
@@ -171,6 +171,9 @@ function initGrab(svgElement) {
 	svgElement.addEventListener('mouseleave', handleMouseLeave);
 }
 
+function update() {
+	console.log('update');
+}
 
 
 // Export an object to group the functions
@@ -178,4 +181,5 @@ export const Canvas = {
 	init,
 	// svgElement,
 	setSvg,
+	update,
 };

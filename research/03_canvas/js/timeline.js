@@ -1,7 +1,7 @@
 import { Globals } from './globals.js';
 import { ProjectVars } from './project.js';
 
-const IS_DEBUG = false;
+const IS_DEBUG = true;
 
 // Function to generate a random ID
 function generateId() {
@@ -116,10 +116,30 @@ function createLayerRow(id, type) {
 	else typeIcon.className = 'fa fa-layer-group';
 	typeCell.appendChild(typeIcon);
 
+	// const framesCell = document.createElement('td');
+	// // framesCell.textContent = ProjectVars.frameLength;
+	// framesCell.innerHTML = '<table class="table-bordered table-striped-columns"><tr><td>1</td><td>2</td><td>3</td></tr></table>';
+	// // framesCell.textContent = calculateTotalFrames();
+
+
 	const framesCell = document.createElement('td');
-	// framesCell.textContent = ProjectVars.frameLength;
-	framesCell.innerHTML = '<table class="table-bordered table-striped-columns"><tr><td>1</td><td>2</td><td>3</td></tr></table>';
-	// framesCell.textContent = calculateTotalFrames();
+	framesCell.classList = 'm-0 p-0';
+	const framesDiv = document.createElement('div');
+	framesDiv.className = 'frames-container d-flex h-100';
+	const totalFrames = calculateTotalFrames();
+	for (let i = 0; i < totalFrames; i++) {
+		const frameDiv = document.createElement('div');
+		frameDiv.id = `${id}-${type}-${i + 1}`;
+		frameDiv.className = 'frame text-center';
+		frameDiv.style.width = '30px';
+		// Fixed width for each frame div
+		frameDiv.style.border = '1px solid #ccc';
+		// frameDiv.style.resize = 'horizontal';
+		// frameDiv.style.overflow = 'auto';
+		frameDiv.textContent = i + 1;
+		framesDiv.appendChild(frameDiv);
+	}
+	framesCell.appendChild(framesDiv);
 
 	// order table
 	row.appendChild(checkboxCell);
@@ -134,9 +154,10 @@ function createLayerRow(id, type) {
 }
 
 function calculateTotalFrames() {
-	const frameRate = document.getElementById('frameRate').value || 0;
-	const totalFrames = document.getElementById('totalFrames').value || 0;
-	return frameRate * totalFrames;
+	// const frameRate = document.getElementById('timelineFrameRate').value || 0;
+	// const totalFrames = document.getElementById('timeLineTotalFrames').value || 0;
+	// return frameRate * totalFrames;
+	return ProjectVars.frameLength;
 }
 
 function setSvg(data) {
@@ -169,11 +190,17 @@ function setSvg(data) {
 		if (element.nodeName !== 'svg') elementIds.push({ id: element.id, type: element.nodeName });
 	});
 
+	console.log('xx');
+
+
 	// Display the shuffled array of IDs as layers in the panel
 	const timelineTableBody = document.getElementById('timelineTableBody');
 	timelineTableBody.innerHTML = ''; // clear content
 	elementIds.forEach(({ id, type }) => {
+		// console.log(id, type);
+
 		const layerRow = createLayerRow(id, type);
+		console.log(layerRow);
 		timelineTableBody.appendChild(layerRow);
 	});
 
@@ -196,15 +223,22 @@ function setSvg(data) {
 
 function setFrameRate() {
 	if (IS_DEBUG) console.log('setFrameRate');
-	const el = document.getElementById('frameRate');
+	const el = document.getElementById('timelineFrameRate');
 	el.value = ProjectVars.frameRate;
 }
 
 function setTotalFrames() {
 	if (IS_DEBUG) console.log('setTotalFrames');
-	const el = document.getElementById('totalFrames');
+	const el = document.getElementById('timeLineTotalFrames');
 	el.value = ProjectVars.frameLength;
 }
+
+function update() {
+	if (IS_DEBUG) console.log('update');
+	setFrameRate();
+	setTotalFrames();
+}
+
 
 // Export an object to group the functions
 export const Timeline = {
@@ -212,4 +246,5 @@ export const Timeline = {
 	setSvg,
 	setFrameRate,
 	setTotalFrames,
+	update,
 };
