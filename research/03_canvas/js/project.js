@@ -1,5 +1,4 @@
 import { Canvas } from './canvas.js';
-import { Export } from './export.js';
 import { Globals } from './globals.js';
 import { Layout } from './layout.js';
 import { Menu } from './menu.js';
@@ -9,10 +8,10 @@ import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
 // import { Project, ProjectVars } from './project.js';
 
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
 function initProject() {
-	if (IS_DEBUG) console.log(`init project.js`);
+	if (IS_DEBUG) console.info(`init project.js`);
 	if (IS_DEBUG) console.log(`version: ${Globals.version}`);
 
 	Canvas.init();
@@ -90,6 +89,7 @@ function setSvg(data) {
 		data = serializer.serializeToString(data);
 		if (IS_DEBUG) console.log(data);
 	}
+
 	// Parse the string to create a document fragment
 	const parser = new DOMParser();
 	const svgDoc = parser.parseFromString(data, 'image/svg+xml');
@@ -108,6 +108,57 @@ function setSvg(data) {
 	}
 	if (IS_DEBUG) console.log(ProjectVars);
 
+}
+
+
+function cleanupSvg(svgElement) {
+	if (IS_DEBUG) console.log('cleanupSvg');
+	// - [ ] fix missing id
+	// - [ ] remove comment?
+	// - [ ] add viewbox
+	return svgElement
+}
+
+function convertSvg2projectfile(svgElement) {
+	if (IS_DEBUG) console.group('convertSvg2projectfile');
+	if (svgElement) {
+		ProjectVars.width = parseInt(svgElement.getAttribute('width')) || 600;
+		ProjectVars.height = parseInt(svgElement.getAttribute('height')) || 400;
+		ProjectVars.creationDate = new Date().toLocaleDateString();
+		ProjectVars.frames = [
+			{
+				"frameNumber": 1,
+				"svg": new XMLSerializer().serializeToString(svgElement),
+				"tween": "linear",
+				"keyframe": true
+			}];
+		if (IS_DEBUG) console.log(ProjectVars);
+	}
+	if (IS_DEBUG) console.groupEnd();
+}
+
+function setSvgElement(svgElement) {
+	if (IS_DEBUG) {
+		console.group('setSvgElement');
+		console.log(svgElement);
+		console.groupEnd();
+	}
+	// const svgContainer = document.getElementById(Globals.svgContainerID);
+	// Append SVG to container
+	// svgContainer.appendChild(svgElement);
+
+	// cleanup svg
+	svgElement = cleanupSvg(svgElement);
+	// set in projectfile
+	convertSvg2projectfile(svgElement);
+
+	// set in canvas
+	Canvas.setSvg(svgElement);
+	// set in timeline
+	Timeline.setSvg(svgElement);
+	// set in properties
+	Properties.setSvg(svgElement); // not sure this is usefull
+	Properties.projectFile(); // usefull
 }
 
 // Shared global variables
@@ -130,4 +181,5 @@ export const Project = {
 	init: initProject,
 	file: initProjectFile,
 	setSvg: setSvg,
+	setSvgElement
 };

@@ -1,4 +1,5 @@
 import { Globals } from './globals.js';
+import { ProjectVars } from './project.js';
 
 const IS_DEBUG = false;
 
@@ -8,7 +9,7 @@ function generateId() {
 }
 
 function initTimeline() {
-	console.info('timeline.js');
+	if (IS_DEBUG) console.info('init timeline.js');
 }
 
 function createLayerRow(id, type) {
@@ -116,7 +117,9 @@ function createLayerRow(id, type) {
 	typeCell.appendChild(typeIcon);
 
 	const framesCell = document.createElement('td');
-	framesCell.textContent = calculateTotalFrames();
+	// framesCell.textContent = ProjectVars.frameLength;
+	framesCell.innerHTML = '<table class="table-bordered table-striped-columns"><tr><td>1</td><td>2</td><td>3</td></tr></table>';
+	// framesCell.textContent = calculateTotalFrames();
 
 	// order table
 	row.appendChild(checkboxCell);
@@ -139,6 +142,9 @@ function calculateTotalFrames() {
 function setSvg(data) {
 	if (IS_DEBUG) console.info('> setSvg');
 	if (IS_DEBUG) console.info(data);
+
+	setFrameRate();
+	setTotalFrames();
 
 	// Check if data is a string
 	if (typeof data !== 'string') {
@@ -176,7 +182,7 @@ function setSvg(data) {
 	const updatedSvgString = serializer.serializeToString(svgDoc);
 
 	// Assume svgContainer is defined elsewhere in your script
-	const svgContainer = document.querySelector('.svg-container');
+	const svgContainer = document.querySelector('#svg-container');
 	if (!svgContainer) {
 		console.error('SVG container not found');
 		return;
@@ -188,8 +194,22 @@ function setSvg(data) {
 	if (IS_DEBUG) console.log('Updated SVG:', updatedSvgString);
 }
 
+function setFrameRate() {
+	if (IS_DEBUG) console.log('setFrameRate');
+	const el = document.getElementById('frameRate');
+	el.value = ProjectVars.frameRate;
+}
+
+function setTotalFrames() {
+	if (IS_DEBUG) console.log('setTotalFrames');
+	const el = document.getElementById('totalFrames');
+	el.value = ProjectVars.frameLength;
+}
+
 // Export an object to group the functions
 export const Timeline = {
 	init: initTimeline,
 	setSvg,
+	setFrameRate,
+	setTotalFrames,
 };

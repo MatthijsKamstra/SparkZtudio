@@ -22,9 +22,11 @@ export function initMenu() {
 	document.getElementById('saveAsFile').onclick = function () {
 		alert('Save As File');
 	};
+
 	document.getElementById('exportFile').onclick = function () {
 		Export.image();
 	};
+
 	document.getElementById('closeFile').onclick = function () {
 		alert('Close File');
 	};

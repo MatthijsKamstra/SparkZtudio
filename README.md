@@ -7,6 +7,12 @@ POC Flash rebuild with web tech
 - 📸
 - 🔋
 
+## SVG start
+
+- default svg in canvas
+- open `.sparkz`/`.json` file
+- import `.svg`
+
 ## Resources
 
 - https://ficons.fiction.com/reference.html

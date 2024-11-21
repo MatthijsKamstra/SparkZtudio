@@ -3,13 +3,13 @@ import { Project, ProjectVars } from './project.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
-let IS_DEBUG = true;
+let IS_DEBUG = false;
 
 export function init() {
 	if (IS_DEBUG) console.info('init canvas.js');
 	// let Globals.zoomScale = 1;
 
-	initSvg();
+	defaultSVG();
 
 	// Add zoom functionality
 	document.getElementById('zoomIn').addEventListener('click', () => {
@@ -38,9 +38,8 @@ export function init() {
 	});
 }
 
-function initSvg() {
-	if (IS_DEBUG) console.info('initSvg');
-	const svgContainer = document.getElementById(Globals.svgContainerID);
+function defaultSVG() {
+	if (IS_DEBUG) console.info('defaultSVG');
 
 	// Create SVG element
 	const svgElement = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
@@ -77,25 +76,15 @@ function initSvg() {
 	// Append text element to SVG
 	svgElement.appendChild(textElement);
 
-	// Append SVG to container
-	svgContainer.appendChild(svgElement);
-
-	// Start timeline and properties
-	setSvg(svgElement.outerHTML);
-	// Timeline.setSvg(svgElement);
-	// Properties.setDocument(svgElement);
+	// send svg to project
+	Project.setSvgElement(svgElement);
 }
 
-function setSvg(svgContent) {
+function setSvg(svgElement) {
 	if (IS_DEBUG) console.info('setSvg');
 
 	const svgContainer = document.getElementById(Globals.svgContainerID);
-	svgContainer.innerHTML = svgContent;
-
-	Timeline.setSvg(svgContent);
-	Properties.setDocument(svgContent);
-
-	Project.setSvg(svgContent);
+	svgContainer.innerHTML = svgElement;
 
 	// Introduce a short delay before initializing drag functionality
 	setTimeout(() => initGrab(svgContainer.querySelector('svg')), 100);
@@ -182,14 +171,11 @@ function initGrab(svgElement) {
 	svgElement.addEventListener('mouseleave', handleMouseLeave);
 }
 
-// Helper function for logging function calls
-function info(functionName) {
-	if (IS_DEBUG) console.info(functionName);
-}
+
 
 // Export an object to group the functions
 export const Canvas = {
 	init,
-	initSvg,
+	// svgElement,
 	setSvg,
 };

@@ -5,7 +5,7 @@ const IS_DEBUG = false;
 
 
 function init() {
-	if (IS_DEBUG) console.log(`init shortcust.js`);
+	if (IS_DEBUG) console.info(`init shortcust.js`);
 
 	document.addEventListener('keydown', function (event) {
 		// console.log('keydown');
