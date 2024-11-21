@@ -69,8 +69,14 @@ function initSvg() {
 	textElement.setAttribute('text-anchor', 'middle');
 	textElement.setAttribute('fill', '#800080'); // Set the text color to pink
 	textElement.setAttribute('font-size', '80'); // Set the font size to 100
-	textElement.setAttribute('font-family', 'Arial');
-	textElement.textContent = 'SparkStudio'; // Set the text content
+	textElement.setAttribute('font-family', '"Kenia", sans-serif');
+	textElement.setAttribute('font-weight', '400');
+	textElement.setAttribute('font-style', 'normal');
+	textElement.textContent = 'SparkZtudio'; // Set the text content
+
+	// font - family: "Kenia", sans - serif;
+	// font - weight: 400;
+	// font - style: normal;
 
 	// Append text element to SVG
 	svgElement.appendChild(textElement);

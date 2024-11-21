@@ -1,21 +1,21 @@
 {
-  "export_name": "example_project",
-  "project_name": "Example project",
-  "creation_date": "2024-11-21",
+  "exportName": "example_project",
+  "projectName": "Example project",
+  "creationDate": "2024-11-21",
   "description": "Sample project file with additional metadata.",
   "version": "1.0",
   "width": 600,
   "height": 300,
-  "framerate": 24,
-  "totalframes": 100,
+  "frameRate": 24,
+  "frameLength": 100,
   "frames": [
     {
-      "frame_number": 1,
+      "frameNumber": 1,
       "svg": "<svg width=\"600\" height=\"300\" xmlns=\"http://www.w3.org/2000/svg\"><!-- Rectangle --><rect id=\"rectangle\" x=\"50\" y=\"60\" width=\"100\" height=\"50\" fill=\"blue\" stroke=\"black\" stroke-width=\"2\" /></svg>",
       "keyframe": true
     },
     {
-      "frame_number": 50,
+      "frameNumber": 50,
       "svg": "<svg width=\"600\" height=\"300\" xmlns=\"http://www.w3.org/2000/svg\"><!-- Rectangle --><rect id=\"rectangle\" x=\"50\" y=\"60\" width=\"100\" height=\"50\" fill=\"blue\" stroke=\"black\" stroke-width=\"2\" /></svg>",
       "keyframe": true
     }

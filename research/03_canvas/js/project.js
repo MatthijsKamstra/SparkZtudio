@@ -30,19 +30,19 @@ function initProjectFile(jsonString) {
 
 
 	// Extract basic project information
-	const exportName = json.export_name;
-	const projectName = json.project_name;
-	const creationDate = json.creation_date;
+	const exportName = json.exportName;
+	const projectName = json.projectName;
+	const creationDate = json.creationDate;
 	const description = json.description;
 	const version = json.version;
 	const width = json.width;
 	const height = json.height;
-	const framerate = json.framerate;
-	const totalframes = json.totalframes;
+	const frameRate = json.frameRate;
+	const frameLength = json.frameLength;
 
 	// Extract frame data
 	const frames = json.frames.map(frame => ({
-		frameNumber: frame.frame_number,
+		frameNumber: frame.frameNumber,
 		svgContent: frame.svg,
 		keyframe: frame.keyframe
 	}));
@@ -55,8 +55,8 @@ function initProjectFile(jsonString) {
 	ProjectVars.version = version;
 	ProjectVars.width = width;
 	ProjectVars.height = height;
-	ProjectVars.framerate = framerate;
-	ProjectVars.totalframes = totalframes;
+	ProjectVars.frameRate = frameRate;
+	ProjectVars.frameLength = frameLength;
 	ProjectVars.frames = frames;
 
 	return {
@@ -67,8 +67,8 @@ function initProjectFile(jsonString) {
 		version,
 		width,
 		height,
-		framerate,
-		totalframes,
+		frameRate,
+		frameLength,
 		frames
 	};
 
@@ -96,7 +96,7 @@ function setSvg(data) {
 		ProjectVars.creationDate = new Date().toLocaleDateString();
 		ProjectVars.frames = [
 			{
-				"frame_number": 1,
+				"frameNumber": 1,
 				"svg": data,
 				"keyframe": true
 			}];
@@ -107,15 +107,15 @@ function setSvg(data) {
 
 // Shared global variables
 export const ProjectVars = {
-	exportName: 'spark-studio-project',
-	projectName: 'SparkStudio Project',
+	exportName: 'SparkZtudio-project',
+	projectName: 'SparkZtudio Project',
 	creationDate: 'xx',
-	description: 'SparkStudio Project description',
+	description: 'SparkZtudio Project description',
 	version: '1',
 	width: 600,
 	height: 400,
-	framerate: 24,
-	totalframes: 24 * 5, // 5 seconds
+	frameRate: 24,
+	frameLength: 24 * 5, // 5 seconds
 	frames: []
 };
 
