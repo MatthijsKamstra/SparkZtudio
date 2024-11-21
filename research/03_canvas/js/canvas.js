@@ -5,7 +5,7 @@ import { Timeline } from './timeline.js';
 
 let IS_DEBUG = false;
 
-export function init() {
+function init() {
 	if (IS_DEBUG) console.info('init canvas.js');
 	// let Globals.zoomScale = 1;
 

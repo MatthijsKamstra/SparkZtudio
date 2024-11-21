@@ -6,6 +6,7 @@ import { Properties } from './properties.js';
 import { Shortcuts } from './shortcuts.js';
 import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
+import { Video } from './video.js';
 // import { Project, ProjectVars } from './project.js';
 
 const IS_DEBUG = true;
@@ -21,6 +22,7 @@ function initProject() {
 	Properties.init();
 	Tools.init();
 	Shortcuts.init();
+	Video.init()
 }
 
 function initProjectFile(jsonString) {

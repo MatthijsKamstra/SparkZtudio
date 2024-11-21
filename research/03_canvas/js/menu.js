@@ -7,7 +7,7 @@ import { Timeline } from './timeline.js';
 
 let IS_DEBUG = true;
 
-export function initMenu() {
+function initMenu() {
 	if (IS_DEBUG) console.info('menu.js');
 
 	// File menu items
@@ -25,6 +25,11 @@ export function initMenu() {
 
 	document.getElementById('exportFile').onclick = function () {
 		Export.image();
+	};
+
+	document.getElementById('exportMovie').onclick = function () {
+		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+		modal.show();
 	};
 
 	document.getElementById('closeFile').onclick = function () {
@@ -53,13 +58,13 @@ export function initMenu() {
 	// document.getElementById('openFile').onclick = openFileFunc();
 	// Open file input
 	document.getElementById('openFileInput3').addEventListener('change', function (event) {
-		console.log('openFileInput');
+		if (IS_DEBUG) console.log('openFileInput');
 		const file = event.target.files[0];
 		if (file) {
 			const reader = new FileReader();
 			reader.onload = function (e) {
 				const projectFile = e.target.result;
-				console.log(projectFile);
+				if (IS_DEBUG) console.log(projectFile);
 				Project.file(projectFile);
 
 			};
