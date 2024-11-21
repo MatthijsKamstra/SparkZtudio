@@ -7,7 +7,7 @@ import { Shortcuts } from './shortcuts.js';
 import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
 
-const IS_DEBUG = false;
+const IS_DEBUG = true;
 
 function initProject() {
 	console.log(`version: ${Globals.version}`);
@@ -25,7 +25,9 @@ function initProjectFile(jsonString) {
 
 	// Parse the JSON string
 	const json = JSON.parse(jsonString);
-	console.log(json);
+	if (IS_DEBUG) console.info('> initProjectFile');
+	if (IS_DEBUG) console.info(json);
+
 
 	// Extract basic project information
 	const exportName = json.export_name;
@@ -73,6 +75,36 @@ function initProjectFile(jsonString) {
 
 }
 
+function setSvg(data) {
+	if (IS_DEBUG) console.info('> setSvg');
+	if (IS_DEBUG) console.info(data);
+
+	// Check if data is a string
+	if (typeof data !== 'string') {
+		if (IS_DEBUG) console.log('The data is not a string.');
+		const serializer = new XMLSerializer();
+		data = serializer.serializeToString(data);
+		if (IS_DEBUG) console.log(data);
+	}
+	// Parse the string to create a document fragment
+	const parser = new DOMParser();
+	const svgDoc = parser.parseFromString(data, 'image/svg+xml');
+	const svgElement = svgDoc.querySelector('svg');
+	if (svgElement) {
+		ProjectVars.width = parseInt(svgElement.getAttribute('width')) || 600;
+		ProjectVars.height = parseInt(svgElement.getAttribute('height')) || 400;
+		ProjectVars.creationDate = new Date().toLocaleDateString();
+		ProjectVars.frames = [
+			{
+				"frame_number": 1,
+				"svg": data,
+				"keyframe": true
+			}];
+	}
+	if (IS_DEBUG) console.log(ProjectVars);
+
+}
+
 // Shared global variables
 export const ProjectVars = {
 	exportName: 'spark-studio-project',
@@ -83,7 +115,7 @@ export const ProjectVars = {
 	width: 600,
 	height: 400,
 	framerate: 24,
-	totalframes: 100,
+	totalframes: 24 * 5, // 5 seconds
 	frames: []
 };
 
@@ -92,4 +124,5 @@ export const ProjectVars = {
 export const Project = {
 	init: initProject,
 	file: initProjectFile,
+	setSvg: setSvg,
 };

@@ -1,4 +1,5 @@
 import { Globals } from './globals.js';
+import { Project, ProjectVars } from './project.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
@@ -91,6 +92,8 @@ function setSvg(svgContent) {
 
 	Timeline.setSvg(svgContent);
 	Properties.setDocument(svgContent);
+
+	Project.setSvg(svgContent);
 
 	// Introduce a short delay before initializing drag functionality
 	setTimeout(() => initGrab(svgContainer.querySelector('svg')), 100);

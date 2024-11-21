@@ -22,8 +22,8 @@ function setPropertyDocument(data) {
 
 	// Load SVG properties
 	const parser = new DOMParser();
-	const doc = parser.parseFromString(data, "image/svg+xml");
-	const svgElement = doc.querySelector('svg');
+	const svgDoc = parser.parseFromString(data, "image/svg+xml");
+	const svgElement = svgDoc.querySelector('svg');
 	if (svgElement) {
 		const width = svgElement.getAttribute('width') || 'N/A';
 		const height = svgElement.getAttribute('height') || 'N/A';
