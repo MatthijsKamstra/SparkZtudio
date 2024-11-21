@@ -108,21 +108,23 @@ function createLayerRow(id, type) {
 	const typeCell = document.createElement('td');
 	typeCell.className = 'text-center';
 	const typeIcon = document.createElement('i');
-	if (type === 'rect') typeIcon.className = 'fa fa-square';
+	if (type === 'rect') typeIcon.className = 'fa fa-square-o';
 	else if (type === 'circle') typeIcon.className = 'fa fa-circle';
 	else if (type === 'text') typeIcon.className = 'fa fa-font';
+	else if (type === 'image') typeIcon.className = 'fa fa-image';
 	else typeIcon.className = 'fa fa-layer-group';
 	typeCell.appendChild(typeIcon);
 
 	const framesCell = document.createElement('td');
 	framesCell.textContent = calculateTotalFrames();
 
+	// order table
 	row.appendChild(checkboxCell);
 	row.appendChild(visibleCell);
 	row.appendChild(lockCell);
 	row.appendChild(actionsCell);
-	row.appendChild(idCell);
 	row.appendChild(typeCell);
+	row.appendChild(idCell);
 	row.appendChild(framesCell);
 
 	return row;
