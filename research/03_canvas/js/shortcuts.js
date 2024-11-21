@@ -1,19 +1,23 @@
+import { Export } from './export.js';
 import { Globals } from './globals.js';
 
 const IS_DEBUG = false;
 
 
 function init() {
+	if (IS_DEBUG) console.log(`init shortcust.js`);
 
 	document.addEventListener('keydown', function (event) {
 		// console.log('keydown');
 
 		if (event.metaKey && event.key === 's') {
 			event.preventDefault(); // Prevent the default action
-			saveFile(); // Call the save file function
+			Export.file()
+
 		} else if (event.metaKey && event.key === 'o') {
 			event.preventDefault(); // Prevent the default action
 			openFileInput.click(); // Trigger the open file input
+
 		} else if (event.metaKey && event.key === 'n') {
 			// might never work ????
 			event.preventDefault(); // Prevent the default action
@@ -48,10 +52,10 @@ function init() {
 // 	}
 // });
 
-function saveFile() {
-	// Implement your save file logic here
-	console.log('Save file triggered');
-}
+// function saveFile() {
+// 	// Implement your save file logic here
+// 	console.log('Save file triggered');
+// }
 
 function saveAsFile() {
 	// Implement your save file logic here

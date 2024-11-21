@@ -1,10 +1,10 @@
 import { Globals } from './globals.js';
 
-const IS_DEBUG = false;
+const IS_DEBUG = true;
 
 // Define your functions
 function initProperties() {
-	console.info('properties.js');
+	if (IS_DEBUG) console.info('init properties.js');
 }
 
 function setPropertyDocument(data) {

@@ -1,10 +1,9 @@
 import { Globals } from './globals.js';
 
-
-
+let IS_DEBUG = true;
 
 function initLayout() {
-	console.info('layout.js');
+	if (IS_DEBUG) console.info('init layout.js');
 
 	const resizer1 = document.getElementById('resizer1');
 	const resizer2 = document.getElementById('resizer2');

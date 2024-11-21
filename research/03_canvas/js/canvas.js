@@ -6,7 +6,7 @@ import { Timeline } from './timeline.js';
 let IS_DEBUG = true;
 
 export function init() {
-	if (IS_DEBUG) console.info('init');
+	if (IS_DEBUG) console.info('init canvas.js');
 	// let Globals.zoomScale = 1;
 
 	initSvg();
@@ -73,10 +73,6 @@ function initSvg() {
 	textElement.setAttribute('font-weight', '400');
 	textElement.setAttribute('font-style', 'normal');
 	textElement.textContent = 'SparkZtudio'; // Set the text content
-
-	// font - family: "Kenia", sans - serif;
-	// font - weight: 400;
-	// font - style: normal;
 
 	// Append text element to SVG
 	svgElement.appendChild(textElement);

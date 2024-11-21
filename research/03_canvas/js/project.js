@@ -1,4 +1,5 @@
 import { Canvas } from './canvas.js';
+import { Export } from './export.js';
 import { Globals } from './globals.js';
 import { Layout } from './layout.js';
 import { Menu } from './menu.js';
@@ -6,11 +7,13 @@ import { Properties } from './properties.js';
 import { Shortcuts } from './shortcuts.js';
 import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
+// import { Project, ProjectVars } from './project.js';
 
 const IS_DEBUG = true;
 
 function initProject() {
-	console.log(`version: ${Globals.version}`);
+	if (IS_DEBUG) console.log(`init project.js`);
+	if (IS_DEBUG) console.log(`version: ${Globals.version}`);
 
 	Canvas.init();
 	Layout.init();
@@ -43,8 +46,9 @@ function initProjectFile(jsonString) {
 	// Extract frame data
 	const frames = json.frames.map(frame => ({
 		frameNumber: frame.frameNumber,
-		svgContent: frame.svg,
-		keyframe: frame.keyframe
+		svg: frame.svg,
+		keyframe: frame.keyframe,
+		tween: frame.tween
 	}));
 
 
@@ -98,6 +102,7 @@ function setSvg(data) {
 			{
 				"frameNumber": 1,
 				"svg": data,
+				"tween": "linear",
 				"keyframe": true
 			}];
 	}
@@ -107,9 +112,9 @@ function setSvg(data) {
 
 // Shared global variables
 export const ProjectVars = {
-	exportName: 'SparkZtudio-project',
+	exportName: 'sparkztudio-project',
 	projectName: 'SparkZtudio Project',
-	creationDate: 'xx',
+	creationDate: '',
 	description: 'SparkZtudio Project description',
 	version: '1',
 	width: 600,

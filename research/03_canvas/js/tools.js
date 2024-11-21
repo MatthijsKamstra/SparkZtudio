@@ -1,8 +1,10 @@
 import { Globals } from './globals.js';
 
+let IS_DEBUG = true;
 
 function initTools() {
-	console.info('tools.js');
+	if (IS_DEBUG) console.info('init tools.js');
+
 	// Tools buttons
 	document.getElementById('selectTool').onclick = function () { alert('Select Tool'); };
 	document.getElementById('drawRectTool').onclick = function () { alert('Draw Rectangle'); };

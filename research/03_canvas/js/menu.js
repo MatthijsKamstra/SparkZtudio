@@ -1,25 +1,35 @@
 import { Canvas } from './canvas.js';
+import { Export } from './export.js';
 import { Globals } from './globals.js';
 import { Project } from './project.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
+let IS_DEBUG = true;
 
 export function initMenu() {
-	console.info('menu.js');
+	if (IS_DEBUG) console.info('menu.js');
 
 	// File menu items
 	document.getElementById('newFile').onclick = function () {
 		const modal = new bootstrap.Modal(document.getElementById('svgPropertiesModal'));
 		modal.show();
 	};
-	document.getElementById('saveFile').onclick = function () { alert('Save File'); };
-	// document.getElementById('openFile').onclick = openFileFunc();
-	document.getElementById('saveAsFile').onclick = function () { alert('Save As File'); };
-	// document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
-	document.getElementById('exportFile').onclick = function () { exportFile(); };
-	document.getElementById('closeFile').onclick = function () { alert('Close File'); };
+	document.getElementById('saveFile').onclick = function () {
+		Export.file();
+	};
 
+	document.getElementById('saveAsFile').onclick = function () {
+		alert('Save As File');
+	};
+	document.getElementById('exportFile').onclick = function () {
+		Export.image();
+	};
+	document.getElementById('closeFile').onclick = function () {
+		alert('Close File');
+	};
+
+	// document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
 	// Open file input
 	document.getElementById('importFile3').addEventListener('change', function (event) {
 		console.log('importFile');
@@ -40,6 +50,7 @@ export function initMenu() {
 		}
 	});
 
+	// document.getElementById('openFile').onclick = openFileFunc();
 	// Open file input
 	document.getElementById('openFileInput3').addEventListener('change', function (event) {
 		console.log('openFileInput');
@@ -61,40 +72,40 @@ export function initMenu() {
 		}
 	});
 
-	// Create SVG with user-provided properties
-	document.getElementById('createSvgButton').onclick = function () {
-		const width = document.getElementById('svgWidth').value;
-		const height = document.getElementById('svgHeight').value;
-		const viewBox = document.getElementById('svgViewBox').value;
+	// // Create SVG with user-provided properties
+	// document.getElementById('createSvgButton').onclick = function () {
+	// 	const width = document.getElementById('svgWidth').value;
+	// 	const height = document.getElementById('svgHeight').value;
+	// 	const viewBox = document.getElementById('svgViewBox').value;
 
-		let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"`;
-		if (viewBox) {
-			svgContent += ` viewBox="${viewBox}"`;
-		}
-		svgContent += `>
-            <rect width="100%" height="100%" fill="white" stroke="black" stroke-width="1"/>
-        </svg>`;
+	// 	let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"`;
+	// 	if (viewBox) {
+	// 		svgContent += ` viewBox="${viewBox}"`;
+	// 	}
+	// 	svgContent += `>
+	//         <rect width="100%" height="100%" fill="white" stroke="black" stroke-width="1"/>
+	//     </svg>`;
 
-		document.getElementById('canvasWrapper').innerHTML = svgContent;
+	// 	document.getElementById('canvasWrapper').innerHTML = svgContent;
 
-		// Close the modal
-		const modal = bootstrap.Modal.getInstance(document.getElementById('svgPropertiesModal'));
-		modal.hide();
+	// 	// Close the modal
+	// 	const modal = bootstrap.Modal.getInstance(document.getElementById('svgPropertiesModal'));
+	// 	modal.hide();
 
-		// Display SVG properties
-		document.getElementById('propertiesWrapper').innerHTML = `
-            <div class="card">
-                <div class="card-header">
-                    SVG Properties
-                </div>
-                <div class="card-body">
-                    <p><strong>Width:</strong> ${width}</p>
-                    <p><strong>Height:</strong> ${height}</p>
-                    <p><strong>ViewBox:</strong> ${viewBox || 'N/A'}</p>
-                </div>
-            </div>
-        `;
-	};
+	// 	// Display SVG properties
+	// 	document.getElementById('propertiesWrapper').innerHTML = `
+	//         <div class="card">
+	//             <div class="card-header">
+	//                 SVG Properties
+	//             </div>
+	//             <div class="card-body">
+	//                 <p><strong>Width:</strong> ${width}</p>
+	//                 <p><strong>Height:</strong> ${height}</p>
+	//                 <p><strong>ViewBox:</strong> ${viewBox || 'N/A'}</p>
+	//             </div>
+	//         </div>
+	//     `;
+	// };
 
 
 
