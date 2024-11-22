@@ -1,3 +1,4 @@
+import { Inter } from './_inter.js';
 import { Canvas } from './canvas.js';
 import { Globals } from './globals.js';
 import { Layout } from './layout.js';
@@ -23,6 +24,7 @@ function initProject() {
 	Tools.init();
 	Shortcuts.init();
 	Video.init()
+	Inter.init()
 }
 
 function initProjectFile(jsonString) {
@@ -31,6 +33,9 @@ function initProjectFile(jsonString) {
 	const json = JSON.parse(jsonString);
 	if (IS_DEBUG) console.info('> initProjectFile');
 	if (IS_DEBUG) console.info(json);
+
+	// TODO: clean up svg in height and width
+	// make sure the values of the svg are same as json.w and .h
 
 
 	// Extract basic project information
@@ -126,7 +131,6 @@ function setSvg(data) {
 			}];
 	}
 	if (IS_DEBUG) console.log(ProjectVars);
-
 }
 
 

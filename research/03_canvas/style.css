@@ -1,3 +1,4 @@
+/* background pattern behind canvas, gives the impression that its transparant */
 .canvas-transparant {
   border: 1px solid black;
   display: block;

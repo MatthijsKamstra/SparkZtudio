@@ -1,0 +1,31 @@
+{
+  "exportName": "example_project",
+  "projectName": "Example project",
+  "creationDate": "2024-11-21",
+  "description": "Sample project file with additional metadata.",
+  "version": "1.0",
+  "width": 600,
+  "height": 300,
+  "frameRate": 24,
+  "frameLength": 240,
+  "frames": [
+    {
+      "frameNumber": 1,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='40' stroke='black' stroke-width='3' fill='red' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 100,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='150' cy='150' r='50' stroke='black' stroke-width='6' fill='red' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 200,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='40' stroke='black' stroke-width='3' fill='red' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    }
+  ]
+}
