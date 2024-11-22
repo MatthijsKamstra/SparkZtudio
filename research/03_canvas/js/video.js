@@ -18,6 +18,7 @@ function init() {
 	const canvas = document.getElementById("canvas");
 	ctx = canvas.getContext("2d");
 
+	reset();
 	setup();
 
 	// Initialize the canvas with the first SVG
@@ -73,6 +74,9 @@ function initializeCanvas() {
 		console.log(ProjectVars);
 		console.groupEnd();
 	}
+
+	reset();
+	updateProgressBar();
 
 	// Set canvas dimensions
 	const canvas = document.getElementById("canvas");
@@ -198,8 +202,14 @@ function startCanvasAnimation() {
 function stopCanvasAnimation() {
 	if (animationInterval) {
 		clearInterval(animationInterval);
-		animationInterval = null;
+		reset();
 	}
+}
+
+function reset() {
+	animationInterval = null;
+	recordedChunks = [];
+	frameIndex = 0;
 }
 
 // Start recording
