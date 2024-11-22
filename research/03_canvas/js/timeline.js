@@ -1,5 +1,5 @@
 import { Globals } from './globals.js';
-import { ProjectVars } from './project.js';
+import { ProjectVars } from './model.js';
 
 const IS_DEBUG = false;
 

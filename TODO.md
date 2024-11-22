@@ -14,3 +14,7 @@
   - [ ] import `.svg` -> sortcut
 - [ ] save file `.sparkz`/`.json` file
 - [ ] layers revered so background is lowest
+- [ ] opslaan van afmeting properties, timeline (share locally)
+- [ ] opslaan van previous projects
+- [ ] afmeting rate,
+- [x] Model maken ipv Project

@@ -1,5 +1,5 @@
 import { Globals } from './globals.js';
-import { Project, ProjectVars } from './project.js';
+import { Model, ProjectVars } from './model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 

@@ -40,6 +40,12 @@ function init() {
 			Export.image(); // Call the new file function
 
 		}
+		else if (event.metaKey && event.key === 'e') {
+			event.preventDefault(); // Prevent the default action
+			// moet dit niet centraal?
+			const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			modal.show();
+		}
 	});
 
 }

@@ -1,0 +1,13 @@
+/* Ensure nested dropdowns are displayed properly */
+.dropdown-menu .dropdown-menu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-top: 0;
+  margin-left: -10px;
+}
+
+/* Show nested dropdowns on hover */
+.dropdown-menu .dropdown-item.dropdown-toggle:hover + .dropdown-menu {
+  display: block;
+}

@@ -1,7 +1,7 @@
 import { Canvas } from './canvas.js';
 import { Export } from './export.js';
 import { Globals } from './globals.js';
-import { Project } from './project.js';
+import { Model } from './model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
@@ -49,7 +49,7 @@ function initMenu() {
 				const parser = new DOMParser();
 				const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
 				const svgElement = svgDoc.querySelector('svg');
-				Project.setSvgElement(svgElement)
+				Model.setSvgElement(svgElement)
 			};
 			reader.readAsText(file);
 		}
@@ -65,7 +65,7 @@ function initMenu() {
 			reader.onload = function (e) {
 				const projectFile = e.target.result;
 				if (IS_DEBUG) console.log(projectFile);
-				Project.file(projectFile);
+				Model.file(projectFile);
 
 			};
 			reader.readAsText(file);

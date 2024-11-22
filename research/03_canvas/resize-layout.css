@@ -5,13 +5,6 @@ body {
   flex-direction: column;
 }
 
-#menuWrapper {
-  /* background: #ddd; */
-  /* background: red; */
-  display: flex;
-  align-items: center;
-}
-
 #mainWrapper {
   flex: 1;
   display: grid;

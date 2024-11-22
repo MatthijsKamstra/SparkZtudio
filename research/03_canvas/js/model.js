@@ -7,12 +7,12 @@ import { Shortcuts } from './shortcuts.js';
 import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
 import { Video } from './video.js';
-// import { Project, ProjectVars } from './project.js';
+// import { Model, ProjectVars } from './model.js';
 
 const IS_DEBUG = true;
 
 function initProject() {
-	if (IS_DEBUG) console.info(`init project.js`);
+	if (IS_DEBUG) console.info(`init model.js`);
 	if (IS_DEBUG) console.log(`version: ${Globals.version}`);
 
 	Canvas.init();
@@ -203,7 +203,7 @@ export const ProjectVars = {
 
 
 // Export an object to group the functions
-export const Project = {
+export const Model = {
 	init: initProject,
 	file: initProjectFile,
 	setSvg: setSvg,

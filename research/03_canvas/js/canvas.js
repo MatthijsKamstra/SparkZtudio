@@ -1,5 +1,5 @@
 import { Globals } from './globals.js';
-import { Project, ProjectVars } from './project.js';
+import { Model, ProjectVars } from './model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
@@ -76,8 +76,8 @@ function defaultSVG() {
 	// Append text element to SVG
 	svgElement.appendChild(textElement);
 
-	// send svg to project
-	Project.setSvgElement(svgElement);
+	// send svg to Model
+	Model.setSvgElement(svgElement);
 }
 
 function setSvg(svgElement) {

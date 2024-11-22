@@ -1,5 +1,5 @@
 import { Globals } from './globals.js';
-import { Project, ProjectVars } from './project.js';
+import { Model, ProjectVars } from './model.js';
 
 
 const IS_DEBUG = false;
@@ -86,7 +86,7 @@ function projectFile() {
 		// Optionally, display a success message or redirect the user
 		// alert('Project details saved successfully!');
 
-		Project.update();
+		Model.update();
 	});
 
 
