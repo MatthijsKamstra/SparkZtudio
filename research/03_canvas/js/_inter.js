@@ -20,7 +20,7 @@ function init() {
 		"width": 600,
 		"height": 300,
 		"frameRate": 24,
-		"frameLength": 30,
+		"frameLength": 40,
 		"frames": [
 			{
 				"frameNumber": 1,
@@ -30,17 +30,24 @@ function init() {
 			},
 			{
 				"frameNumber": 10,
-				"svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='150' cy='150' r='50' stroke='#0000dd' stroke-width='6' fill='#333333' /></svg>",
+				"svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='100' cy='100' r='30' stroke='#00dd00' stroke-width='4' fill='#ffcc00' /></svg>",
 				"tween": "linear",
 				"keyframe": true
 			},
 			{
 				"frameNumber": 20,
-				"svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='40' stroke='#000000' stroke-width='3' fill='#ff3333' /></svg>",
+				"svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='150' cy='150' r='50' stroke='#0000dd' stroke-width='6' fill='#333333' /></svg>",
+				"tween": "linear",
+				"keyframe": true
+			},
+			{
+				"frameNumber": 30,
+				"svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='200' cy='200' r='20' stroke='#dddd00' stroke-width='2' fill='#3333ff' /></svg>",
 				"tween": "linear",
 				"keyframe": true
 			}
-		]
+		],
+		"calculated": []
 	}
 
 	function parseSVG(svg) {
@@ -62,7 +69,6 @@ function init() {
 	}
 
 	function interpolateColor(start, end, fraction) {
-		// Simple linear interpolation for RGB colors
 		const startColor = parseInt(start.slice(1), 16);
 		const endColor = parseInt(end.slice(1), 16);
 
@@ -73,8 +79,13 @@ function init() {
 		return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 	}
 
+	function generateSVG(cx, cy, r, strokeWidth, stroke, fill) {
+		return `<svg width='${project.width}' height='${project.height}' xmlns='http://www.w3.org/2000/svg'><circle cx='${cx}' cy='${cy}' r='${r}' stroke='${stroke}' stroke-width='${strokeWidth}' fill='${fill}' /></svg>`;
+	}
+
 	function getFrameData(frames) {
 		const frameData = [];
+		const frameSet = new Set();
 
 		for (let i = 0; i < frames.length - 1; i++) {
 			const frame1 = frames[i];
@@ -83,6 +94,9 @@ function init() {
 			const attrs2 = parseSVG(frame2.svg);
 
 			for (let j = frame1.frameNumber; j <= frame2.frameNumber; j++) {
+				if (frameSet.has(j)) continue;  // Skip if frame already exists
+				frameSet.add(j);
+
 				const fraction = (j - frame1.frameNumber) / (frame2.frameNumber - frame1.frameNumber);
 				const cx = interpolateValue(attrs1.cx, attrs2.cx, fraction);
 				const cy = interpolateValue(attrs1.cy, attrs2.cy, fraction);
@@ -90,30 +104,34 @@ function init() {
 				const strokeWidth = interpolateValue(attrs1.strokeWidth, attrs2.strokeWidth, fraction);
 				const stroke = interpolateColor(attrs1.stroke, attrs2.stroke, fraction);
 				const fill = interpolateColor(attrs1.fill, attrs2.fill, fraction);
-				const key = (j == frame1.frameNumber);
 
 				frameData.push({
 					frameNumber: j,
-					cx,
-					cy,
-					r,
-					strokeWidth,
-					stroke,
-					fill,
-					key
+					svg: generateSVG(cx, cy, r, strokeWidth, stroke, fill)
 				});
 			}
 		}
 
+		// Ensure the last frame is included
+		const lastFrame = frames[frames.length - 1];
+		const lastAttrs = parseSVG(lastFrame.svg);
+		frameData.push({
+			frameNumber: lastFrame.frameNumber,
+			svg: lastFrame.svg
+		});
+
 		return frameData;
 	}
 
-	// Calculate data for all frames
+	// Calculate data for all frames and add to project
 	const frames = project.frames;
-	const allFrameData = getFrameData(frames);
-	allFrameData.forEach(frame => {
-		console.log(`Frame ${frame.frameNumber}: cx=${frame.cx}, cy=${frame.cy}, r=${frame.r}, stroke-width=${frame.strokeWidth}, stroke=${frame.stroke}, fill=${frame.fill}, key=${frame.key}`);
+	project.calculated = getFrameData(frames);
+	project.calculated.forEach(frame => {
+		console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
 	});
+
+	console.log(project);
+
 }
 
 // Export an object to group the functions

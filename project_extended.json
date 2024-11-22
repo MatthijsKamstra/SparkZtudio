@@ -1,0 +1,163 @@
+{
+  "exportName": "example_project",
+  "projectName": "Example project",
+  "creationDate": "2024-11-21",
+  "description": "Sample project file with additional metadata.",
+  "version": "1.0",
+  "width": 600,
+  "height": 300,
+  "frameRate": 24,
+  "frameLength": 40,
+  "frames": [
+    {
+      "frameNumber": 1,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='40' stroke='#000000' stroke-width='3' fill='#ff3333' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 10,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='100' cy='100' r='30' stroke='#00dd00' stroke-width='4' fill='#ffcc00' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 20,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='150' cy='150' r='50' stroke='#0000dd' stroke-width='6' fill='#333333' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 30,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='200' cy='200' r='20' stroke='#dddd00' stroke-width='2' fill='#3333ff' /></svg>",
+      "tween": "linear",
+      "keyframe": true
+    }
+  ],
+  "calculated": [
+    {
+      "frameNumber": 1,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='40' stroke='#000000' stroke-width='3' fill='#ff3333' /></svg>"
+    },
+    {
+      "frameNumber": 2,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='55.55555555555556' cy='55.55555555555556' r='38.888888888888886' stroke='#001800' stroke-width='3.111111111111111' fill='#ff442d.5555555' /></svg>"
+    },
+    {
+      "frameNumber": 3,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='61.111111111111114' cy='61.111111111111114' r='37.77777777777778' stroke='#003100' stroke-width='3.2222222222222223' fill='#ff5527.aaaaaab' /></svg>"
+    },
+    {
+      "frameNumber": 4,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='66.66666666666666' cy='66.66666666666666' r='36.666666666666664' stroke='#004900' stroke-width='3.3333333333333335' fill='#ff6622' /></svg>"
+    },
+    {
+      "frameNumber": 5,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='72.22222222222223' cy='72.22222222222223' r='35.55555555555556' stroke='#006200' stroke-width='3.4444444444444446' fill='#ff771c.5555555' /></svg>"
+    },
+    {
+      "frameNumber": 6,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='77.77777777777777' cy='77.77777777777777' r='34.44444444444444' stroke='#007a00' stroke-width='3.5555555555555554' fill='#ff8816.aaaaaab' /></svg>"
+    },
+    {
+      "frameNumber": 7,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='83.33333333333333' cy='83.33333333333333' r='33.333333333333336' stroke='#009300' stroke-width='3.6666666666666665' fill='#ff9911' /></svg>"
+    },
+    {
+      "frameNumber": 8,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='88.88888888888889' cy='88.88888888888889' r='32.22222222222222' stroke='#00ab00' stroke-width='3.7777777777777777' fill='#ffaa0b.5555555' /></svg>"
+    },
+    {
+      "frameNumber": 9,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='94.44444444444444' cy='94.44444444444444' r='31.11111111111111' stroke='#00c400' stroke-width='3.888888888888889' fill='#ffbb05.aaaaaab' /></svg>"
+    },
+    {
+      "frameNumber": 10,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='100' cy='100' r='30' stroke='#00dd00' stroke-width='4' fill='#ffcc00' /></svg>"
+    },
+    {
+      "frameNumber": 11,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='105' cy='105' r='32' stroke='#00c616.199999a' stroke-width='4.2' fill='#eabc05.199999a' /></svg>"
+    },
+    {
+      "frameNumber": 12,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='110' cy='110' r='34' stroke='#00b02c.3333333' stroke-width='4.4' fill='#d6ad0a.3333333' /></svg>"
+    },
+    {
+      "frameNumber": 13,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='115' cy='115' r='36' stroke='#009a42.4cccccd' stroke-width='4.6' fill='#c19e0f.4cccccd' /></svg>"
+    },
+    {
+      "frameNumber": 14,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='120' cy='120' r='38' stroke='#008458.6666666' stroke-width='4.8' fill='#ad8e14.6666666' /></svg>"
+    },
+    {
+      "frameNumber": 15,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='125' cy='125' r='40' stroke='#006e6e.8' stroke-width='5' fill='#997f19.8' /></svg>"
+    },
+    {
+      "frameNumber": 16,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='130' cy='130' r='42' stroke='#005884.999999a' stroke-width='5.2' fill='#84701e.999999a' /></svg>"
+    },
+    {
+      "frameNumber": 17,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='135' cy='135' r='44' stroke='#00429a.b333333' stroke-width='5.4' fill='#706023.b333333' /></svg>"
+    },
+    {
+      "frameNumber": 18,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='140' cy='140' r='46' stroke='#002cb0.ccccccd' stroke-width='5.6' fill='#5b5128.ccccccd' /></svg>"
+    },
+    {
+      "frameNumber": 19,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='145' cy='145' r='48' stroke='#0016c6.e666666' stroke-width='5.8' fill='#47422d.e666666' /></svg>"
+    },
+    {
+      "frameNumber": 20,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='150' cy='150' r='50' stroke='#0000dd' stroke-width='6' fill='#333333' /></svg>"
+    },
+    {
+      "frameNumber": 21,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='155' cy='155' r='47' stroke='#1616c6.e666666' stroke-width='5.6' fill='#333347.6666666' /></svg>"
+    },
+    {
+      "frameNumber": 22,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='160' cy='160' r='44' stroke='#2c2cb0.ccccccd' stroke-width='5.2' fill='#33335b.ccccccd' /></svg>"
+    },
+    {
+      "frameNumber": 23,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='165' cy='165' r='41' stroke='#42429a.b333333' stroke-width='4.8' fill='#333370.3333333' /></svg>"
+    },
+    {
+      "frameNumber": 24,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='170' cy='170' r='38' stroke='#585884.999999a' stroke-width='4.4' fill='#333384.999999a' /></svg>"
+    },
+    {
+      "frameNumber": 25,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='175' cy='175' r='35' stroke='#6e6e6e.8' stroke-width='4' fill='#333399' /></svg>"
+    },
+    {
+      "frameNumber": 26,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='180' cy='180' r='32' stroke='#848458.6666666' stroke-width='3.6' fill='#3333ad.6666666' /></svg>"
+    },
+    {
+      "frameNumber": 27,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='185' cy='185' r='29' stroke='#9a9a42.4cccccd' stroke-width='3.2' fill='#3333c1.ccccccd' /></svg>"
+    },
+    {
+      "frameNumber": 28,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='190' cy='190' r='26' stroke='#b0b02c.3333333' stroke-width='2.8' fill='#3333d6.3333333' /></svg>"
+    },
+    {
+      "frameNumber": 29,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='195' cy='195' r='23' stroke='#c6c616.199999a' stroke-width='2.4' fill='#3333ea.999999a' /></svg>"
+    },
+    {
+      "frameNumber": 30,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='200' cy='200' r='20' stroke='#dddd00' stroke-width='2' fill='#3333ff' /></svg>"
+    },
+    {
+      "frameNumber": 30,
+      "svg": "<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'><circle cx='200' cy='200' r='20' stroke='#dddd00' stroke-width='2' fill='#3333ff' /></svg>"
+    }
+  ]
+}
