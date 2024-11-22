@@ -11,7 +11,7 @@ import { Tools } from './tools.js';
 import { Video } from './video.js';
 // import { Model, ProjectVars } from './model.js';
 
-const IS_DEBUG = false;
+const IS_DEBUG = true;
 
 function init() {
 	if (IS_DEBUG) {
@@ -31,6 +31,11 @@ function init() {
 	Shortcuts.init();
 	Video.init();
 	// Inter.init();
+}
+
+function project(jsonString) {
+	file(jsonString);
+	setSvgString2Element(ProjectVars.frames[0].svg);
 }
 
 function file(jsonString) {
@@ -104,7 +109,7 @@ function file(jsonString) {
 	// console.log(frames[0]);
 	// console.log(frames[0].svg);
 
-	// setSvgString2Element(frames[0].svg);
+
 
 
 
@@ -293,4 +298,5 @@ export const Model = {
 	setSvg,
 	setSvgElement,
 	update,
+	project,
 };

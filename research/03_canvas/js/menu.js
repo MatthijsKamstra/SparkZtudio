@@ -57,8 +57,7 @@ function setup() {
 			reader.onload = function (e) {
 				const projectFile = e.target.result;
 				if (IS_DEBUG) console.log(projectFile);
-				Model.file(projectFile);
-
+				Model.project(projectFile);
 			};
 			reader.readAsText(file);
 		}
