@@ -4,6 +4,7 @@ import { Globals } from './globals.js';
 import { Model } from './model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
+import { Video } from './video.js';
 
 let IS_DEBUG = true;
 
@@ -30,6 +31,7 @@ function initMenu() {
 	document.getElementById('exportMovie').onclick = function () {
 		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
 		modal.show();
+		Video.initializeCanvas();
 	};
 
 	document.getElementById('closeFile').onclick = function () {

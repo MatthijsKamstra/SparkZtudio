@@ -1,0 +1,8 @@
+.canvas-transparant {
+  border: 1px solid black;
+  display: block;
+  margin: auto;
+  background-color: silver !important;
+  background: repeating-conic-gradient(#aaa 0% 25%, transparent 0% 50%) 50% /
+    20px 20px;
+}

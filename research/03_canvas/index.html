@@ -26,6 +26,7 @@
 	<link rel="stylesheet" href="nested.css">
 	<link rel="stylesheet" href="resize-layout.css">
 	<link rel="stylesheet" href="canvas.css">
+	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -363,20 +364,27 @@
 
 	<!-- The Modal -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
+		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Export movie</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 
-					<canvas id="canvas" width="600" height="400" style="_display: none;"></canvas>
+					<div class="bg-dark d-flex justify-content-center p-2 mb-2">
+						<div class="canvas-transparant">
+							<canvas id="canvas"></canvas>
+						</div>
+					</div>
 
-					<p>Are you sure you want to export the movie?</p>
+					<div class="progress mb-2" id="progressContainer" role="progressbar" aria-label="Recording Progress"
+						aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+						<div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+					</div>
 
-					<button id="startRecording" class="btn btn-success">Start Recording</button>
-					<button id="stopRecording" class="btn btn-danger">Stop Recording</button>
+					<button id="startRecording" class="btn btn-success">Start </button>
+					<button id="stopRecording" class="btn btn-danger">Stop </button>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
