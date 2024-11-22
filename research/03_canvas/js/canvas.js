@@ -54,7 +54,7 @@ function defaultSVG() {
 	rectElement.setAttribute('y', '20');
 	rectElement.setAttribute('width', `${Globals.defaultSvgWidth - 40}`);
 	rectElement.setAttribute('height', `${Globals.defaultSvgHeight - 40}`);
-	rectElement.setAttribute('fill', 'rgba(255,255,255,0.5)'); // Adjust the transparency as needed
+	rectElement.setAttribute('fill', 'rgba(255,128,255,0.5)'); // Adjust the transparency as needed
 
 	// Append rectangle to SVG
 	svgElement.appendChild(rectElement);

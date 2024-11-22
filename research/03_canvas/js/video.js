@@ -6,7 +6,7 @@ let recordedChunks = [];
 let frameIndex = 0;
 let animationInterval;
 let lastValidFrame = null; // To store the last valid frame
-
+const imageArray = [];
 
 function init() {
 	const canvas = document.getElementById("canvas");
@@ -18,35 +18,73 @@ function init() {
 	// Initialize the canvas with the first SVG
 	initializeCanvas();
 
-	startRecordingButton.addEventListener("click", startRecording);
-	stopRecordingButton.addEventListener("click", stopRecording);
-	confirmExportButton.addEventListener("click", confirmExport);
+	const mimeTypes = [
+		'video/webm',
+		'video/webm;codecs=vp8',
+		'video/webm;codecs=vp9',
+		'video/webm;codecs=vp9.0',
+		'video/webm;codecs=h264',
+		'video/webm;codecs=av1',
+		'video/mp4',
+		'audio/webm',
+		'audio/webm;codecs=opus',
+		'audio/webm;codecs=vorbis',
+		'audio/mp4'
+	];
+
+	mimeTypes.forEach((mimeType) => {
+		const isSupported = isCodecSupported(mimeType);
+		console.log(`${mimeType}: ${isSupported ? 'Supported' : 'Not Supported'}`);
+	});
+
+	preRenderSVGs(ProjectVars.frames, () => {
+		startRecordingButton.addEventListener("click", startRecording);
+		stopRecordingButton.addEventListener("click", stopRecording);
+		confirmExportButton.addEventListener("click", confirmExport);
+	});
 }
 
 function initializeCanvas() {
 	// Set canvas dimensions
+	const canvas = document.getElementById("canvas");
 	canvas.width = ProjectVars.width;
 	canvas.height = ProjectVars.height;
 
 	if (ProjectVars.frames && ProjectVars.frames.length > 0) {
 		const firstFrame = ProjectVars.frames[0];
-		drawSVG(firstFrame.svg); // Draw the first frame's SVG
+		drawSVG(firstFrame.svg, () => { }); // Draw the first frame's SVG
 	} else {
 		console.error("No frames found in ProjectVars!");
 	}
 }
 
 // Function to draw SVG onto canvas
-function drawSVG(svg) {
+function drawSVG(svg, callback) {
 	const svgBlob = new Blob([svg], { type: "image/svg+xml" });
 	const url = URL.createObjectURL(svgBlob);
 	const img = new Image();
 	img.onload = () => {
-		// ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+		ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 		ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the SVG
 		URL.revokeObjectURL(url); // Clean up the object URL
+		callback(img);
 	};
 	img.src = url;
+}
+
+// Pre-render all SVGs and store in an array
+function preRenderSVGs(frames, callback) {
+	let loadedCount = 0;
+	frames.forEach((frame, index) => {
+		drawSVG(frame.svg, (img) => {
+			imageArray[index] = img;
+			loadedCount++;
+			if (loadedCount === frames.length) {
+				console.log('All SVGs have been prerendered and stored.');
+				callback();
+			}
+		});
+	});
 }
 
 // Update the progress bar
@@ -57,13 +95,10 @@ function updateProgressBar() {
 	progressBar.textContent = `${progress}%`;
 }
 
-
 function startCanvasAnimation() {
 	frameIndex = 0;
 	const intervalMs = 1000 / ProjectVars.frameRate; // Time per frame in milliseconds
 	const totalTime = (ProjectVars.frameLength / ProjectVars.frameRate).toFixed(2); // Total duration in seconds
-
-	console.log(totalTime);
 
 	animationInterval = setInterval(() => {
 		// Stop animation when the frameIndex exceeds the frameLength
@@ -76,31 +111,33 @@ function startCanvasAnimation() {
 			return;
 		}
 
-		// Get the current frame
-		let frame = ProjectVars.frames[frameIndex];
+		// Get the current frame image
+		let img = imageArray[frameIndex];
 
-		// If the current frame is null, use the last valid frame
-		if (!frame && lastValidFrame) {
-			frame = lastValidFrame;
+		// If the current frame is null, use the last valid image
+		if (!img && lastValidFrame) {
+			img = lastValidFrame;
 		}
 
 		// If there is no valid frame, log an error and stop the animation
-		if (!frame) {
+		if (!img) {
 			console.error(`No valid frame found at index: ${frameIndex}`);
 			stopCanvasAnimation();
 			return;
 		}
 
 		// Store the current frame if it's valid (not null)
-		if (frame) {
-			lastValidFrame = frame;
+		if (img) {
+			lastValidFrame = img;
 		}
 
 		// Clear the canvas before drawing new content
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = 'white'; // white background
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		// Draw the current frame (SVG)
-		drawSVG(frame.svg);
+		// Draw the current frame (image)
+		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
 		// Overlay frame information after the SVG is drawn
 		ctx.font = "20px Arial";
@@ -118,7 +155,6 @@ function startCanvasAnimation() {
 	}, intervalMs);
 }
 
-
 function stopCanvasAnimation() {
 	if (animationInterval) {
 		clearInterval(animationInterval);
@@ -126,11 +162,12 @@ function stopCanvasAnimation() {
 	}
 }
 
-
 // Start recording
 function startRecording() {
+	const canvas = document.getElementById("canvas");
 	const canvasStream = canvas.captureStream(ProjectVars.frameRate); // Capture at project frame rate
-	mediaRecorder = new MediaRecorder(canvasStream);
+	const options = { mimeType: 'video/webm; codecs=vp8', videoBitsPerSecond: 1000000, };
+	mediaRecorder = new MediaRecorder(canvasStream, options);
 
 	mediaRecorder.ondataavailable = (event) => {
 		if (event.data.size > 0) {
@@ -158,7 +195,7 @@ function startRecording() {
 	mediaRecorder.start();
 	startCanvasAnimation();
 	console.log("Recording started...");
-};
+}
 
 // Stop recording
 function stopRecording() {
@@ -167,7 +204,7 @@ function stopRecording() {
 		mediaRecorder.stop();
 		console.log("Recording stopped...");
 	}
-};
+}
 
 // Confirm export (optional)
 function confirmExport() {
@@ -176,8 +213,11 @@ function confirmExport() {
 	} else {
 		alert("Your video has been exported!");
 	}
-};
+}
 
+function isCodecSupported(mimeType) {
+	return MediaRecorder.isTypeSupported(mimeType);
+}
 
 // Export an object to group the functions
 export const Video = {
