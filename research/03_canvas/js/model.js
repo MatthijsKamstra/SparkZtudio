@@ -35,7 +35,16 @@ function initProjectFile(jsonString) {
 	if (IS_DEBUG) console.info(json);
 
 	// TODO: clean up svg in height and width
-	// make sure the values of the svg are same as json.w and .h
+	// make sure the values of the svg are same as json.width and .height
+	const projectWidth = json.width;
+	const projectHeight = json.height;
+
+	json.frames.forEach(frame => {
+		frame.svg = frame.svg.replace(/width='[^']*'/, `width='${projectWidth}'`);
+		frame.svg = frame.svg.replace(/height='[^']*'/, `height='${projectHeight}'`);
+	});
+
+	// console.log(JSON.stringify(json, null, 4));
 
 
 	// Extract basic project information
@@ -48,6 +57,9 @@ function initProjectFile(jsonString) {
 	const height = json.height;
 	const frameRate = json.frameRate;
 	const frameLength = json.frameLength;
+
+	const time = (json.frameLength / json.frameRate);
+	const calculated = [];
 
 	// Extract frame data
 	const frames = json.frames.map(frame => ({
@@ -67,7 +79,9 @@ function initProjectFile(jsonString) {
 	ProjectVars.height = height;
 	ProjectVars.frameRate = frameRate;
 	ProjectVars.frameLength = frameLength;
+	ProjectVars.time = frameLength / frameRate; // calculate
 	ProjectVars.frames = frames;
+	ProjectVars.calculated = []; // calculate
 
 
 	// console.log(frames);
@@ -87,7 +101,9 @@ function initProjectFile(jsonString) {
 		height,
 		frameRate,
 		frameLength,
-		frames
+		frames,
+		calculated,
+		time
 	};
 
 
@@ -202,7 +218,9 @@ export const ProjectVars = {
 	height: 400,
 	frameRate: 24,
 	frameLength: 24 * 5, // 5 seconds
-	frames: []
+	time: 5, // 5 seconds
+	frames: [],
+	calculated: []
 };
 
 
