@@ -13,9 +13,14 @@ import { Video } from './video.js';
 const IS_DEBUG = true;
 
 function initProject() {
-	if (IS_DEBUG) console.info(`init model.js`);
-	if (IS_DEBUG) console.log(`version: ${Globals.version}`);
+	if (IS_DEBUG) {
+		console.group(`Model.initProject`);
+		console.info(`init model.js`);
+		console.log(`version: ${Globals.version}`);
+		console.groupEnd();
+	}
 
+	// jumpstart all
 	Canvas.init();
 	Layout.init();
 	Menu.init();
@@ -23,8 +28,8 @@ function initProject() {
 	Properties.init();
 	Tools.init();
 	Shortcuts.init();
-	Video.init()
-	Inter.init()
+	Video.init();
+	Inter.init();
 }
 
 function initProjectFile(jsonString) {
@@ -88,7 +93,7 @@ function initProjectFile(jsonString) {
 	// console.log(frames[0]);
 	// console.log(frames[0].svg);
 
-	setSvgString2Element(frames[0].svg);
+	// setSvgString2Element(frames[0].svg);
 
 
 	return {
@@ -151,7 +156,7 @@ function setSvg(data) {
 
 
 function cleanupSvg(svgElement) {
-	if (IS_DEBUG) console.log('cleanupSvg');
+	if (IS_DEBUG) console.log('WIP Model.cleanupSvg');
 	// - [ ] fix missing id
 	// - [ ] remove comment?
 	// - [ ] add viewbox
@@ -159,7 +164,7 @@ function cleanupSvg(svgElement) {
 }
 
 function convertSvg2projectfile(svgElement) {
-	if (IS_DEBUG) console.group('convertSvg2projectfile');
+	if (IS_DEBUG) console.group('Model.convertSvg2projectfile');
 	if (svgElement) {
 		ProjectVars.width = parseInt(svgElement.getAttribute('width')) || 600;
 		ProjectVars.height = parseInt(svgElement.getAttribute('height')) || 400;
@@ -178,7 +183,7 @@ function convertSvg2projectfile(svgElement) {
 
 function setSvgElement(svgElement) {
 	if (IS_DEBUG) {
-		console.group('setSvgElement');
+		console.group('Model.setSvgElement');
 		console.log(svgElement);
 		console.groupEnd();
 	}
@@ -190,6 +195,7 @@ function setSvgElement(svgElement) {
 	svgElement = cleanupSvg(svgElement);
 	// set in projectfile
 	convertSvg2projectfile(svgElement);
+	initProjectFile(JSON.stringify(ProjectVars));
 
 	// set in canvas
 	Canvas.setSvg(svgElement);
