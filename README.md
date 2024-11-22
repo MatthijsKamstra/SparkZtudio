@@ -21,3 +21,5 @@ POC Flash rebuild with web tech
 - https://placehold.co/
 
 - https://picsum.photos/id/56/200/300
+
+important: font needs to be installed on computer! otherwise the font will not render correctly

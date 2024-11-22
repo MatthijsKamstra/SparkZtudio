@@ -1,5 +1,6 @@
 import { Export } from './export.js';
 import { Globals } from './globals.js';
+import { Video } from './video.js';
 
 const IS_DEBUG = false;
 
@@ -45,6 +46,7 @@ function init() {
 			// moet dit niet centraal?
 			const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
 			modal.show();
+			Video.initializeCanvas();
 		}
 	});
 

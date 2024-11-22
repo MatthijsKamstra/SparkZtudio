@@ -1,5 +1,6 @@
 import { Inter } from './_inter.js';
 import { Canvas } from './canvas.js';
+import { Defaults } from './defaults.js';
 import { Globals } from './globals.js';
 import { Layout } from './layout.js';
 import { Menu } from './menu.js';
@@ -10,11 +11,11 @@ import { Tools } from './tools.js';
 import { Video } from './video.js';
 // import { Model, ProjectVars } from './model.js';
 
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
-function initProject() {
+function init() {
 	if (IS_DEBUG) {
-		console.group(`Model.initProject`);
+		console.group(`Model.init`);
 		console.info(`init model.js`);
 		console.log(`version: ${Globals.version}`);
 		console.groupEnd();
@@ -29,15 +30,24 @@ function initProject() {
 	Tools.init();
 	Shortcuts.init();
 	Video.init();
-	Inter.init();
+	// Inter.init();
 }
 
-function initProjectFile(jsonString) {
+function file(jsonString) {
+	// Check if data is a string
+	if (typeof jsonString !== 'string') {
+		if (IS_DEBUG) console.log('The jsonString is not a string.');
+		jsonString = JSON.stringify(jsonString)
+		if (IS_DEBUG) console.log(jsonString);
+	}
 
 	// Parse the JSON string
 	const json = JSON.parse(jsonString);
-	if (IS_DEBUG) console.info('> initProjectFile');
-	if (IS_DEBUG) console.info(json);
+	if (IS_DEBUG) {
+		console.group('Model.file');
+		console.info(json);
+		console.groupEnd();
+	}
 
 	// TODO: clean up svg in height and width
 	// make sure the values of the svg are same as json.width and .height
@@ -47,6 +57,7 @@ function initProjectFile(jsonString) {
 	json.frames.forEach(frame => {
 		frame.svg = frame.svg.replace(/width='[^']*'/, `width='${projectWidth}'`);
 		frame.svg = frame.svg.replace(/height='[^']*'/, `height='${projectHeight}'`);
+		frame.svg = frame.svg.replace('\n', '');
 	});
 
 	// console.log(JSON.stringify(json, null, 4));
@@ -64,7 +75,7 @@ function initProjectFile(jsonString) {
 	const frameLength = json.frameLength;
 
 	const time = (json.frameLength / json.frameRate);
-	const calculated = [];
+	const calculated = json.calculated;
 
 	// Extract frame data
 	const frames = json.frames.map(frame => ({
@@ -84,9 +95,9 @@ function initProjectFile(jsonString) {
 	ProjectVars.height = height;
 	ProjectVars.frameRate = frameRate;
 	ProjectVars.frameLength = frameLength;
-	ProjectVars.time = frameLength / frameRate; // calculate
+	ProjectVars.time = time; // calculate
 	ProjectVars.frames = frames;
-	ProjectVars.calculated = []; // calculate
+	ProjectVars.calculated = calculated; // calculate
 
 
 	// console.log(frames);
@@ -96,20 +107,7 @@ function initProjectFile(jsonString) {
 	// setSvgString2Element(frames[0].svg);
 
 
-	return {
-		exportName,
-		projectName,
-		creationDate,
-		description,
-		version,
-		width,
-		height,
-		frameRate,
-		frameLength,
-		frames,
-		calculated,
-		time
-	};
+
 
 
 }
@@ -135,6 +133,7 @@ function setSvg(data) {
 		if (IS_DEBUG) console.log(data);
 	}
 
+
 	// Parse the string to create a document fragment
 	const parser = new DOMParser();
 	const svgDoc = parser.parseFromString(data, 'image/svg+xml');
@@ -150,6 +149,11 @@ function setSvg(data) {
 				"tween": "linear",
 				"keyframe": true
 			}];
+		ProjectVars.calculated = [
+			{
+				"frameNumber": 1,
+				"svg": data,
+			}];
 	}
 	if (IS_DEBUG) console.log(ProjectVars);
 }
@@ -163,12 +167,18 @@ function cleanupSvg(svgElement) {
 	return svgElement
 }
 
+/**\
+ *
+ * haal info uit de svg die we kunnen gebruiken voor projectvars
+ * - width
+ * - height
+ */
 function convertSvg2projectfile(svgElement) {
 	if (IS_DEBUG) console.group('Model.convertSvg2projectfile');
 	if (svgElement) {
-		ProjectVars.width = parseInt(svgElement.getAttribute('width')) || 600;
-		ProjectVars.height = parseInt(svgElement.getAttribute('height')) || 400;
-		ProjectVars.creationDate = new Date().toLocaleDateString();
+		ProjectVars.width = parseInt(svgElement.getAttribute('width')) || Defaults.width;
+		ProjectVars.height = parseInt(svgElement.getAttribute('height')) || Defaults.height;
+		ProjectVars.creationDate = new Date().toISOString();
 		ProjectVars.frames = [
 			{
 				"frameNumber": 1,
@@ -176,9 +186,40 @@ function convertSvg2projectfile(svgElement) {
 				"tween": "linear",
 				"keyframe": true
 			}];
-		if (IS_DEBUG) console.log(ProjectVars);
+		ProjectVars.calculated = [
+			{
+				"frameNumber": 1,
+				"svg": new XMLSerializer().serializeToString(svgElement),
+			}];
+		// if (IS_DEBUG) console.log('frames: ' + JSON.stringify(ProjectVars.frames));
+		// if (IS_DEBUG) console.log('calculated: ' + JSON.stringify(ProjectVars.calculated));
+		// if (IS_DEBUG) console.log(ProjectVars);
 	}
 	if (IS_DEBUG) console.groupEnd();
+}
+
+/**
+ * use the default values
+ */
+function projectFileDefault() {
+	// ProjectVars = JSON.parse(JSON.stringify(Defaults));
+	// use default values
+	ProjectVars.exportName = Defaults.exportName;
+	ProjectVars.projectName = Defaults.projectName;
+	ProjectVars.creationDate = Defaults.creationDate;
+	ProjectVars.description = Defaults.description;
+	ProjectVars.version = Defaults.version;
+	ProjectVars.width = Defaults.width;
+	ProjectVars.height = Defaults.height;
+	ProjectVars.frameRate = Defaults.frameRate;
+	ProjectVars.frameLength = Defaults.frameLength;
+	ProjectVars.time = new Date().toISOString(); // calculate
+	ProjectVars.frames = Defaults.frames;
+	ProjectVars.calculated = Defaults.calculated; // calculate
+
+	// console.log(Defaults.calculated);
+	// console.log(ProjectVars.calculated);
+
 }
 
 function setSvgElement(svgElement) {
@@ -194,8 +235,24 @@ function setSvgElement(svgElement) {
 	// cleanup svg
 	svgElement = cleanupSvg(svgElement);
 	// set in projectfile
+	projectFileDefault();
+	// console.log('1. ------------------------------');
+	// console.log(ProjectVars);
+	// console.log(ProjectVars.calculated.length);
+
 	convertSvg2projectfile(svgElement);
-	initProjectFile(JSON.stringify(ProjectVars));
+
+	// console.log('2. ------------------------------');
+	// console.log(ProjectVars);
+	// console.log(ProjectVars.calculated);
+	// console.log(ProjectVars.calculated.length);
+
+	file(ProjectVars);
+
+	// console.log('3. ------------------------------');
+	// console.log(ProjectVars);
+	// console.log(ProjectVars.calculated);
+	// console.log(ProjectVars.calculated.length);
 
 	// set in canvas
 	Canvas.setSvg(svgElement);
@@ -229,12 +286,11 @@ export const ProjectVars = {
 	calculated: []
 };
 
-
 // Export an object to group the functions
 export const Model = {
-	init: initProject,
-	file: initProjectFile,
-	setSvg: setSvg,
+	init,
+	file,
+	setSvg,
 	setSvgElement,
-	update
+	update,
 };

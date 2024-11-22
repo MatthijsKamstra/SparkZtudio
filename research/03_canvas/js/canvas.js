@@ -7,9 +7,15 @@ let IS_DEBUG = false;
 
 function init() {
 	if (IS_DEBUG) console.info('init canvas.js');
-	// let Globals.zoomScale = 1;
-
 	defaultSVG();
+	setup();
+}
+
+/**
+ * setup UI
+ */
+function setup() {
+	if (IS_DEBUG) console.info('Canvas.setup');
 
 	// Add zoom functionality
 	document.getElementById('zoomIn').addEventListener('click', () => {
@@ -69,6 +75,7 @@ function defaultSVG() {
 	textElement.setAttribute('fill', '#800080'); // Set the text color to pink
 	textElement.setAttribute('font-size', '80'); // Set the font size to 100
 	textElement.setAttribute('font-family', 'Kenia, sans-serif');
+	// textElement.setAttribute('font-family', 'Kenia');
 	textElement.setAttribute('font-weight', '400');
 	textElement.setAttribute('font-style', 'normal');
 	textElement.textContent = 'SparkZtudio'; // Set the text content

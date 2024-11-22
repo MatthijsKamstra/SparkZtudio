@@ -13,3 +13,4 @@ export const Globals = {
   canvas: null,
   timeline: [],
 };
+

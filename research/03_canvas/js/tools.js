@@ -1,8 +1,8 @@
 import { Globals } from './globals.js';
 
-let IS_DEBUG = true;
+let IS_DEBUG = false;
 
-function initTools() {
+function init() {
 	if (IS_DEBUG) console.info('init tools.js');
 
 	// Tools buttons
@@ -16,5 +16,5 @@ function initTools() {
 
 // Export an object to group the functions
 export const Tools = {
-	init: initTools,
+	init,
 };

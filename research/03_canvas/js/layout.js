@@ -1,6 +1,6 @@
 import { Globals } from './globals.js';
 
-let IS_DEBUG = true;
+let IS_DEBUG = false;
 
 function initLayout() {
 	if (IS_DEBUG) console.info('init layout.js');

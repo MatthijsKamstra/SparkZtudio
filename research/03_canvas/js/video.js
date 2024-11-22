@@ -8,12 +8,17 @@ let animationInterval;
 let lastValidFrame = null; // To store the last valid frame
 const imageArray = [];
 
+const IS_DEBUG = true;
+
 function init() {
+	if (IS_DEBUG) {
+		console.group('Video.init');
+		console.groupEnd();
+	}
 	const canvas = document.getElementById("canvas");
 	ctx = canvas.getContext("2d");
-	const startRecordingButton = document.getElementById("startRecording");
-	const stopRecordingButton = document.getElementById("stopRecording");
-	const confirmExportButton = document.getElementById("confirmExport");
+
+	setup();
 
 	// Initialize the canvas with the first SVG
 	initializeCanvas();
@@ -29,26 +34,55 @@ function init() {
 		'audio/webm',
 		'audio/webm;codecs=opus',
 		'audio/webm;codecs=vorbis',
-		'audio/mp4'
+		'audio/mp4',
+
+		"video/webm",
+		"audio/webm",
+		"video/webm;codecs=vp8",
+		"video/webm;codecs=daala",
+		"video/webm;codecs=h264",
+		"audio/webm;codecs=opus",
+		"video/mp4",
 	];
 
+	if (IS_DEBUG) console.groupCollapsed('mimetypes supported');
 	mimeTypes.forEach((mimeType) => {
 		const isSupported = isCodecSupported(mimeType);
-		console.log(`${mimeType}: ${isSupported ? 'Supported' : 'Not Supported'}`);
+		if (IS_DEBUG) console.log(`${mimeType}: ${isSupported ? 'Supported' : 'Not Supported'}`);
 	});
+	if (IS_DEBUG) console.groupEnd();
 
-	preRenderSVGs(ProjectVars.frames, () => {
-		startRecordingButton.addEventListener("click", startRecording);
-		stopRecordingButton.addEventListener("click", stopRecording);
-		confirmExportButton.addEventListener("click", confirmExport);
-	});
+
+}
+
+/**
+ * setup UX
+ */
+function setup() {
+	const startRecordingButton = document.getElementById("startRecording");
+	const stopRecordingButton = document.getElementById("stopRecording");
+	const confirmExportButton = document.getElementById("confirmExport");
+	startRecordingButton.addEventListener("click", startRecording);
+	stopRecordingButton.addEventListener("click", stopRecording);
+	confirmExportButton.addEventListener("click", confirmExport);
 }
 
 function initializeCanvas() {
+	if (IS_DEBUG) {
+		console.group('Model.initializeCanvas');
+		console.log(ProjectVars);
+		console.groupEnd();
+	}
+
 	// Set canvas dimensions
 	const canvas = document.getElementById("canvas");
 	canvas.width = ProjectVars.width;
 	canvas.height = ProjectVars.height;
+
+	preRenderSVGs(ProjectVars.frames, () => {
+		console.log('render ready')
+	});
+
 
 	if (ProjectVars.frames && ProjectVars.frames.length > 0) {
 		const firstFrame = ProjectVars.frames[0];
@@ -133,21 +167,27 @@ function startCanvasAnimation() {
 
 		// Clear the canvas before drawing new content
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.fillStyle = 'white'; // white background
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		// check if transparancy is possible, if not generate a white background
+		if (!isCodecSupported('video/webm;codecs=vp9')) {
+			ctx.fillStyle = 'white'; // white background
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+		}
 
 		// Draw the current frame (image)
 		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-		// Overlay frame information after the SVG is drawn
-		ctx.font = "20px Arial";
-		ctx.fillStyle = "red";
-		const currentTime = (frameIndex / ProjectVars.frameRate).toFixed(2); // Current time in seconds
+		// only visible in debug mode
+		if (IS_DEBUG) {
+			// Overlay frame information after the SVG is drawn
+			ctx.font = "20px Arial";
+			ctx.fillStyle = "red";
+			const currentTime = (frameIndex / ProjectVars.frameRate).toFixed(2); // Current time in seconds
 
-		// Text for Frame Info (draw after the SVG)
-		ctx.fillText(`Frame: ${frameIndex + 1}/${ProjectVars.frameLength}`, 20, 60);
-		ctx.fillText(`Frame Rate: ${ProjectVars.frameRate} FPS`, 20, 90);
-		ctx.fillText(`Time: ${currentTime}s / ${totalTime}s`, 20, 120);
+			// Text for Frame Info (draw after the SVG)
+			ctx.fillText(`Frame: ${frameIndex + 1}/${ProjectVars.frameLength}`, 20, 60);
+			ctx.fillText(`Frame Rate: ${ProjectVars.frameRate} FPS`, 20, 90);
+			ctx.fillText(`Time: ${currentTime}s / ${totalTime}s`, 20, 120);
+		}
 
 		// Update progress
 		frameIndex++;
@@ -166,7 +206,10 @@ function stopCanvasAnimation() {
 function startRecording() {
 	const canvas = document.getElementById("canvas");
 	const canvasStream = canvas.captureStream(ProjectVars.frameRate); // Capture at project frame rate
-	const options = { mimeType: 'video/webm; codecs=vp8', videoBitsPerSecond: 1000000, };
+	let options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 1000000, }; // with transparancy (Firefox doesn't support)
+	if (!isCodecSupported(options.mimeType)) {
+		options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1000000, }; // supported by Firefox
+	}
 	mediaRecorder = new MediaRecorder(canvasStream, options);
 
 	mediaRecorder.ondataavailable = (event) => {

@@ -157,7 +157,7 @@ function init() {
                 ${circleSVG}
                 ${rectSVG}
                 ${textSVG}
-            </svg>`.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '');
+            </svg>`.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', ' ');
 	}
 
 	function interpolateElements(startElems, endElems, fraction, elemType) {
@@ -202,8 +202,10 @@ function init() {
 		for (let i = 0; i < frames.length - 1; i++) {
 			const frame1 = frames[i];
 			const frame2 = frames[i + 1];
-			const attrs1 = parseSVG(frame1.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', ''));
-			const attrs2 = parseSVG(frame2.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', ''));
+			frame1.svg = frame1.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
+			frame2.svg = frame1.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
+			const attrs1 = parseSVG(frame1.svg);
+			const attrs2 = parseSVG(frame2.svg);
 
 			for (let j = frame1.frameNumber; j <= frame2.frameNumber; j++) {
 				if (frameSet.has(j)) continue;  // Skip if frame already exists
@@ -237,10 +239,12 @@ function init() {
 	const frames = project.frames;
 	project.calculated = getFrameData(frames);
 	project.calculated.forEach(frame => {
-		console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
+		// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
 	});
 
 	console.log(project);
+
+	Model.file(project);
 
 
 }

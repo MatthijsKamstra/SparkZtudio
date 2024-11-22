@@ -6,10 +6,17 @@ import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 import { Video } from './video.js';
 
-let IS_DEBUG = true;
+let IS_DEBUG = false;
 
-function initMenu() {
+function init() {
 	if (IS_DEBUG) console.info('menu.js');
+	setup();
+}
+
+/**
+ * setup UI
+ */
+function setup() {
 
 	// File menu items
 	document.getElementById('newFile').onclick = function () {
@@ -38,7 +45,28 @@ function initMenu() {
 		alert('Close File');
 	};
 
-	// document.getElementById('importFile').onclick = function () { alert('importFile As File'); };
+	/**
+	 * should only be used for .json or .sparkz
+	 */
+	// Open file input
+	document.getElementById('openFileInput3').addEventListener('change', function (event) {
+		if (IS_DEBUG) console.log('openFileInput');
+		const file = event.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const projectFile = e.target.result;
+				if (IS_DEBUG) console.log(projectFile);
+				Model.file(projectFile);
+
+			};
+			reader.readAsText(file);
+		}
+	});
+
+	/**
+	 * should only be used for .svg
+	 */
 	// Open file input
 	document.getElementById('importFile3').addEventListener('change', function (event) {
 		if (IS_DEBUG) console.log('importFile');
@@ -57,22 +85,7 @@ function initMenu() {
 		}
 	});
 
-	// document.getElementById('openFile').onclick = openFileFunc();
-	// Open file input
-	document.getElementById('openFileInput3').addEventListener('change', function (event) {
-		if (IS_DEBUG) console.log('openFileInput');
-		const file = event.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = function (e) {
-				const projectFile = e.target.result;
-				if (IS_DEBUG) console.log(projectFile);
-				Model.file(projectFile);
 
-			};
-			reader.readAsText(file);
-		}
-	});
 
 	// // Create SVG with user-provided properties
 	// document.getElementById('createSvgButton').onclick = function () {
@@ -142,5 +155,5 @@ function initMenu() {
 
 // Export an object to group the functions
 export const Menu = {
-	init: initMenu,
+	init,
 };
