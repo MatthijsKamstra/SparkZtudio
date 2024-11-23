@@ -1,7 +1,7 @@
-import { Inter } from './_inter.js';
 import { Canvas } from './canvas.js';
 import { Defaults } from './defaults.js';
 import { Globals } from './globals.js';
+import { Inter } from './inter.js';
 import { Layout } from './layout.js';
 import { Menu } from './menu.js';
 import { Properties } from './properties.js';
