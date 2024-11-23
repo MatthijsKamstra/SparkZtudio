@@ -1,17 +1,44 @@
 # SparkZtudio
 
-POC Flash rebuild with web tech
+POC Flash rebuild with web tech (Flash / Spark) ???
 
 - 🔥
 - ⚡️
 - 📸
 - 🔋
 
+check progres on: https://matthijskamstra.github.io/SparkZtudio/
+
 ## SVG start
 
 - default svg in canvas
 - open `.sparkz`/`.json` file
 - import `.svg`
+
+## Layout
+
+```
++---------------------------------------+
+| menu                                  |
+|---------------------------------------|
+|       |                  |            |
+| tools | canvas           | properties |
+|       |                  |            |
+|       |                  |
+|       |                  | document   |
+|       |------------------|------------|
+|       | canvas menu      | properties |
+|       |                  |            |
++---------------------------------------+
+| timeline menu                         |
+|---------------------------------------|
+|                                       |
+| timeline                              |
+|                                       |
++---------------------------------------+
+
+
+```
 
 ## Resources
 
@@ -21,5 +48,7 @@ POC Flash rebuild with web tech
 - https://placehold.co/
 
 - https://picsum.photos/id/56/200/300
+
+## font render
 
 important: font needs to be installed on computer! otherwise the font will not render correctly

@@ -1,7 +1,7 @@
 import { Canvas } from './canvas.js';
 import { Export } from './export.js';
 import { Globals } from './globals.js';
-import { Model } from './model.js';
+import { Model } from './model/model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 import { Video } from './video.js';

@@ -205,14 +205,17 @@
 
 		<div id="resizer1" class="resizer"></div>
 		<div id="canvasWrapper">
-			<div id="svgContainer" class="canvas-panel">
+			<div id="svgWrapper">
 				<div id="svg-container"> <!-- SVG will be inserted here dynamically --> </div>
 			</div>
-			<div class="zoom-controls">
-				<button id="zoomIn" class="btn btn-primary btn-sm"><i class="fa fa-search-plus"></i></button>
-				<button id="zoomOut" class="btn btn-primary btn-sm"><i class="fa fa-search-minus"></i></button>
-				<button id="zoomTo100" class="btn btn-primary btn-sm"><i class="fa fa-compress"></i></button>
-				<button id="zoomToFit" class="btn btn-primary btn-sm"><i class="fa fa-expand"></i></button>
+			<div id="canvasMenu">
+				<button id="canvas-menu-zoomIn" class="btn btn-primary btn-sm"><i
+						class="fa fa-search-plus"></i></button>
+				<button id="canvas-menu-zoomOut" class="btn btn-primary btn-sm"><i
+						class="fa fa-search-minus"></i></button>
+				<button id="canvas-menu-zoomTo100" class="btn btn-primary btn-sm"><i
+						class="fa fa-compress"></i></button>
+				<button id="canvas-menu-zoomToFit" class="btn btn-primary btn-sm"><i class="fa fa-expand"></i></button>
 			</div>
 		</div>
 
@@ -400,7 +403,7 @@
 		crossorigin="anonymous"></script>
 
 	<script type="module">
-		import { Model } from './js/model.js';
+		import { Model } from './js/model/model.js';
 
 		document.addEventListener('DOMContentLoaded', () => {
 			Model.init();

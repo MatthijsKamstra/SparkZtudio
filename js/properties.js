@@ -1,8 +1,8 @@
 import { Globals } from './globals.js';
-import { Model, ProjectVars } from './model.js';
+import { Model, ProjectVars } from './model/model.js';
 
 
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
 // Define your functions
 function initProperties() {

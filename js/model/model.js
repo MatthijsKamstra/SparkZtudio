@@ -1,28 +1,30 @@
-import { Canvas } from './canvas.js';
-import { Defaults } from './defaults.js';
-import { Globals } from './globals.js';
-import { Inter } from './inter.js';
-import { Layout } from './layout.js';
-import { Menu } from './menu.js';
-import { Properties } from './properties.js';
-import { Shortcuts } from './shortcuts.js';
-import { Timeline } from './timeline.js';
-import { Tools } from './tools.js';
-import { Video } from './video.js';
-// import { Model, ProjectVars } from './model.js';
+import { CanvasMenu } from '../canvas-menu.js';
+import { Canvas } from '../canvas.js';
+import { Defaults } from '../defaults.js';
+import { Globals } from '../globals.js';
+import { Inter } from '../inter.js';
+import { Layout } from '../layout.js';
+import { Menu } from '../menu.js';
+import { Properties } from '../properties.js';
+import { Shortcuts } from '../shortcuts.js';
+import { Timeline } from '../timeline.js';
+import { Tools } from '../tools.js';
+import { Video } from '../video.js';
+// import { Model, ProjectVars } from './model/model.js';
 
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
 function init() {
 	if (IS_DEBUG) {
 		console.group(`Model.init`);
-		console.info(`init model.js`);
+		console.info(`init js/model/model.js`);
 		console.log(`version: ${Globals.version}`);
 		console.groupEnd();
 	}
 
 	// jumpstart all
 	Canvas.init();
+	CanvasMenu.init();
 	Layout.init();
 	Menu.init();
 	Timeline.init();
@@ -39,11 +41,11 @@ function setup() {
 
 function setProjectViaFile(jsonString) {
 	console.clear();
-	console.info('Model.setProjectViaFile');
+	if (IS_DEBUG) console.info('Model.setProjectViaFile');
 
 	file(jsonString);
 
-	console.log(ProjectVars.exportName);
+	if (IS_DEBUG) console.log(ProjectVars.exportName);
 
 
 	// setSvgString2Element(ProjectVars.frames[0].svg);
@@ -125,8 +127,8 @@ function file(jsonString) {
 	ProjectVars.frames = frames;
 	ProjectVars.calculated = calculated; // calculate
 
-	console.log(ProjectVars.exportName);
-	console.log(ProjectVars);
+	if (IS_DEBUG) console.log(ProjectVars.exportName);
+	if (IS_DEBUG) console.log(ProjectVars);
 
 	if (IS_DEBUG) console.groupEnd();
 
@@ -284,7 +286,7 @@ function setProjectViaSvgElement(svgElement) {
 }
 
 function update() {
-	console.log('update');
+	if (IS_DEBUG) console.log('update');
 	Canvas.update();
 	Timeline.update();
 	Properties.update();

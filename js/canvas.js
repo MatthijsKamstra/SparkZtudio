@@ -1,5 +1,5 @@
 import { Globals } from './globals.js';
-import { Model, ProjectVars } from './model.js';
+import { Model, ProjectVars } from './model/model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
@@ -8,44 +8,14 @@ let IS_DEBUG = false;
 function init() {
 	if (IS_DEBUG) console.info('init canvas.js');
 	defaultSVG();
-	setup();
-}
-
-/**
- * setup UI
- */
-function setup() {
-	if (IS_DEBUG) console.info('Canvas.setup');
-
-	// Add zoom functionality
-	document.getElementById('zoomIn').addEventListener('click', () => {
-		Globals.zoomScale += 0.1;
-		svgElement.style.transform = `scale(${Globals.zoomScale})`;
-	});
-
-	document.getElementById('zoomOut').addEventListener('click', () => {
-		if (Globals.zoomScale > 0.1) {
-			Globals.zoomScale -= 0.1;
-			svgElement.style.transform = `scale(${Globals.zoomScale})`;
-		}
-	});
-
-	document.getElementById('zoomTo100').addEventListener('click', () => {
-		Globals.zoomScale = 1;
-		svgElement.style.transform = `scale(${Globals.zoomScale})`;
-	});
-
-	document.getElementById('zoomToFit').addEventListener('click', () => {
-		const svgRect = svgElement.getBoundingClientRect();
-		const containerRect = svgContainer.getBoundingClientRect();
-		const scale = Math.min(containerRect.width / svgRect.width, containerRect.height / svgRect.height);
-		Globals.zoomScale = scale;
-		svgElement.style.transform = `scale(${Globals.zoomScale})`;
-	});
 }
 
 function update() {
 	if (IS_DEBUG) console.info('Canvas.update');
+}
+
+function setup() {
+	if (IS_DEBUG) console.info('Canvas.setup');
 }
 
 function projectFile() {

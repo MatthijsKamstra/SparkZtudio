@@ -1,4 +1,4 @@
-import { Model, ProjectVars } from './model.js';
+import { Model, ProjectVars } from './model/model.js';
 
 let ctx;
 let mediaRecorder;
@@ -8,7 +8,7 @@ let animationInterval;
 let lastValidFrame = null; // To store the last valid frame
 const imageArray = [];
 
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
 function init() {
 	if (IS_DEBUG) {
@@ -70,7 +70,7 @@ function setup() {
 
 function initializeCanvas() {
 	if (IS_DEBUG) {
-		console.group('Model.initializeCanvas');
+		console.group('Video.initializeCanvas');
 		console.log(ProjectVars);
 		console.groupEnd();
 	}
@@ -84,7 +84,7 @@ function initializeCanvas() {
 	canvas.height = ProjectVars.height;
 
 	preRenderSVGs(ProjectVars.frames, () => {
-		console.log('render ready')
+		if (IS_DEBUG) console.log('render ready')
 	});
 
 
@@ -92,7 +92,7 @@ function initializeCanvas() {
 		const firstFrame = ProjectVars.frames[0];
 		drawSVG(firstFrame.svg, () => { }); // Draw the first frame's SVG
 	} else {
-		console.error("No frames found in ProjectVars!");
+		if (IS_DEBUG) console.error("No frames found in ProjectVars!");
 	}
 }
 
@@ -118,7 +118,7 @@ function preRenderSVGs(frames, callback) {
 			imageArray[index] = img;
 			loadedCount++;
 			if (loadedCount === frames.length) {
-				console.log('All SVGs have been prerendered and stored.');
+				if (IS_DEBUG) console.log('All SVGs have been prerendered and stored.');
 				callback();
 			}
 		});
@@ -144,7 +144,7 @@ function startCanvasAnimation() {
 			stopCanvasAnimation(); // Stop the animation interval
 			if (mediaRecorder && mediaRecorder.state === "recording") {
 				mediaRecorder.stop(); // Stop recording
-				console.log("Recording stopped...");
+				if (IS_DEBUG) console.log("Recording stopped...");
 			}
 			return;
 		}
@@ -159,7 +159,7 @@ function startCanvasAnimation() {
 
 		// If there is no valid frame, log an error and stop the animation
 		if (!img) {
-			console.error(`No valid frame found at index: ${frameIndex}`);
+			if (IS_DEBUG) console.error(`No valid frame found at index: ${frameIndex}`);
 			stopCanvasAnimation();
 			return;
 		}
@@ -255,7 +255,7 @@ function stopRecording() {
 	stopCanvasAnimation();
 	if (mediaRecorder && mediaRecorder.state === "recording") {
 		mediaRecorder.stop();
-		console.log("Recording stopped...");
+		if (IS_DEBUG) console.log("Recording stopped...");
 	}
 }
 

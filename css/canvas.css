@@ -1,4 +1,5 @@
 #canvasWrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,16 +9,7 @@
   /* border: 2px solid black; Added for better visualization of the container */
 }
 
-#svg-container {
-  border: 1px solid black;
-  display: block;
-  margin: auto;
-  background-color: white;
-  background: repeating-conic-gradient(#aaa 0% 25%, transparent 0% 50%) 50% /
-    20px 20px;
-}
-
-.canvas-panel {
+#canvasWrapper #svgWrapper {
   flex: 1;
   display: flex;
   align-items: center;
@@ -27,15 +19,27 @@
   position: relative;
 }
 
-.zoom-controls {
+#canvasWrapper #svgWrapper #svg-container {
+  border: 1px solid black;
+  display: block;
+  margin: auto;
+  background-color: white;
+  background: repeating-conic-gradient(#aaa 0% 25%, transparent 0% 50%) 50% /
+    20px 20px;
+}
+
+#canvasWrapper #canvasMenu {
+  z-index: 2;
+  position: absolute;
+  bottom: 0;
   display: flex;
-  justify-content: center;
+  justify-content: left;
   padding: 10px;
   background: #f8f9fa; /* Light grey background to distinguish the control area */
   border-top: 1px solid #e9ecef; /* Add a top border to separate from the canvas panel */
   width: 100%; /* Ensure the controls take the full width of the container */
 }
 
-.zoom-controls button {
+#canvasWrapper #canvasMenu button {
   margin: 0 5px;
 }

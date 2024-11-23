@@ -1,7 +1,7 @@
 import { Globals } from './globals.js';
 import { Layout } from './layout.js';
 import { Menu } from './menu.js';
-import { Model, ProjectVars } from './model.js';
+import { Model, ProjectVars } from './model/model.js';
 import { Properties } from './properties.js';
 import { Shortcuts } from './shortcuts.js';
 import { Timeline } from './timeline.js';
