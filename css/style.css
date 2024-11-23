@@ -1,0 +1,11 @@
+/* background pattern behind canvas, gives the impression that its transparant */
+.canvas-transparant {
+  margin: 0;
+  padding: 0;
+  border: 1px solid black;
+  display: flex;
+  margin: auto;
+  background-color: silver !important;
+  background: repeating-conic-gradient(#aaa 0% 25%, transparent 0% 50%) 50% /
+    20px 20px;
+}

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SparkZtudio</title>
+
+	<!-- bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+	<!-- icon/favicon -->
+	<link rel="icon"
+		href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡️</text></svg>">
+
+	<!-- fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Kenia&display=swap" rel="stylesheet">
+
+	<!-- ficons -->
+	<link href="https://cdn.jsdelivr.net/npm/ficons@1.1.52/dist/ficons/font.css" rel="stylesheet">
+
+	<!-- custom styling -->
+	<link rel="stylesheet" href="css/nested.css">
+	<link rel="stylesheet" href="css/resize-layout.css">
+	<link rel="stylesheet" href="css/canvas.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+	<!--
+	<nav class="navbar navbar-expand-md navbar-light bg-light">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="#">Multi-Level Navbar</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="level1Dropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Level 1
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="level1Dropdown">
+							<li class="nav-item dropend">
+								<a class="dropdown-item dropdown-toggle" href="#" id="level2Dropdown" role="button"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									Level 2
+								</a>
+								<ul class="dropdown-menu" aria-labelledby="level2Dropdown">
+									<li><a class="dropdown-item" href="#">Undo</a></li>
+									<li><a class="dropdown-item" href="#">Redo</a></li>
+									<li><a class="dropdown-item" href="#">Cut</a></li>
+									<li><a class="dropdown-item" href="#">Copy</a></li>
+									<li><a class="dropdown-item" href="#">Paste</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	-->
+
+
+	<nav class="navbar navbar-expand-md navbar-light bg-light" id="menuWrapper">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="/">⚡️ SparkZtudio<i class="fa fa-flash"></i></a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+				data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="fileDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							File
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="fileDropdown">
+							<li><a class="dropdown-item" href="#" id="newFile">New... <span
+										class="opacity-25 float-end">⌘N</span>
+								</a>
+							</li>
+							<li>
+								<label for="openFileInput3" class="dropdown-item">Open... <span
+										class="opacity-25 float-end">⌘O</span></label>
+								<input type="file" id="openFileInput3" accept=".json, .spark" style="display: none;">
+							</li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li><a class="dropdown-item" href="#" id="saveFile">Save <span
+										class="opacity-25 float-end">⌘S</span></a></li>
+							<li><a class="dropdown-item disabled" href="#" id="saveAsFile">Save As... <span
+										class="opacity-25 float-end">⇧⌘S</span></a></li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+
+							<li>
+								<label for="importFile3" class="dropdown-item">Import... <span
+										class="opacity-25 float-end">⌘I</span></label>
+								<input type="file" id="importFile3" accept=".svg" style="display: none;">
+							</li>
+
+
+
+
+							<!-- <li><a class="dropdown-item" href="#" id="importFile">Import... <span
+										class="opacity-25 float-end">⌘I</span></a></li> -->
+							<li><a class="dropdown-item" href="#" id="exportFile">Export... <span
+										class="opacity-25 float-end">⇧⌘E</span></a></li>
+							<li>
+							<li><a class="dropdown-item" href="#" id="exportMovie">ExportMovie <span
+										class="opacity-25 float-end">⌘E</span></a></li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li><a class="dropdown-item disabled" href="#" id="closeFile">Close <span
+										class="opacity-25 float-end">⌘W</span></a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle disabled" href="#" id="editDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Edit
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="editDropdown">
+							<li><a class="dropdown-item" href="#" id="undo">Undo</a></li>
+							<li><a class="dropdown-item" href="#" id="redo">Redo</a></li>
+							<li><a class="dropdown-item" href="#" id="cut">Cut</a></li>
+							<li><a class="dropdown-item" href="#" id="copy">Copy</a></li>
+							<li><a class="dropdown-item" href="#" id="paste">Paste</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle disabled" href="#" id="viewDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							View
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="viewDropdown">
+							<li><a class="dropdown-item" href="#" id="zoomIn">Zoom In</a></li>
+							<li><a class="dropdown-item" href="#" id="zoomOut">Zoom Out</a></li>
+							<li><a class="dropdown-item" href="#" id="fitToScreen">Fit to Screen</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle disabled" href="#" id="layerDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Layer
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="layerDropdown">
+							<li><a class="dropdown-item" href="#" id="newLayer">New Layer</a></li>
+							<li><a class="dropdown-item" href="#" id="deleteLayer">Delete Layer</a></li>
+							<li><a class="dropdown-item" href="#" id="duplicateLayer">Duplicate Layer</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle disabled" href="#" id="windowDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Window
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="windowDropdown">
+							<li><a class="dropdown-item" href="#" id="minimize">Minimize</a></li>
+							<li><a class="dropdown-item" href="#" id="maximize">Maximize</a></li>
+							<li><a class="dropdown-item" href="#" id="closeWindow">Close</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle disabled" href="#" id="helpDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Help
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="helpDropdown">
+							<li><a class="dropdown-item" href="#" id="helpTopics">Help Topics</a></li>
+							<li><a class="dropdown-item" href="#" id="about">About</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+
+
+
+	<div id="mainWrapper">
+
+		<div id="toolsWrapper" class="p-2">
+			<button id="selectTool" class="btn btn-light"><i class="fa fa-mouse-pointer"></i></button>
+			<button id="drawRectTool" class="btn btn-light"><i class="fa fa-square"></i></button>
+			<button id="drawCircleTool" class="btn btn-light"><i class="fa fa-circle"></i></button>
+			<button id="drawLineTool" class="btn btn-light"><i class="fa fa-minus"></i></button>
+			<button id="drawTextTool" class="btn btn-light"><i class="fa fa-font"></i></button>
+			<button id="zoomTool" class="btn btn-light"><i class="fa fa-search"></i></button>
+		</div>
+
+		<div id="resizer1" class="resizer"></div>
+		<div id="canvasWrapper">
+			<div id="svgContainer" class="canvas-panel">
+				<div id="svg-container"> <!-- SVG will be inserted here dynamically --> </div>
+			</div>
+			<div class="zoom-controls">
+				<button id="zoomIn" class="btn btn-primary btn-sm"><i class="fa fa-search-plus"></i></button>
+				<button id="zoomOut" class="btn btn-primary btn-sm"><i class="fa fa-search-minus"></i></button>
+				<button id="zoomTo100" class="btn btn-primary btn-sm"><i class="fa fa-compress"></i></button>
+				<button id="zoomToFit" class="btn btn-primary btn-sm"><i class="fa fa-expand"></i></button>
+			</div>
+		</div>
+
+		<div id="resizer2" class="resizer"></div>
+		<div id="propertiesWrapper">
+			<div class="accordion" id="accordionExample">
+				<div class="accordion-item">
+					<h2 class="accordion-header">
+						<button class="accordion-button" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+							Document properties
+						</button>
+					</h2>
+					<div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<div id="propertiesDocument"><strong>This is the first item's accordion body.</strong>
+								It is
+								shown by default, until the
+								collapse
+								plugin adds the appropriate classes that we use to style each element. These classes
+								control
+								the overall
+								appearance, as well as the showing and hiding via CSS transitions. You can modify
+								any of
+								this with
+								custom CSS or overriding our default variables. It's also worth noting that just
+								about
+								any
+								HTML can go
+								within the <code>.accordion-body</code>, though the transition does limit overflow.
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="accordion-item">
+					<h2 class="accordion-header">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+							Properties
+						</button>
+					</h2>
+					<div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<strong>This is the second item's accordion body.</strong> It is hidden by default,
+							until
+							the collapse
+							plugin adds the appropriate classes that we use to style each element. These classes
+							control
+							the overall
+							appearance, as well as the showing and hiding via CSS transitions. You can modify any of
+							this with
+							custom CSS or overriding our default variables. It's also worth noting that just about
+							any
+							HTML can go
+							within the <code>.accordion-body</code>, though the transition does limit overflow.
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div id="resizer3" class="resizer-horizontal"></div>
+	<div id="timelineWrapper">
+
+		<div class="_d-flex p-2">
+			<div class="row">
+				<label for="frameRate" class="col-auto col-form-label">FrameRate:</label>
+				<div class="col-1">
+					<input type="number" class="form-control" id="timelineFrameRate" placeholder="Enter frame rate"
+						required>
+				</div>
+
+				<label for="totalFrames" class="col-auto col-form-label">TotalFrames:</label>
+				<div class="col-1">
+					<input type="number" class="form-control" id="timeLineTotalFrames" placeholder="Enter total frames"
+						required>
+				</div>
+
+				<label for="TotalTime" class="col-auto col-form-label">TotalTime:</label>
+				<div class="col-1">
+					<input type="number" class="form-control" id="timeLineTotalTime" placeholder="Enter total time"
+						required>
+				</div>
+			</div>
+		</div>
+		<!-- panel -->
+
+		<div class="_table-responsive">
+
+			<table class="table table-striped table-striped-columns table-hover table-sm align-middle">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col"><i class="fa fa-eye"></i></th>
+						<th scope="col"><i class="fa fa-lock"></i></th>
+						<th scope="col"><i class="fa fa-chevron-down"></i></th>
+						<th scope="col"></th>
+						<th scope="col">Layer ID</th>
+						<th scope="col" class="w-75">Frames</th>
+					</tr>
+				</thead>
+				<tbody id="timelineTableBody"> <!-- Layer rows will be dynamically added here --> </tbody>
+
+		</div>
+	</div>
+
+
+
+
+	<!-- Modal for New SVG Properties -->
+	<div class="modal fade" id="svgPropertiesModal" tabindex="-1" aria-labelledby="svgPropertiesModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="svgPropertiesModalLabel">New SVG Properties</h5>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="svgPropertiesForm">
+						<div class="form-group">
+							<label for="svgWidth">Width</label>
+							<input type="number" class="form-control" id="svgWidth" placeholder="Enter width"
+								value="1920" required>
+						</div>
+						<div class="form-group">
+							<label for="svgHeight">Height</label>
+							<input type="number" class="form-control" id="svgHeight" placeholder="Enter height"
+								value="1080" required>
+						</div>
+						<div class="form-group">
+							<label for="svgViewBox">ViewBox</label>
+							<input type="text" class="form-control" id="svgViewBox" placeholder="Enter viewBox">
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="createSvgButton">Create</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Export movie</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+
+					<div class="bg-dark d-flex justify-content-center p-2 mb-2">
+						<div class="canvas-transparant">
+							<canvas id="canvas"></canvas>
+						</div>
+					</div>
+
+					<div class="progress mb-2" id="progressContainer" role="progressbar" aria-label="Recording Progress"
+						aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+						<div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+					</div>
+
+					<button id="startRecording" class="btn btn-success">Start </button>
+					<button id="stopRecording" class="btn btn-danger">Stop </button>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="confirmExport">Yes, Export</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous"></script>
+
+	<script type="module">
+		import { Model } from './js/model.js';
+
+		document.addEventListener('DOMContentLoaded', () => {
+			Model.init();
+		});
+	</script>
+
+</body>
+
+</html>
