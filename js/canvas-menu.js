@@ -76,22 +76,10 @@ function zoomToFit() {
 	if (IS_DEBUG) console.info('zoomToFit');
 	const containerRect = canvasWrapper.getBoundingClientRect();
 	const svgRect = svgElement.getBoundingClientRect();
-	console.log('containerRect');
-	console.log(containerRect);
-	console.log('svgRect');
-	console.log(svgRect);
-
 	const scale = Math.min(containerRect.width / svgRect.width, containerRect.height / svgRect.height);
-
-	console.log(scale);
-
 	Globals.zoomScale = scale;
 	svgElement.style.transform = `scale(${Globals.zoomScale})`;
 }
-
-
-
-
 
 // Export an object to group the functions
 export const CanvasMenu = {
