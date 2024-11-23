@@ -1,7 +1,7 @@
 {
-  "exportName": "example_project",
-  "projectName": "Example project",
-  "creationDate": "2024-11-21",
+  "exportName": "foo-example_project",
+  "projectName": "Foo Example project",
+  "creationDate": "3000-11-21",
   "description": "Sample project file with additional metadata.",
   "version": "1.0",
   "width": 600,

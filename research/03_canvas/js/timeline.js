@@ -3,14 +3,33 @@ import { ProjectVars } from './model.js';
 
 const IS_DEBUG = false;
 
+function init() {
+	if (IS_DEBUG) console.info('init timeline.js');
+}
+
+function setup() {
+	if (IS_DEBUG) console.info('Timeline.setup');
+}
+
+function update() {
+	if (IS_DEBUG) console.info('Timeline.update');
+	setFrameRate();
+	setTotalFrames();
+	setTotalTime();
+}
+
+function projectFile() {
+	if (IS_DEBUG) console.info('Timeline.projectFile');
+	update();
+	setSvg(ProjectVars.frames[0].svg);
+
+}
+
 // Function to generate a random ID
 function generateId() {
 	return 'id-' + Math.random().toString(36).substr(2, 9);
 }
 
-function initTimeline() {
-	if (IS_DEBUG) console.info('init timeline.js');
-}
 
 function createLayerRow(id, type) {
 	const row = document.createElement('tr');
@@ -215,36 +234,32 @@ function setSvg(data) {
 }
 
 function setFrameRate() {
-	if (IS_DEBUG) console.log('setFrameRate');
+	if (IS_DEBUG) console.info('Timeline.setFrameRate');
 	const el = document.getElementById('timelineFrameRate');
 	el.value = ProjectVars.frameRate;
 }
 
 function setTotalFrames() {
-	if (IS_DEBUG) console.log('setTotalFrames');
+	if (IS_DEBUG) console.info('Timeline.setTotalFrames');
 	const el = document.getElementById('timeLineTotalFrames');
 	el.value = ProjectVars.frameLength;
 }
+
 function setTotalTime() {
-	if (IS_DEBUG) console.log('setTotalTime');
+	if (IS_DEBUG) console.info('Timeline.setTotalTime');
 	const el = document.getElementById('timeLineTotalTime');
 	el.value = ProjectVars.frameLength / ProjectVars.frameRate;
 }
 
-function update() {
-	if (IS_DEBUG) console.log('update');
-	setFrameRate();
-	setTotalFrames();
-	setTotalTime();
-
-}
 
 
 // Export an object to group the functions
 export const Timeline = {
-	init: initTimeline,
+	init,
+	setup,
+	update,
+	projectFile,
 	setSvg,
 	setFrameRate,
 	setTotalFrames,
-	update,
 };

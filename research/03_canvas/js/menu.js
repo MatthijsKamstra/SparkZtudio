@@ -57,7 +57,7 @@ function setup() {
 			reader.onload = function (e) {
 				const projectFile = e.target.result;
 				if (IS_DEBUG) console.log(projectFile);
-				Model.project(projectFile);
+				Model.setProjectViaFile(projectFile);
 			};
 			reader.readAsText(file);
 		}
@@ -78,7 +78,7 @@ function setup() {
 				const parser = new DOMParser();
 				const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
 				const svgElement = svgDoc.querySelector('svg');
-				Model.setSvgElement(svgElement)
+				Model.setProjectViaSvgElement(svgElement)
 			};
 			reader.readAsText(file);
 		}

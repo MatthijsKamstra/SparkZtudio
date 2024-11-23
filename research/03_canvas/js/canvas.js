@@ -44,6 +44,16 @@ function setup() {
 	});
 }
 
+function update() {
+	if (IS_DEBUG) console.info('Canvas.update');
+}
+
+function projectFile() {
+	if (IS_DEBUG) console.info('Canvas.projectFile');
+	const svgElement = ProjectVars.frames[0].svg;
+	setSvg(svgElement);
+}
+
 function defaultSVG() {
 	if (IS_DEBUG) console.info('defaultSVG');
 
@@ -84,7 +94,7 @@ function defaultSVG() {
 	svgElement.appendChild(textElement);
 
 	// send svg to Model
-	Model.setSvgElement(svgElement);
+	Model.setProjectViaSvgElement(svgElement);
 }
 
 function setSvg(svgElement) {
@@ -178,15 +188,13 @@ function initGrab(svgElement) {
 	svgElement.addEventListener('mouseleave', handleMouseLeave);
 }
 
-function update() {
-	console.log('update');
-}
 
 
 // Export an object to group the functions
 export const Canvas = {
 	init,
-	// svgElement,
-	setSvg,
+	setup,
 	update,
+	projectFile,
+	setSvg,
 };

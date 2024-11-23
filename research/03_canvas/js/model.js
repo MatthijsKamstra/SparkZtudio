@@ -33,12 +33,40 @@ function init() {
 	// Inter.init();
 }
 
-function project(jsonString) {
+function setup() {
+	if (IS_DEBUG) console.info(`Model.setup`);
+}
+
+function setProjectViaFile(jsonString) {
+	console.clear();
+	console.info('Model.setProjectViaFile');
+
 	file(jsonString);
-	setSvgString2Element(ProjectVars.frames[0].svg);
+
+	console.log(ProjectVars.exportName);
+
+
+	// setSvgString2Element(ProjectVars.frames[0].svg);
+
+
+	// Canvas.setSvg(svgElement);
+	Canvas.projectFile();
+
+	// Timeline.setSvg(svgElement);
+	Timeline.projectFile();
+
+	// Properties.setSvg(svgElement); // not sure this is usefull
+	Properties.projectFile();
 }
 
 function file(jsonString) {
+
+	if (IS_DEBUG) {
+		console.group('Model.file');
+		// console.info(jsonString);
+
+	}
+
 	// Check if data is a string
 	if (typeof jsonString !== 'string') {
 		if (IS_DEBUG) console.log('The jsonString is not a string.');
@@ -48,11 +76,7 @@ function file(jsonString) {
 
 	// Parse the JSON string
 	const json = JSON.parse(jsonString);
-	if (IS_DEBUG) {
-		console.group('Model.file');
-		console.info(json);
-		console.groupEnd();
-	}
+
 
 	// TODO: clean up svg in height and width
 	// make sure the values of the svg are same as json.width and .height
@@ -64,9 +88,6 @@ function file(jsonString) {
 		frame.svg = frame.svg.replace(/height='[^']*'/, `height='${projectHeight}'`);
 		frame.svg = frame.svg.replace('\n', '');
 	});
-
-	// console.log(JSON.stringify(json, null, 4));
-
 
 	// Extract basic project information
 	const exportName = json.exportName;
@@ -104,16 +125,10 @@ function file(jsonString) {
 	ProjectVars.frames = frames;
 	ProjectVars.calculated = calculated; // calculate
 
+	console.log(ProjectVars.exportName);
+	console.log(ProjectVars);
 
-	// console.log(frames);
-	// console.log(frames[0]);
-	// console.log(frames[0].svg);
-
-
-
-
-
-
+	if (IS_DEBUG) console.groupEnd();
 
 }
 
@@ -123,7 +138,7 @@ function setSvgString2Element(svgString) {
 	const parser = new DOMParser();
 	const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
 	const svgElement = svgDoc.querySelector('svg');
-	setSvgElement(svgElement);
+	setProjectViaSvgElement(svgElement);
 }
 
 function setSvg(data) {
@@ -227,9 +242,9 @@ function projectFileDefault() {
 
 }
 
-function setSvgElement(svgElement) {
+function setProjectViaSvgElement(svgElement) {
 	if (IS_DEBUG) {
-		console.group('Model.setSvgElement');
+		console.group('Model.setProjectViaSvgElement');
 		console.log(svgElement);
 		console.groupEnd();
 	}
@@ -294,9 +309,10 @@ export const ProjectVars = {
 // Export an object to group the functions
 export const Model = {
 	init,
+	setup,
 	file,
 	setSvg,
-	setSvgElement,
 	update,
-	project,
+	setProjectViaSvgElement,
+	setProjectViaFile,
 };

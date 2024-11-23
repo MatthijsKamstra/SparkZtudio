@@ -1,13 +1,13 @@
 {
-  "exportName": "example_project",
-  "projectName": "Example project",
+  "exportName": "xxexample_project",
+  "projectName": "xxxample project",
   "creationDate": "2024-11-21",
   "description": "Sample project file with additional metadata.",
   "version": "1.0",
   "width": 600,
   "height": 300,
   "frameRate": 24,
-  "frameLength": 40,
+  "frameLength": 48,
   "frames": [
     {
       "frameNumber": 1,
