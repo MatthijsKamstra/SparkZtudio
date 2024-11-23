@@ -308,6 +308,21 @@ export const ProjectVars = {
 	calculated: []
 };
 
+function play() {
+	if (IS_DEBUG) console.log('Model.play');
+}
+
+function stop() {
+	if (IS_DEBUG) console.log('Model.stop');
+}
+
+function nextKeyframe() {
+	if (IS_DEBUG) console.log('Model.stop');
+}
+function previousKeyframe() {
+	if (IS_DEBUG) console.log('Model.previousKeyframe');
+}
+
 // Export an object to group the functions
 export const Model = {
 	init,
@@ -317,4 +332,8 @@ export const Model = {
 	update,
 	setProjectViaSvgElement,
 	setProjectViaFile,
+	stop,
+	play,
+	previousKeyframe,
+	nextKeyframe,
 };

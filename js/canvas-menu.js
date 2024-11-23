@@ -3,10 +3,11 @@ import { Model, ProjectVars } from './model/model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
-let IS_DEBUG = false;
+let IS_DEBUG = true;
 
 let svgElement;
 let canvasWrapper;
+let isPlaying = false;
 
 function init() {
 	if (IS_DEBUG) console.info('init canvas-menu.js');
@@ -40,6 +41,22 @@ function setup() {
 	document.getElementById('canvas-menu-zoomToFit').addEventListener('click', () => {
 		if (IS_DEBUG) console.log('click btn zoomToFit');
 		zoomToFit();
+	});
+
+	// Add keyframe functionality
+	document.getElementById('prevKeyframe').addEventListener('click', () => {
+		if (IS_DEBUG) console.log('click prevKeyframe');
+		prevKeyframe();
+	});
+
+	document.getElementById('togglePlayStop').addEventListener('click', () => {
+		if (IS_DEBUG) console.log('click togglePlayStop');
+		togglePlayStop();
+	});
+
+	document.getElementById('nextKeyframe').addEventListener('click', () => {
+		if (IS_DEBUG) console.log('click nextKeyframe');
+		nextKeyframe();
 	});
 }
 
@@ -79,6 +96,29 @@ function zoomToFit() {
 	const scale = Math.min(containerRect.width / svgRect.width, containerRect.height / svgRect.height);
 	Globals.zoomScale = scale;
 	svgElement.style.transform = `scale(${Globals.zoomScale})`;
+}
+
+function togglePlayStop() {
+	if (isPlaying) {
+		Model.play();
+	} else {
+		Model.stop();
+	}
+	isPlaying = !isPlaying;
+	const toggleButton = document.getElementById('togglePlayStop');
+	toggleButton.innerHTML = isPlaying ? '<i class="fa fa-stop"></i>' : '<i class="fa fa-play"></i>';
+	// Logic to toggle play/stop
+}
+
+// Keyframe navigation functions
+function prevKeyframe() {
+	// Logic to move to the previous keyframe
+	Model.previousKeyframe();
+}
+
+function nextKeyframe() {
+	// Logic to move to the next keyframe
+	Model.nextKeyframe();
 }
 
 // Export an object to group the functions
