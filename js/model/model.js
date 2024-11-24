@@ -36,9 +36,7 @@ export class Model {
 
 	IS_DEBUG = false;
 
-
 	constructor() { }
-
 
 	init() {
 		if (this.IS_DEBUG) {
@@ -52,7 +50,7 @@ export class Model {
 		Canvas.init();
 		new CanvasMenu().init();
 		Layout.init();
-		Menu.init();
+		new Menu().init();
 		Timeline.init();
 		Properties.init();
 		Tools.init();
@@ -77,7 +75,7 @@ export class Model {
 		console.clear();
 		if (this.IS_DEBUG) console.info('new Model().setProjectViaFile');
 
-		file(jsonString);
+		this.file(jsonString);
 
 		if (this.IS_DEBUG) console.log(ProjectVars.exportName);
 
@@ -327,8 +325,6 @@ export class Model {
 		Properties.update();
 	}
 
-
-
 	play() {
 		if (this.IS_DEBUG) console.log('new Model().play');
 	}
@@ -338,11 +334,13 @@ export class Model {
 	}
 
 	nextKeyframe() {
-		if (this.IS_DEBUG) console.log('new Model().stop');
+		if (this.IS_DEBUG) console.log('new Model().nextKeyframe');
 	}
+
 	previousKeyframe() {
 		if (this.IS_DEBUG) console.log('new Model().previousKeyframe');
 	}
+
 	loop(isLoop) {
 		if (this.IS_DEBUG) console.log(`new Model().loop (${isLoop})`);
 	}

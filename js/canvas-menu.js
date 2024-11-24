@@ -30,45 +30,45 @@ export class CanvasMenu {
 		// Add zoom lity
 		document.getElementById('canvas-menu-zoomIn').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click btn zoomIn');
-			zoomIn();
+			this.zoomIn();
 		});
 
 		document.getElementById('canvas-menu-zoomOut').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click btn zoomOut');
-			zoomOut();
+			this.zoomOut();
 		});
 
 		document.getElementById('canvas-menu-zoomTo100').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click btn zoomTo100');
-			zoomTo100();
+			this.zoomTo100();
 		});
 
 		document.getElementById('canvas-menu-zoomToFit').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click btn zoomToFit');
-			zoomToFit();
+			this.zoomToFit();
 		});
 
 		// Add keyframe lity
 		document.getElementById('prevKeyframe').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click prevKeyframe');
-			prevKeyframe();
+			this.prevKeyframe();
 		});
 
 		document.getElementById('togglePlayStop').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click togglePlayStop');
-			togglePlayStop();
+			this.togglePlayStop();
 		});
 
 		document.getElementById('nextKeyframe').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click nextKeyframe');
-			nextKeyframe();
+			this.nextKeyframe();
 		});
 
 
 		// Add loop lity
 		document.getElementById('toggleLoop').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click toggleLoop');
-			toggleLoop();
+			this.toggleLoop();
 		});
 	}
 
@@ -80,6 +80,8 @@ export class CanvasMenu {
 		if (this.IS_DEBUG) console.info('CanvasMenu.projectFile');
 		const svgElement = ProjectVars.frames[0].svg;
 	}
+
+	// ____________________________________ button function  ____________________________________
 
 	zoomIn() {
 		if (this.IS_DEBUG) console.info('zoomIn');
