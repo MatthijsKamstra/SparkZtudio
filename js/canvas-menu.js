@@ -8,6 +8,7 @@ let IS_DEBUG = true;
 let svgElement;
 let canvasWrapper;
 let isPlaying = false;
+let isLooping = false
 
 function init() {
 	if (IS_DEBUG) console.info('init canvas-menu.js');
@@ -58,6 +59,13 @@ function setup() {
 		if (IS_DEBUG) console.log('click nextKeyframe');
 		nextKeyframe();
 	});
+
+
+	// Add loop functionality
+	document.getElementById('toggleLoop').addEventListener('click', () => {
+		if (IS_DEBUG) console.log('click toggleLoop');
+		toggleLoop();
+	});
 }
 
 function update() {
@@ -100,9 +108,9 @@ function zoomToFit() {
 
 function togglePlayStop() {
 	if (isPlaying) {
-		Model.play();
+		new Model().play();
 	} else {
-		Model.stop();
+		new Model().stop();
 	}
 	isPlaying = !isPlaying;
 	const toggleButton = document.getElementById('togglePlayStop');
@@ -110,15 +118,27 @@ function togglePlayStop() {
 	// Logic to toggle play/stop
 }
 
+// Loop functionality
+function toggleLoop() {
+	if (isLooping) {
+		new Model().loop(true);
+	} else {
+		new Model().loop(false);
+	}
+	isLooping = !isLooping;
+	const loopButton = document.getElementById('toggleLoop');
+	loopButton.classList.toggle('active', isLooping); // Logic to toggle looping
+}
+
 // Keyframe navigation functions
 function prevKeyframe() {
 	// Logic to move to the previous keyframe
-	Model.previousKeyframe();
+	new Model().previousKeyframe();
 }
 
 function nextKeyframe() {
 	// Logic to move to the next keyframe
-	Model.nextKeyframe();
+	new Model().nextKeyframe();
 }
 
 // Export an object to group the functions

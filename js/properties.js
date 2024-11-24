@@ -86,7 +86,7 @@ function projectFile() {
 		// Optionally, display a success message or redirect the user
 		// alert('Project details saved successfully!');
 
-		Model.update();
+		new Model().update();
 	});
 
 

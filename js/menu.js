@@ -24,6 +24,7 @@ function setup() {
 		modal.show();
 	};
 	document.getElementById('saveFile').onclick = function () {
+		new Model().saveFile();
 		Export.file();
 	};
 
@@ -57,7 +58,7 @@ function setup() {
 			reader.onload = function (e) {
 				const projectFile = e.target.result;
 				if (IS_DEBUG) console.log(projectFile);
-				Model.setProjectViaFile(projectFile);
+				new Model().setProjectViaFile(projectFile);
 			};
 			reader.readAsText(file);
 		}
@@ -78,7 +79,7 @@ function setup() {
 				const parser = new DOMParser();
 				const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
 				const svgElement = svgDoc.querySelector('svg');
-				Model.setProjectViaSvgElement(svgElement)
+				new Model().setProjectViaSvgElement(svgElement)
 			};
 			reader.readAsText(file);
 		}

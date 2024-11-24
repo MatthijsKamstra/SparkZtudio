@@ -244,7 +244,7 @@ function init() {
 
 	console.log(project);
 
-	Model.file(project);
+	new Model().file(project);
 
 
 }

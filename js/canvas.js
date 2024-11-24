@@ -64,7 +64,7 @@ function defaultSVG() {
 	svgElement.appendChild(textElement);
 
 	// send svg to Model
-	Model.setProjectViaSvgElement(svgElement);
+	new Model().setProjectViaSvgElement(svgElement);
 }
 
 function setSvg(svgElement) {

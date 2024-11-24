@@ -226,6 +226,8 @@
 							class="fa fa-play"></i></button>
 					<button id="nextKeyframe" class="btn btn-outline-primary btn-sm"><i
 							class="fa fa-step-forward"></i></button>
+					<button id="toggleLoop" class="btn btn-outline-primary btn-sm"><i
+							class="fa fa-retweet"></i></button>
 				</div>
 				<div>
 					fps
@@ -421,7 +423,7 @@
 		import { Model } from './js/model/model.js';
 
 		document.addEventListener('DOMContentLoaded', () => {
-			Model.init();
+			new Model().init();
 		});
 	</script>
 

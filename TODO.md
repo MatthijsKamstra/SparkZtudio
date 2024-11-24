@@ -19,3 +19,12 @@
 - [ ] afmeting rate,
 - [x] Model maken ipv Project
 - [ ] Export
+- [ ] LocalStorageHandler
+- [x] zoom working
+- [x] use model more
+- [x] canvas menu
+  - [x] play/stop toggle
+  - [x] next keyferame
+  - [x] prev keyferame
+  - [x] loop
+- [ ] export using inter for betweens.
