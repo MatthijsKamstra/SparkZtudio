@@ -50,7 +50,7 @@ export class Model {
 
 		// jumpstart all
 		Canvas.init();
-		CanvasMenu.init();
+		new CanvasMenu().init();
 		Layout.init();
 		Menu.init();
 		Timeline.init();
