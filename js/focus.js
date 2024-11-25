@@ -1,10 +1,10 @@
 
 export class Focus {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
 	constructor() {
-		console.log('constructor focus.js');
+		if (this.IS_DEBUG) console.log('constructor focus.js');
 
 		const focusReminder = document.getElementById('focusReminder');
 		focusReminder.classList.remove('d-none'); // show this element
@@ -13,30 +13,25 @@ export class Focus {
 		inputBlocker.classList.remove('d-none');
 
 		focusReminder.addEventListener('mouseover', () => {
-			console.log('mouseover');
+			if (this.IS_DEBUG) console.log('mouseover');
 			this.onRemoveFocus();
 		});
 
 		inputBlocker.addEventListener('mouseover', () => {
-			console.log('inputBlocker mouseover');
+			if (this.IS_DEBUG) console.log('inputBlocker mouseover');
 			this.onSetFocus();
 		});
 
-		// document.body.addEventListener('mouseover', () => {
-		// 	console.log('body mouseover');
-		// 	this.onFocus();
-		// 	document.body.removeEventListener('mouseover', () => { console.log('removed') });
-		// });
 
 		// Add an active state style to the body when it gains focus
 		document.body.addEventListener('focus', () => {
-			console.log('focus');
+			if (this.IS_DEBUG) console.log('focus');
 			this.onSetFocus();
 		});
 
 		// Remove active state styling when the body loses focus
 		document.body.addEventListener('blur', () => {
-			console.log('blur');
+			if (this.IS_DEBUG) console.log('blur');
 			this.onRemoveFocus();
 		});
 
