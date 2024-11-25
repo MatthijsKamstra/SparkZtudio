@@ -6,15 +6,16 @@ import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 import { Video } from './video.js';
 
-
 export class Menu {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
-	constructor() { }
+	constructor() {
+		if (this.IS_DEBUG) console.info('constructor menu.js');
+	}
 
 	init() {
-		if (this.IS_DEBUG) console.info('menu.js');
+		if (this.IS_DEBUG) console.info('Menu.init()');
 		this.setup();
 	}
 
@@ -22,7 +23,6 @@ export class Menu {
 	 * setup UI
 	 */
 	setup() {
-
 		// File menu items
 		document.getElementById('newFile').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn newFile');

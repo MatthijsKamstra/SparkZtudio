@@ -6,12 +6,14 @@ import { Video } from './video.js';
 
 export class Shortcuts {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
-	constructor() { }
+	constructor() {
+		if (this.IS_DEBUG) console.info(`constructor shortcuts.js`);
+	}
 
 	init() {
-		if (this.IS_DEBUG) console.info(`init shortcuts.js`);
+		if (this.IS_DEBUG) console.info(`Shortcuts.init()`);
 
 		document.addEventListener('keydown', function (event) {
 			// console.log('keydown');

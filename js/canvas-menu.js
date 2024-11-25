@@ -5,17 +5,19 @@ import { Timeline } from './timeline.js';
 
 export class CanvasMenu {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
 	svgElement;
 	canvasWrapper;
 	isPlaying = false;
 	isLooping = false
 
-	constructor() { }
+	constructor() {
+		if (this.IS_DEBUG) console.info('constructor canvas-menu.js');
+	}
 
 	init() {
-		if (this.IS_DEBUG) console.info('init canvas-menu.js');
+		if (this.IS_DEBUG) console.info('CanvasMenu.init()');
 		this.svgElement = document.getElementById(Globals.svgContainerID);
 		this.canvasWrapper = document.getElementById('canvasWrapper');
 		this.setup();

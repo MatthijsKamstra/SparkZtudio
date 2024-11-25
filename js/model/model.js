@@ -10,6 +10,7 @@ import { LocalStorageHandler } from '../local-storage.js';
 import { Menu } from '../menu.js';
 import { Properties } from '../properties.js';
 import { Shortcuts } from '../shortcuts.js';
+import { TimelineMenu } from '../timeline-menu.js';
 import { Timeline } from '../timeline.js';
 import { Tools } from '../tools.js';
 import { Video } from '../video.js';
@@ -53,24 +54,17 @@ export class Model {
 		new CanvasMenu().init();
 		Layout.init();
 		new Menu().init();
-		Timeline.init();
+		new Timeline().init();
+		new TimelineMenu().init();
 		Properties.init();
 		Tools.init();
 		new Shortcuts().init();
 		Video.init();
-		// Inter.init();
-
-
-
 		new Focus();
 
-		// // Example usage:
-		// const storage = new LocalStorageHandler();
-		// storage.setItem('user', { name: 'John Doe', age: 30 });
-		// const user = storage.getItem('user');
-		// console.log(user); // Output: { name: 'John Doe', age: 30 }
-		// // storage.removeItem('user');
-		// // storage.clearAll();
+		// test inter
+		new Inter().init();
+
 	}
 
 	setup() {
@@ -99,7 +93,7 @@ export class Model {
 		Canvas.projectFile();
 
 		// Timeline.setSvg(svgElement);
-		Timeline.projectFile();
+		new Timeline().projectFile();
 
 		// Properties.setSvg(svgElement); // not sure this is usefull
 		Properties.projectFile();
@@ -126,7 +120,7 @@ export class Model {
 	file(jsonString) {
 
 		if (this.IS_DEBUG) {
-			console.group('new Model().file');
+			console.group('new Model(..).file');
 			// console.info(jsonString);
 
 		}
@@ -346,7 +340,7 @@ export class Model {
 		// set in canvas
 		Canvas.setSvg(svgElement);
 		// set in timeline
-		Timeline.setSvg(svgElement);
+		new Timeline().setSvg(svgElement);
 		// set in properties
 		Properties.setSvg(svgElement); // not sure this is usefull
 		Properties.projectFile(); // usefull
@@ -355,7 +349,7 @@ export class Model {
 	update() {
 		if (this.IS_DEBUG) console.log('update');
 		Canvas.update();
-		Timeline.update();
+		new Timeline().update();
 		Properties.update();
 	}
 
@@ -384,16 +378,20 @@ export class Model {
 		const modal = new bootstrap.Modal(document.getElementById('svgPropertiesModal'));
 		modal.show();
 	}
+
 	saveFile() {
 		if (this.IS_DEBUG) console.log('new Model().saveFile');
 		new Export().file();
 	}
+
 	saveAsFile() {
 		if (this.IS_DEBUG) console.log('WIP New Model().saveAsFile');
 	}
+
 	closeFile() {
 		if (this.IS_DEBUG) console.log('WIP New Model().closeFile');
 	}
+
 	exportFile() {
 		if (this.IS_DEBUG) console.log('new Model().exportFile');
 		new Export().image();
