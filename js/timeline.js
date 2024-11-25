@@ -1,10 +1,9 @@
 import { Globals } from './globals.js';
 import { ProjectVars } from './model/model.js';
 
-
 export class Timeline {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
 	constructor() {
 		if (this.IS_DEBUG) console.info(`constructor timeline.js`);

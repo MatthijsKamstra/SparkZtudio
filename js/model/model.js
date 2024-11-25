@@ -415,7 +415,7 @@ export class Model {
 		if (this.IS_DEBUG) console.log('new Model().exportMovie');
 		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
 		modal.show();
-		Video.initializeCanvas();
+		new ExportVideo().initializeCanvas();
 	}
 
 

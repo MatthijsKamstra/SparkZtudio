@@ -24,21 +24,22 @@ export class Shortcuts {
 				new Model().newFile();
 
 			} else if (event.metaKey && event.key === 'o') {
-				console.log('open');
+				console.log('Shortcuts: open');
 
 				// ⌘O
 				event.preventDefault(); // Prevent the default action
 				new Model().openFile();
+
+			} else if (event.shiftKey && event.metaKey && event.key === 's') {
+				// ⇧⌘S
+				event.preventDefault(); // Prevent the default action
+				new Model().saveAsFile();
 
 			} else if (event.metaKey && event.key === 's') {
 				// ⌘S
 				event.preventDefault(); // Prevent the default action
 				new Model().saveFile();
 
-			} else if (event.shiftKey && event.metaKey && event.key === 's') {
-				// ⇧⌘S
-				event.preventDefault(); // Prevent the default action
-				new Model().saveAsFile();
 
 			} else if (event.metaKey && event.key === 'w') {
 				// ⌘W
@@ -46,21 +47,26 @@ export class Shortcuts {
 				new Model().closeFile();
 
 			} else if (event.metaKey && event.key === 'i') {
-				console.log('iomport');
+				console.log('Shortcuts Import');
 				// ⌘I
 				event.preventDefault(); // Prevent the default action
 				new Model().importFile();
 
-			} else if (event.metaKey && event.key === 'e') {
-				// ⌘E
-				event.preventDefault(); // Prevent the default action
-				new Model().exportFile();
-			}
 
-			else if (event.shiftKey && event.metaKey && event.key === 'e') {
+			} else if (event.shiftKey && event.metaKey && event.key === 'e') {
+				// start with shiftkey first (⇧⌘E) then the rest (⌘E)
+				console.log('Shortcuts Export movie');
 				// ⇧⌘E
 				event.preventDefault(); // Prevent the default action
 				new Model().exportMovie();
+
+			} else if (event.metaKey && event.key === 'e') {
+				console.log('Shortcuts export image');
+				// ⌘E
+				event.preventDefault(); // Prevent the default action
+				new Model().exportFile();
+
+			} else {
 
 			}
 		});

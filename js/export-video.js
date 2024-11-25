@@ -1,8 +1,6 @@
 import { Model, ProjectVars } from './model/model.js';
 
-
 export class ExportVideo {
-
 
 	ctx;
 	mediaRecorder;
@@ -12,19 +10,19 @@ export class ExportVideo {
 	lastValidFrame = null; // To store the last valid frame
 	imageArray = [];
 
-	IS_DEBUG = false;
+	IS_DEBUG = true;
 
 	constructor() {
-
+		if (this.IS_DEBUG) console.info(`constructor export-video.js`);
+		const canvas = document.getElementById("canvas");
+		this.ctx = canvas.getContext("2d");
 	}
 
 	init() {
 		if (this.IS_DEBUG) {
-			console.group('Video.init');
+			console.group('ExportVideo.init');
 			console.groupEnd();
 		}
-		const canvas = document.getElementById("canvas");
-		this.ctx = canvas.getContext("2d");
 
 		this.reset();
 		this.setup();
@@ -71,14 +69,14 @@ export class ExportVideo {
 		const startRecordingButton = document.getElementById("startRecording");
 		const stopRecordingButton = document.getElementById("stopRecording");
 		const confirmExportButton = document.getElementById("confirmExport");
-		startRecordingButton.addEventListener("click", startRecording);
-		stopRecordingButton.addEventListener("click", stopRecording);
-		confirmExportButton.addEventListener("click", confirmExport);
+		startRecordingButton.addEventListener("click", () => this.startRecording());
+		stopRecordingButton.addEventListener("click", () => this.stopRecording());
+		confirmExportButton.addEventListener("click", () => this.confirmExport());
 	}
 
 	initializeCanvas() {
 		if (this.IS_DEBUG) {
-			console.group('Video.initializeCanvas');
+			console.group('ExportVideo.initializeCanvas()');
 			console.log(ProjectVars);
 			console.groupEnd();
 		}
@@ -90,6 +88,11 @@ export class ExportVideo {
 		const canvas = document.getElementById("canvas");
 		canvas.width = ProjectVars.width;
 		canvas.height = ProjectVars.height;
+
+
+		console.log(ProjectVars.frames.length);
+		console.log(ProjectVars.calculated.length);
+
 
 		this.preRenderSVGs(ProjectVars.frames, () => {
 			if (this.IS_DEBUG) console.log('render ready')
@@ -142,27 +145,27 @@ export class ExportVideo {
 	}
 
 	startCanvasAnimation() {
-		frameIndex = 0;
+		this.frameIndex = 0;
 		const intervalMs = 1000 / ProjectVars.frameRate; // Time per frame in milliseconds
 		const totalTime = (ProjectVars.frameLength / ProjectVars.frameRate).toFixed(2); // Total duration in seconds
 
 		this.animationInterval = setInterval(() => {
 			// Stop animation when the frameIndex exceeds the frameLength
-			if (frameIndex >= ProjectVars.frameLength) {
+			if (this.frameIndex >= ProjectVars.frameLength) {
 				this.stopCanvasAnimation(); // Stop the animation interval
-				if (mediaRecorder && mediaRecorder.state === "recording") {
-					mediaRecorder.stop(); // Stop recording
+				if (this.mediaRecorder && this.mediaRecorder.state === "recording") {
+					this.mediaRecorder.stop(); // Stop recording
 					if (this.IS_DEBUG) console.log("Recording stopped...");
 				}
 				return;
 			}
 
 			// Get the current frame image
-			let img = imageArray[frameIndex];
+			let img = this.imageArray[this.frameIndex];
 
 			// If the current frame is null, use the last valid image
-			if (!img && lastValidFrame) {
-				img = lastValidFrame;
+			if (!img && this.lastValidFrame) {
+				img = this.lastValidFrame;
 			}
 
 			// If there is no valid frame, log an error and stop the animation
@@ -174,7 +177,7 @@ export class ExportVideo {
 
 			// Store the current frame if it's valid (not null)
 			if (img) {
-				lastValidFrame = img;
+				this.lastValidFrame = img;
 			}
 
 			// Clear the canvas before drawing new content
@@ -193,10 +196,10 @@ export class ExportVideo {
 				// Overlay frame information after the SVG is drawn
 				this.ctx.font = "20px Arial";
 				this.ctx.fillStyle = "red";
-				const currentTime = (frameIndex / ProjectVars.frameRate).toFixed(2); // Current time in seconds
+				const currentTime = (this.frameIndex / ProjectVars.frameRate).toFixed(2); // Current time in seconds
 
 				// Text for Frame Info (draw after the SVG)
-				this.ctx.fillText(`Frame: ${frameIndex + 1}/${ProjectVars.frameLength}`, 20, 60);
+				this.ctx.fillText(`Frame: ${this.frameIndex + 1}/${ProjectVars.frameLength}`, 20, 60);
 				this.ctx.fillText(`Frame Rate: ${ProjectVars.frameRate} FPS`, 20, 90);
 				this.ctx.fillText(`Time: ${currentTime}s / ${totalTime}s`, 20, 120);
 			}
@@ -208,8 +211,8 @@ export class ExportVideo {
 	}
 
 	stopCanvasAnimation() {
-		if (animationInterval) {
-			clearInterval(animationInterval);
+		if (this.animationInterval) {
+			clearInterval(this.animationInterval);
 			this.reset();
 		}
 	}
@@ -225,6 +228,10 @@ export class ExportVideo {
 		const canvas = document.getElementById("canvas");
 		const canvasStream = canvas.captureStream(ProjectVars.frameRate); // Capture at project frame rate
 		let options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 1000000, }; // with transparancy (Firefox doesn't support)
+
+		console.log(this.isCodecSupported(options.mimeType));
+
+
 		if (!this.isCodecSupported(options.mimeType)) {
 			options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1000000, }; // supported by Firefox
 		}
@@ -232,12 +239,12 @@ export class ExportVideo {
 
 		this.mediaRecorder.ondataavailable = (event) => {
 			if (event.data.size > 0) {
-				recordedChunks.push(event.data);
+				this.recordedChunks.push(event.data);
 			}
 		};
 
 		this.mediaRecorder.onstop = () => {
-			const blob = new Blob(recordedChunks, { type: "video/webm" });
+			const blob = new Blob(this.recordedChunks, { type: "video/webm" });
 			const url = URL.createObjectURL(blob);
 
 			// Create a downloadable link
@@ -250,26 +257,26 @@ export class ExportVideo {
 
 			// Clean up
 			URL.revokeObjectURL(url);
-			recordedChunks = [];
+			this.recordedChunks = [];
 		};
 
-		mediaRecorder.start();
-		startCanvasAnimation();
+		this.mediaRecorder.start();
+		this.startCanvasAnimation();
 		console.log("Recording started...");
 	}
 
 	// Stop recording
 	stopRecording() {
-		stopCanvasAnimation();
-		if (mediaRecorder && mediaRecorder.state === "recording") {
-			mediaRecorder.stop();
+		this.stopCanvasAnimation();
+		if (this.mediaRecorder && this.mediaRecorder.state === "recording") {
+			this.mediaRecorder.stop();
 			if (this.IS_DEBUG) console.log("Recording stopped...");
 		}
 	}
 
 	// Confirm export (optional)
 	confirmExport() {
-		if (recordedChunks.length === 0) {
+		if (this.recordedChunks.length === 0) {
 			alert("No video recorded to export!");
 		} else {
 			alert("Your video has been exported!");
