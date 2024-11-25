@@ -1,6 +1,8 @@
 import { CanvasMenu } from '../canvas-menu.js';
 import { Canvas } from '../canvas.js';
 import { Defaults } from '../defaults.js';
+import { Export } from '../export.js';
+import { Focus } from '../focus.js';
 import { Globals } from '../globals.js';
 import { Inter } from '../inter.js';
 import { Layout } from '../layout.js';
@@ -54,17 +56,21 @@ export class Model {
 		Timeline.init();
 		Properties.init();
 		Tools.init();
-		Shortcuts.init();
+		new Shortcuts().init();
 		Video.init();
 		// Inter.init();
 
-		// Example usage:
-		const storage = new LocalStorageHandler();
-		storage.setItem('user', { name: 'John Doe', age: 30 });
-		const user = storage.getItem('user');
-		console.log(user); // Output: { name: 'John Doe', age: 30 }
-		// storage.removeItem('user');
-		// storage.clearAll();
+
+
+		new Focus();
+
+		// // Example usage:
+		// const storage = new LocalStorageHandler();
+		// storage.setItem('user', { name: 'John Doe', age: 30 });
+		// const user = storage.getItem('user');
+		// console.log(user); // Output: { name: 'John Doe', age: 30 }
+		// // storage.removeItem('user');
+		// // storage.clearAll();
 	}
 
 	setup() {
@@ -72,12 +78,18 @@ export class Model {
 	}
 
 	setProjectViaFile(jsonString) {
-		console.clear();
+		// console.clear();
 		if (this.IS_DEBUG) console.info('new Model().setProjectViaFile');
+
 
 		this.file(jsonString);
 
 		if (this.IS_DEBUG) console.log(ProjectVars.exportName);
+
+
+		// store files
+		this.storeProjectFile(jsonString);
+
 
 
 		// setSvgString2Element(ProjectVars.frames[0].svg);
@@ -91,6 +103,24 @@ export class Model {
 
 		// Properties.setSvg(svgElement); // not sure this is usefull
 		Properties.projectFile();
+	}
+
+
+	storeProjectFile(json) {
+		// store a list of items
+		let local = new LocalStorageHandler();
+		let projectFilesArray = local.getItem('projectFilesA');
+		if (this.IS_DEBUG) console.log(projectFilesArray);
+
+		if (!projectFilesArray) projectFilesArray = [];
+		if (this.IS_DEBUG) console.log(projectFilesArray);
+		if (projectFilesArray.length <= 1) {
+			projectFilesArray.push(json);
+		} else {
+			projectFilesArray.unshift(json);
+		}
+		if (this.IS_DEBUG) console.log(projectFilesArray);
+		local.setItem('projectFiles', json);
 	}
 
 	file(jsonString) {
@@ -110,6 +140,10 @@ export class Model {
 
 		// Parse the JSON string
 		const json = JSON.parse(jsonString);
+
+		// // store files
+		// this.storeProjectFile(json);
+
 
 
 		// TODO: clean up svg in height and width
@@ -344,5 +378,47 @@ export class Model {
 	loop(isLoop) {
 		if (this.IS_DEBUG) console.log(`new Model().loop (${isLoop})`);
 	}
+
+	newFile() {
+		if (this.IS_DEBUG) console.log('new Model().newFile');
+		const modal = new bootstrap.Modal(document.getElementById('svgPropertiesModal'));
+		modal.show();
+	}
+	saveFile() {
+		if (this.IS_DEBUG) console.log('new Model().saveFile');
+		new Export().file();
+	}
+	saveAsFile() {
+		if (this.IS_DEBUG) console.log('WIP New Model().saveAsFile');
+	}
+	closeFile() {
+		if (this.IS_DEBUG) console.log('WIP New Model().closeFile');
+	}
+	exportFile() {
+		if (this.IS_DEBUG) console.log('new Model().exportFile');
+		new Export().image();
+	}
+
+	openFile() {
+		if (this.IS_DEBUG) console.log('WIP new Model().openFile');
+		// new Export().image();
+		let el = document.getElementById('openFileInput3');
+		el.click();
+	}
+
+	importFile() {
+		if (this.IS_DEBUG) console.log('WIP new Model().importFile');
+		// new Export().image();
+		let el = document.getElementById('importFile3');
+		el.click();
+	}
+
+	exportMovie() {
+		if (this.IS_DEBUG) console.log('new Model().exportMovie');
+		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+		modal.show();
+		Video.initializeCanvas();
+	}
+
 
 }

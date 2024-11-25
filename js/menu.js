@@ -9,7 +9,7 @@ import { Video } from './video.js';
 
 export class Menu {
 
-	IS_DEBUG = false;
+	IS_DEBUG = true;
 
 	constructor() { }
 
@@ -24,38 +24,29 @@ export class Menu {
 	setup() {
 
 		// File menu items
-		document.getElementById('newFile').onclick = function () {
+		document.getElementById('newFile').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn newFile');
 			this.newFile();
 		};
-		document.getElementById('saveFile').onclick = function () {
+		document.getElementById('saveFile').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn saveFile');
 			this.saveFile();
-
 		};
-
-		document.getElementById('saveAsFile').onclick = function () {
+		document.getElementById('saveAsFile').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn saveAsFile');
 			this.saveAsFile();
-
 		};
-
-		document.getElementById('exportFile').onclick = function () {
+		document.getElementById('exportFile').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn exportFile');
 			this.exportFile();
-
 		};
-
-		document.getElementById('exportMovie').onclick = function () {
+		document.getElementById('exportMovie').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn exportMovie');
 			this.exportMovie();
-
 		};
-
-		document.getElementById('closeFile').onclick = function () {
+		document.getElementById('closeFile').onclick = () => {
 			if (this.IS_DEBUG) console.log('click btn closeFile');
 			this.closeFile();
-
 		};
 
 		/**
@@ -82,7 +73,6 @@ export class Menu {
 		// Open file input
 		document.getElementById('importFile3').addEventListener('change', function (event) {
 			if (this.IS_DEBUG) console.log('importFile');
-
 			const file = event.target.files[0];
 			if (file) {
 				const reader = new FileReader();
@@ -127,31 +117,27 @@ export class Menu {
 	// ____________________________________ button functions ____________________________________
 
 	newFile() {
-		const modal = new bootstrap.Modal(document.getElementById('svgPropertiesModal'));
-		modal.show();
+		new Model().newFile();
 	}
 
 	saveFile() {
 		new Model().saveFile();
-		Export.file();
 	}
 
 	saveAsFile() {
-		alert('Save As File');
+		new Model().saveAsFile();
 	}
 
 	exportFile() {
-		Export.image();
+		new Model().exportFile();
 	}
 
 	exportMovie() {
-		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
-		modal.show();
-		Video.initializeCanvas();
+		new Model().exportMovie();
 	}
 
 	closeFile() {
-		alert('Close File');
+		new Model().closeFile();
 	}
 
 }

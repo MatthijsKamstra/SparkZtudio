@@ -9,3 +9,7 @@
   background: repeating-conic-gradient(#aaa 0% 25%, transparent 0% 50%) 50% /
     20px 20px;
 }
+
+.active {
+  outline: 3px dashed red;
+}
