@@ -1,3 +1,4 @@
+import { ExportVideo } from './export-video.js';
 import { Globals } from './globals.js';
 import { Layout } from './layout.js';
 import { Menu } from './menu.js';
@@ -6,7 +7,6 @@ import { Properties } from './properties.js';
 import { Shortcuts } from './shortcuts.js';
 import { Timeline } from './timeline.js';
 import { Tools } from './tools.js';
-import { Video } from './video.js';
 
 export class Inter {
 

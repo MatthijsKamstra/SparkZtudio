@@ -1,7 +1,7 @@
+import { ExportVideo } from './export-video.js';
 import { Export } from './export.js';
 import { Globals } from './globals.js';
 import { Model } from './model/model.js';
-import { Video } from './video.js';
 
 
 export class Shortcuts {

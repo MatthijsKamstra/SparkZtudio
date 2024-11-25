@@ -1,6 +1,7 @@
 import { CanvasMenu } from '../canvas-menu.js';
 import { Canvas } from '../canvas.js';
 import { Defaults } from '../defaults.js';
+import { ExportVideo } from '../export-video.js';
 import { Export } from '../export.js';
 import { Focus } from '../focus.js';
 import { Globals } from '../globals.js';
@@ -13,7 +14,6 @@ import { Shortcuts } from '../shortcuts.js';
 import { TimelineMenu } from '../timeline-menu.js';
 import { Timeline } from '../timeline.js';
 import { Tools } from '../tools.js';
-import { Video } from '../video.js';
 // import { Model, ProjectVars } from './model/model.js';
 
 
@@ -59,7 +59,7 @@ export class Model {
 		Properties.init();
 		Tools.init();
 		new Shortcuts().init();
-		Video.init();
+		new ExportVideo().init();
 		new Focus();
 
 		// test inter
