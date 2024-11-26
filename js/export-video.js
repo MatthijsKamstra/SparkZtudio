@@ -27,9 +27,14 @@ export class ExportVideo {
 		this.reset();
 		this.setup();
 
+		this.isCodecSupportedList(); // test of de codec werken
+
 		// Initialize the canvas with the first SVG
 		this.initializeCanvas();
 
+	}
+
+	isCodecSupportedList() {
 		const mimeTypes = [
 			'video/webm',
 			'video/webm;codecs=vp8',
@@ -52,13 +57,12 @@ export class ExportVideo {
 			"video/mp4",
 		];
 
-		if (this.IS_DEBUG) console.groupCollapsed('mimetypes supported');
+		if (this.IS_DEBUG) console.groupCollapsed('Is Codec supported?');
 		mimeTypes.forEach((mimeType) => {
 			const isSupported = this.isCodecSupported(mimeType);
 			if (this.IS_DEBUG) console.log(`${mimeType}: ${isSupported ? 'Supported' : 'Not Supported'}`);
 		});
 		if (this.IS_DEBUG) console.groupEnd();
-
 
 	}
 
@@ -90,8 +94,9 @@ export class ExportVideo {
 		canvas.height = ProjectVars.height;
 
 
-		console.log(ProjectVars.frames.length);
-		console.log(ProjectVars.calculated.length);
+		console.log(ProjectVars.projectName);
+		console.log('ProjectVars.frames.length: ' + ProjectVars.frames.length);
+		console.log('ProjectVars.calculated.length: ' + ProjectVars.calculated.length);
 
 
 		this.preRenderSVGs(ProjectVars.frames, () => {

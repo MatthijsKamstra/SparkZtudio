@@ -2,36 +2,47 @@ import { Globals } from './globals.js';
 import { Model, ProjectVars } from './model/model.js';
 
 
-const IS_DEBUG = false;
+export class Properties {
 
-// Define your functions
-function initProperties() {
-	if (IS_DEBUG) console.info('init properties.js');
-}
+	IS_DEBUG = false;
 
-function projectFile() {
+	constructor() {
+		if (this.IS_DEBUG) console.info('init properties.js');
 
-	if (IS_DEBUG) {
-		console.info('> projectFile');
-		console.log(ProjectVars);
 	}
 
-	// document.getElementById('propertiesDocument').innerHTML = `
+	init() {
+		if (this.IS_DEBUG) console.log('Properties().init()');
+	}
 
-	// 						<ul class="ps-0">
-	// 						<li><strong>ProjectName:</strong> ${ProjectVars.projectName}</li>
-	// 						<li><strong>ExportName:</strong> ${ProjectVars.exportName}</li>
-	// 						<li><strong>creationDate:</strong> ${ProjectVars.creationDate}</li>
-	//                             <li><strong>Width:</strong> ${ProjectVars.width}</li>
-	//                             <li><strong>Height:</strong> ${ProjectVars.height}</li>
-	//                             <li><strong>frameRate:</strong> ${ProjectVars.frameRate}</li>
-	//                             <li><strong>frameLength:</strong> ${ProjectVars.frameLength}</li>
+	update() {
+		if (this.IS_DEBUG) console.log('Properties().update()');
+	}
 
-	// 						</ul>
-	//                 `;
 
-	document.getElementById('propertiesDocument').innerHTML =
-		`
+	projectFile() {
+
+		if (this.IS_DEBUG) {
+			console.info('> projectFile');
+			console.log(ProjectVars);
+		}
+
+		// document.getElementById('propertiesDocument').innerHTML = `
+
+		// 						<ul class="ps-0">
+		// 						<li><strong>ProjectName:</strong> ${ProjectVars.projectName}</li>
+		// 						<li><strong>ExportName:</strong> ${ProjectVars.exportName}</li>
+		// 						<li><strong>creationDate:</strong> ${ProjectVars.creationDate}</li>
+		//                             <li><strong>Width:</strong> ${ProjectVars.width}</li>
+		//                             <li><strong>Height:</strong> ${ProjectVars.height}</li>
+		//                             <li><strong>frameRate:</strong> ${ProjectVars.frameRate}</li>
+		//                             <li><strong>frameLength:</strong> ${ProjectVars.frameLength}</li>
+
+		// 						</ul>
+		//                 `;
+
+		document.getElementById('propertiesDocument').innerHTML =
+			`
 	<form id="projectDetailsForm">
 		<div class="form-group">
 			<label for="projectName"><strong>ProjectName:</strong></label>
@@ -66,59 +77,59 @@ function projectFile() {
 	`;
 
 
-	const form = document.getElementById('projectDetailsForm');
+		const form = document.getElementById('projectDetailsForm');
 
-	form.addEventListener('submit', function (event) {
-		event.preventDefault(); // Prevent the form from submitting the traditional way
+		form.addEventListener('submit', (event) => {
+			event.preventDefault(); // Prevent the form from submitting the traditional way
 
-		// Update ProjectVars with values from the form
-		ProjectVars.projectName = document.getElementById('projectName').value;
-		ProjectVars.exportName = document.getElementById('exportName').value;
-		ProjectVars.creationDate = document.getElementById('creationDate').value;
-		ProjectVars.width = parseInt(document.getElementById('width').value, 10);
-		ProjectVars.height = parseInt(document.getElementById('height').value, 10);
-		ProjectVars.frameRate = parseInt(document.getElementById('frameRate').value, 10);
-		ProjectVars.frameLength = parseInt(document.getElementById('frameLength').value, 10);
+			// Update ProjectVars with values from the form
+			ProjectVars.projectName = document.getElementById('projectName').value;
+			ProjectVars.exportName = document.getElementById('exportName').value;
+			ProjectVars.creationDate = document.getElementById('creationDate').value;
+			ProjectVars.width = parseInt(document.getElementById('width').value, 10);
+			ProjectVars.height = parseInt(document.getElementById('height').value, 10);
+			ProjectVars.frameRate = parseInt(document.getElementById('frameRate').value, 10);
+			ProjectVars.frameLength = parseInt(document.getElementById('frameLength').value, 10);
 
-		// Perform any additional actions such as saving the data or updating the UI
-		console.log('ProjectVars updated:', ProjectVars);
+			// Perform any additional actions such as saving the data or updating the UI
+			console.log('ProjectVars updated:', ProjectVars);
 
-		// Optionally, display a success message or redirect the user
-		// alert('Project details saved successfully!');
+			// Optionally, display a success message or redirect the user
+			// alert('Project details saved successfully!');
 
-		new Model().update();
-	});
+			new Model().update();
+		});
 
 
 
-}
-
-function setSvg(svgElement) {
-
-	if (IS_DEBUG) {
-		console.info('setPropertyDocument');
-		console.log(svgElement);
 	}
 
-	if (typeof svgElement === 'string') {
-		if (IS_DEBUG) console.log('The svgElement is a string.'); // Further processing of the string data can go here
-	} else {
-		if (IS_DEBUG) console.log('The svgElement is not a string.'); // Handle other data types accordingly
-		const serializer = new XMLSerializer();
-		svgElement = serializer.serializeToString(svgElement);
-		if (IS_DEBUG) console.log(svgElement);
-	}
+	setSvg(svgElement) {
 
-	// Load SVG properties
-	const parser = new DOMParser();
-	const svgDoc = parser.parseFromString(svgElement, "image/svg+xml");
-	const svgEl = svgDoc.querySelector('svg');
-	if (svgEl) {
-		const width = svgEl.getAttribute('width') || 'N/A';
-		const height = svgEl.getAttribute('height') || 'N/A';
-		const viewBox = svgEl.getAttribute('viewBox') || 'N/A';
+		if (this.IS_DEBUG) {
+			console.info('setPropertyDocument');
+			console.log(svgElement);
+		}
 
-		document.getElementById('propertiesDocument').innerHTML = `
+		if (typeof svgElement === 'string') {
+			if (this.IS_DEBUG) console.log('The svgElement is a string.'); // Further processing of the string data can go here
+		} else {
+			if (this.IS_DEBUG) console.log('The svgElement is not a string.'); // Handle other data types accordingly
+			const serializer = new XMLSerializer();
+			svgElement = serializer.serializeToString(svgElement);
+			if (this.IS_DEBUG) console.log(svgElement);
+		}
+
+		// Load SVG properties
+		const parser = new DOMParser();
+		const svgDoc = parser.parseFromString(svgElement, "image/svg+xml");
+		const svgEl = svgDoc.querySelector('svg');
+		if (svgEl) {
+			const width = svgEl.getAttribute('width') || 'N/A';
+			const height = svgEl.getAttribute('height') || 'N/A';
+			const viewBox = svgEl.getAttribute('viewBox') || 'N/A';
+
+			document.getElementById('propertiesDocument').innerHTML = `
                         <div class="card">
                             <div class="card-header">
                                 SVG Properties
@@ -130,17 +141,8 @@ function setSvg(svgElement) {
                             </div>
                         </div>
                     `;
+		}
 	}
-}
 
-function update() {
-	console.log('update');
-}
 
-// Export an object to group the functions
-export const Properties = {
-	init: initProperties,
-	setSvg,
-	projectFile,
-	update,
-};
+}

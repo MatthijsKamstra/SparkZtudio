@@ -37,13 +37,13 @@ export const ProjectVars = {
 
 export class Model {
 
-	IS_DEBUG = false;
+	IS_DEBUG = true;
 
 	constructor() { }
 
 	init() {
 		if (this.IS_DEBUG) {
-			console.group(`new Model().init`);
+			console.group(`new Model().init()`);
 			console.info(`init js/model/model.js`);
 			console.log(`version: ${Globals.version}`);
 			console.groupEnd();
@@ -52,12 +52,12 @@ export class Model {
 		// jumpstart all
 		Canvas.init();
 		new CanvasMenu().init();
-		Layout.init();
+		new Layout().init();
 		new Menu().init();
 		new Timeline().init();
 		new TimelineMenu().init();
-		Properties.init();
-		Tools.init();
+		new Properties().init();
+		new Tools().init();
 		new Shortcuts().init();
 		new ExportVideo().init();
 		new Focus();
@@ -95,8 +95,8 @@ export class Model {
 		// Timeline.setSvg(svgElement);
 		new Timeline().projectFile();
 
-		// Properties.setSvg(svgElement); // not sure this is usefull
-		Properties.projectFile();
+		// new Properties().setSvg(svgElement); // not sure this is usefull
+		new Properties().projectFile();
 	}
 
 
@@ -121,19 +121,31 @@ export class Model {
 
 		if (this.IS_DEBUG) {
 			console.group('new Model(..).file');
-			// console.info(jsonString);
-
+			console.groupCollapsed('jsonString');
+			console.log(jsonString);
+			console.groupEnd('jsonString');
 		}
 
 		// Check if data is a string
 		if (typeof jsonString !== 'string') {
 			if (this.IS_DEBUG) console.log('The jsonString is not a string.');
 			jsonString = JSON.stringify(jsonString)
-			if (this.IS_DEBUG) console.log(jsonString);
+
+			if (this.IS_DEBUG) {
+				console.groupCollapsed('jsonString');
+				console.log(jsonString);
+				console.groupEnd('jsonString');
+			}
 		}
 
 		// Parse the JSON string
 		const json = JSON.parse(jsonString);
+
+		if (this.IS_DEBUG) {
+			console.groupCollapsed(`json - "${json.exportName}"`);
+			console.log(json);
+			console.groupEnd('json');
+		}
 
 		// // store files
 		// this.storeProjectFile(json);
@@ -187,8 +199,11 @@ export class Model {
 		ProjectVars.frames = frames;
 		ProjectVars.calculated = calculated; // calculate
 
-		if (this.IS_DEBUG) console.log(ProjectVars.exportName);
-		if (this.IS_DEBUG) console.log(ProjectVars);
+		if (this.IS_DEBUG) {
+			console.groupCollapsed(`ProjectVars - "${ProjectVars.exportName}"`);
+			console.log(ProjectVars);
+			console.groupEnd('ProjectVars');
+		}
 
 		if (this.IS_DEBUG) console.groupEnd();
 
@@ -342,15 +357,15 @@ export class Model {
 		// set in timeline
 		new Timeline().setSvg(svgElement);
 		// set in properties
-		Properties.setSvg(svgElement); // not sure this is usefull
-		Properties.projectFile(); // usefull
+		new Properties().setSvg(svgElement); // not sure this is usefull
+		new Properties().projectFile(); // usefull
 	}
 
 	update() {
 		if (this.IS_DEBUG) console.log('update');
 		Canvas.update();
 		new Timeline().update();
-		Properties.update();
+		new Properties().update();
 	}
 
 	play() {

@@ -55,13 +55,13 @@ export class Shortcuts {
 
 			} else if (event.shiftKey && event.metaKey && event.key === 'e') {
 				// start with shiftkey first (⇧⌘E) then the rest (⌘E)
-				console.log('Shortcuts Export movie');
+				console.log('Shortcuts export image');
 				// ⇧⌘E
 				event.preventDefault(); // Prevent the default action
 				new Model().exportMovie();
 
 			} else if (event.metaKey && event.key === 'e') {
-				console.log('Shortcuts export image');
+				console.log('Shortcuts Export movie');
 				// ⌘E
 				event.preventDefault(); // Prevent the default action
 				new Model().exportFile();

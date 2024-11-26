@@ -1,6 +1,6 @@
 export class TimelineMenu {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
 	constructor() {
 		if (this.IS_DEBUG) console.info(`constructor timeline-menu.js`);
