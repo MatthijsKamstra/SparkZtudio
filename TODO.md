@@ -16,10 +16,10 @@
 - [ ] layers revered so background is lowest
 - [ ] opslaan van afmeting properties, timeline (share locally)
 - [ ] opslaan van previous projects
-- [ ] afmeting rate,
+- [x] afmeting rate,
 - [x] Model maken ipv Project
 - [ ] Export
-- [ ] LocalStorageHandler
+- [x] LocalStorageHandler
 - [x] zoom working
 - [x] use model more
 - [x] canvas menu
@@ -28,3 +28,14 @@
   - [x] prev keyferame
   - [x] loop
 - [ ] export using inter for betweens.
+- [x] time rounded
+
+---
+
+## ExportMovie...
+
+new Model().init() -> new Inter().init()
+
+- dummy file projectFile
+
+-> new Model().setProjectViaFile(this.projectFileTest);

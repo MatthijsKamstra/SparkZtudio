@@ -259,7 +259,7 @@ export class Timeline {
 	setTotalTime() {
 		if (this.IS_DEBUG) console.info('Timeline.setTotalTime');
 		const el = document.getElementById('timeLineTotalTime');
-		el.value = ProjectVars.frameLength / ProjectVars.frameRate;
+		el.value = (ProjectVars.frameLength / ProjectVars.frameRate).toFixed(2);
 	}
 
 }

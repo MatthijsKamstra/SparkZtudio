@@ -170,7 +170,7 @@ export class Canvas {
 		svgElement.addEventListener('mousedown', (e) => { this.handleMouseDown(e) });
 		svgElement.addEventListener('mousemove', (e) => { this.handleMouseMove(e) });
 		svgElement.addEventListener('mouseup', (e) => { this.handleMouseUp(e) });
-		svgElement.addEventListener('mouseleave', (e) => { this.handleMouseLeave() });
+		svgElement.addEventListener('mouseleave', (e) => { this.handleMouseLeave(e) });
 	}
 
 }

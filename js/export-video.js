@@ -93,16 +93,17 @@ export class ExportVideo {
 		canvas.width = ProjectVars.width;
 		canvas.height = ProjectVars.height;
 
+		if (this.IS_DEBUG) {
+			console.log(ProjectVars.projectName);
+			console.log('ProjectVars.frames.length: ' + ProjectVars.frames.length);
+			console.log('ProjectVars.calculated.length: ' + ProjectVars.calculated.length);
+		}
 
-		console.log(ProjectVars.projectName);
-		console.log('ProjectVars.frames.length: ' + ProjectVars.frames.length);
-		console.log('ProjectVars.calculated.length: ' + ProjectVars.calculated.length);
-
-
+		if (this.IS_DEBUG) console.groupCollapsed('-- preRenderSVGs');
 		this.preRenderSVGs(ProjectVars.frames, () => {
-			if (this.IS_DEBUG) console.log('render ready')
+			if (this.IS_DEBUG) console.log('ExportVideo.initializeCanvas(): Renders ready!');
 		});
-
+		if (this.IS_DEBUG) console.groupEnd('-- preRenderSVGs');
 
 		if (ProjectVars.frames && ProjectVars.frames.length > 0) {
 			const firstFrame = ProjectVars.frames[0];
@@ -112,7 +113,13 @@ export class ExportVideo {
 		}
 	}
 
-	//  to draw SVG onto canvas
+	/**
+	 * improve the load for svg new Export().image() ?????
+	 * to draw SVG onto canvas
+	 *
+	 * @param {*} svg
+	 * @param {*} callback
+	 */
 	drawSVG(svg, callback) {
 		const svgBlob = new Blob([svg], { type: "image/svg+xml" });
 		const url = URL.createObjectURL(svgBlob);
@@ -126,13 +133,21 @@ export class ExportVideo {
 		img.src = url;
 	}
 
-	// Pre-render all SVGs and store in an array
+	/**
+	 * Pre-render all SVGs and store in an array
+	 *
+	 * @param {*} frames
+	 * @param {*} callback
+	 */
 	preRenderSVGs(frames, callback) {
+		// reset values
 		let loadedCount = 0;
+		this.imageArray = [];
 		frames.forEach((frame, index) => {
 			this.drawSVG(frame.svg, (img) => {
 				this.imageArray[index] = img;
 				loadedCount++;
+				if (this.IS_DEBUG) console.log(`${loadedCount}/${frames.length}`);
 				if (loadedCount === frames.length) {
 					if (this.IS_DEBUG) console.log('All SVGs have been prerendered and stored.');
 					callback();

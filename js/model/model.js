@@ -63,7 +63,11 @@ export class Model {
 		new Focus();
 
 		// test inter
-		new Inter().init();
+		// new Inter().init();
+		setTimeout(function () {
+			console.clear();
+			new Inter().init();
+		}, 2000);
 
 	}
 
@@ -80,6 +84,10 @@ export class Model {
 
 		if (this.IS_DEBUG) console.log(ProjectVars.exportName);
 
+
+
+
+		// convert project file to ProjectVars
 
 		// store files
 		this.storeProjectFile(jsonString);
@@ -110,12 +118,21 @@ export class Model {
 		// if (this.IS_DEBUG) console.log(projectFilesArray);
 		if (!projectFilesArray) projectFilesArray = [];
 		// if (this.IS_DEBUG) console.log(projectFilesArray);
+
 		projectFilesArray.push(json);
+		// Remove the oldest item if the array length exceeds 5
+		if (projectFilesArray.length > 5) {
+			projectFilesArray.shift(); // remove the first item
+		}
 		// if (this.IS_DEBUG) console.log(projectFilesArray);
 		local.setItem('projectFiles', projectFilesArray);
 	}
 
 
+	/**
+	 *
+	 * @param {*} jsonString
+	 */
 	file(jsonString) {
 
 		if (this.IS_DEBUG) {
@@ -176,6 +193,10 @@ export class Model {
 		const time = (json.frameLength / json.frameRate);
 		const calculated = json.calculated;
 
+		console.log('calculated');
+		console.log(json.calculated.lenght);
+
+
 		// Extract frame data
 		const frames = json.frames.map(frame => ({
 			frameNumber: frame.frameNumber,
@@ -203,8 +224,6 @@ export class Model {
 			console.log(ProjectVars);
 			console.groupEnd('ProjectVars');
 		}
-
-		if (this.IS_DEBUG) console.groupEnd();
 
 	}
 

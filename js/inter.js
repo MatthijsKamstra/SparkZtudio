@@ -101,9 +101,9 @@ export class Inter {
 	}
 
 	/**
-	 * use this to setup the calculated files
+	 * use this to setup the intercalculate the inbetween frams are calculated
 	 *
-	 * @param {*} projectFile
+	 * @param {*} projectFile  json file that holds the keyframes and project files
 	 */
 	setup(projectFile) {
 		if (this.IS_DEBUG) console.info('Inter.setup(..)');
@@ -121,8 +121,12 @@ export class Inter {
 
 	}
 
+	/**
+	 * use this to setup the intercalculate the inbetween frams are calculated
+	 *
+	 * @param {*} projectFile  json file that holds the keyframes and project files
+	 */
 	init() {
-
 		if (this.IS_DEBUG) console.info('Inter.init()');
 
 		// Calculate data for all frames and add to project
