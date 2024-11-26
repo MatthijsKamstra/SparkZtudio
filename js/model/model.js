@@ -50,7 +50,7 @@ export class Model {
 		}
 
 		// jumpstart all
-		Canvas.init();
+		new Canvas().init();
 		new CanvasMenu().init();
 		new Layout().init();
 		new Menu().init();
@@ -90,7 +90,7 @@ export class Model {
 
 
 		// Canvas.setSvg(svgElement);
-		Canvas.projectFile();
+		new Canvas().projectFile();
 
 		// Timeline.setSvg(svgElement);
 		new Timeline().projectFile();
@@ -215,7 +215,7 @@ export class Model {
 		const parser = new DOMParser();
 		const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
 		const svgElement = svgDoc.querySelector('svg');
-		setProjectViaSvgElement(svgElement);
+		this.setProjectViaSvgElement(svgElement);
 	}
 
 	setSvg(data) {
@@ -353,7 +353,7 @@ export class Model {
 		// console.log(ProjectVars.calculated.length);
 
 		// set in canvas
-		Canvas.setSvg(svgElement);
+		new Canvas().setSvg(svgElement);
 		// set in timeline
 		new Timeline().setSvg(svgElement);
 		// set in properties
@@ -363,7 +363,7 @@ export class Model {
 
 	update() {
 		if (this.IS_DEBUG) console.log('update');
-		Canvas.update();
+		new Canvas().update();
 		new Timeline().update();
 		new Properties().update();
 	}
