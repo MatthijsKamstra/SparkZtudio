@@ -99,23 +99,22 @@ export class Model {
 		new Properties().projectFile();
 	}
 
-
+	/**
+	 * bewaar alle files in local storage
+	 * @param {*} json
+	 */
 	storeProjectFile(json) {
 		// store a list of items
 		let local = new LocalStorageHandler();
-		let projectFilesArray = local.getItem('projectFilesA');
-		if (this.IS_DEBUG) console.log(projectFilesArray);
-
+		let projectFilesArray = local.getItem('projectFiles');
+		// if (this.IS_DEBUG) console.log(projectFilesArray);
 		if (!projectFilesArray) projectFilesArray = [];
-		if (this.IS_DEBUG) console.log(projectFilesArray);
-		if (projectFilesArray.length <= 1) {
-			projectFilesArray.push(json);
-		} else {
-			projectFilesArray.unshift(json);
-		}
-		if (this.IS_DEBUG) console.log(projectFilesArray);
-		local.setItem('projectFiles', json);
+		// if (this.IS_DEBUG) console.log(projectFilesArray);
+		projectFilesArray.push(json);
+		// if (this.IS_DEBUG) console.log(projectFilesArray);
+		local.setItem('projectFiles', projectFilesArray);
 	}
+
 
 	file(jsonString) {
 
