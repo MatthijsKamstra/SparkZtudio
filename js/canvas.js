@@ -95,19 +95,15 @@ export class Canvas {
 	removeEventListeners() {
 		if (this.IS_DEBUG) console.info('Canvas.removeEventListeners');
 
-		this.svgElement.removeEventListener('mouseover', (e) => this.handleMouseOver(e));
-		this.svgElement.removeEventListener('mousedown', (e) => this.handleMouseDown(e));
-		this.svgElement.removeEventListener('mousemove', (e) => this.handleMouseMove(e));
-		this.svgElement.removeEventListener('mouseup', (e) => this.handleMouseUp(e));
-		this.svgElement.removeEventListener('mouseleave', (e) => this.handleMouseLeave(e));
+		this.svgElement.removeEventListener('mouseover', (e) => { this.handleMouseOver(e) });
+		this.svgElement.removeEventListener('mousedown', (e) => { this.handleMouseDown(e) });
+		this.svgElement.removeEventListener('mousemove', (e) => { this.handleMouseMove(e) });
+		this.svgElement.removeEventListener('mouseup', (e) => { this.handleMouseUp(e) });
+		this.svgElement.removeEventListener('mouseleave', (e) => { this.handleMouseLeave(e) });
 	}
 
 	handleMouseOver(event) {
 		if (this.IS_DEBUG) console.info('Canvas.handleMouseOver');
-		if (!event) {
-			console.log('should work');
-			return;
-		}
 		if (event.target.nodeName !== 'svg') {
 			event.target.style.cursor = 'grab';
 		}
