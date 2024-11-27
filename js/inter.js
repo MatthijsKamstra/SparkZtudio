@@ -13,8 +13,39 @@ export class Inter {
 	IS_DEBUG = true;
 
 	projectFileTest = {
-		"exportName": "inter_example_project",
-		"projectName": "Inter Example project",
+		"exportName": "v02_inter_example_project",
+		"projectName": "V02 Inter Example project",
+		"creationDate": "1800-11-21",
+		"description": "Inter sample project file with additional metadata.",
+		"version": "1.0",
+		"width": 800,
+		"height": 300,
+		"frameRate": 24,
+		"frameLength": 100,
+		"frames": [
+			{
+				"frameNumber": 1,
+				"svg": `<svg width='800' height='300' xmlns='http://www.w3.org/2000/svg'>
+					  <circle cx='50' cy='50' r='40' stroke='#000000' stroke-width='3' fill='#ff3333' />
+				   </svg>`,
+				"tween": "linear",
+				"keyframe": true
+			},
+			{
+				"frameNumber": 100,
+				"svg": `<svg width='800' height='300' xmlns='http://www.w3.org/2000/svg'>
+					  <circle cx='550' cy='150' r='170' stroke='#dddd00' stroke-width='20' fill='#3333ff' />
+				   </svg>`,
+				"tween": "linear",
+				"keyframe": true
+			}
+		],
+		"calculated": []
+	}
+
+	_projectFileTest = {
+		"exportName": "v01_inter_example_project",
+		"projectName": "V01 Inter Example project",
 		"creationDate": "1900-11-21",
 		"description": "Inter sample project file with additional metadata.",
 		"version": "1.0",
@@ -97,7 +128,22 @@ export class Inter {
 
 
 	constructor() {
-		if (this.IS_DEBUG) console.info('constructor inter.js');
+		if (this.IS_DEBUG) console.info(`constructor inter.js -- isSingleton: ${Inter.instance != null}`);
+		if (Inter.instance) {
+			return Inter.instance;
+		}
+		Inter.instance = this;
+
+		// Initialize any properties
+		this.data = "I am a singleton";
+	}
+
+	getData() {
+		return this.data;
+	}
+
+	setData(newData) {
+		this.data = newData;
 	}
 
 	/**
@@ -201,11 +247,11 @@ export class Inter {
 			`<text x='${text.x}' y='${text.y}' font-family='Verdana' font-size='${text.fontSize}' fill='${text.fill}'>${text.textContent}</text>`
 		).join('');
 
-		return `<svg width='600' height='300' xmlns='http://www.w3.org/2000/svg'>
-                ${circleSVG}
-                ${rectSVG}
-                ${textSVG}
-            </svg>`.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', ' ');
+		return `<svg width='800' height='300' xmlns='http://www.w3.org/2000/svg'>
+		${circleSVG}
+		${rectSVG}
+		${textSVG}
+		</svg>`.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', ' ');
 	}
 
 	interpolateElements(startElems, endElems, fraction, elemType) {
@@ -244,14 +290,17 @@ export class Inter {
 	}
 
 	getFrameData(frames) {
+		// console.log(frames);
+
 		const frameData = [];
 		const frameSet = new Set();
 
 		for (let i = 0; i < frames.length - 1; i++) {
 			const frame1 = frames[i];
 			const frame2 = frames[i + 1];
+
 			frame1.svg = frame1.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
-			frame2.svg = frame1.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
+			frame2.svg = frame2.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
 			const attrs1 = this.parseSVG(frame1.svg);
 			const attrs2 = this.parseSVG(frame2.svg);
 

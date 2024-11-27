@@ -13,11 +13,26 @@ export class ExportVideo {
 	IS_DEBUG = true;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info(`constructor export-video.js`);
+		if (this.IS_DEBUG) console.info(`constructor export-video.js -- isSingleton: ${ExportVideo.instance != null}`);
+		if (ExportVideo.instance) {
+			return ExportVideo.instance;
+		}
+		ExportVideo.instance = this;
+
+		// Initialize any properties
+		this.data = "I am a singleton";
+
+
 		const canvas = document.getElementById("canvas");
 		this.ctx = canvas.getContext("2d");
+	}
 
+	getData() {
+		return this.data;
+	}
 
+	setData(newData) {
+		this.data = newData;
 	}
 
 	init() {
@@ -69,6 +84,8 @@ export class ExportVideo {
 	 * setup UX
 	 */
 	setup() {
+		if (this.IS_DEBUG) console.log('ExportVideo.setup()');
+
 		this.startRecording = this.startRecording.bind(this);
 		this.stopRecording = this.stopRecording.bind(this);
 		this.confirmExport = this.confirmExport.bind(this);
@@ -100,9 +117,10 @@ export class ExportVideo {
 		canvas.height = ProjectVars.height;
 
 		if (this.IS_DEBUG) {
-			console.log(ProjectVars.projectName);
+			console.group('ProjectVars.projectName: ' + ProjectVars.projectName);
 			console.log('ProjectVars.frames.length: ' + ProjectVars.frames.length);
 			console.log('ProjectVars.calculated.length: ' + ProjectVars.calculated.length);
+			console.groupEnd();
 		}
 
 		if (this.IS_DEBUG) console.log('--> preRenderSVGs');
@@ -215,7 +233,7 @@ export class ExportVideo {
 
 			// If the current frame is null, use the last valid image
 			if (!img && this.lastValidFrame) {
-				console.log('this.lastValidFrame');
+				// console.log('this.lastValidFrame');
 
 				img = this.lastValidFrame;
 			}

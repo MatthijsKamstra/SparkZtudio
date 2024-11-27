@@ -39,12 +39,28 @@ export class Model {
 
 	IS_DEBUG = true;
 
-	constructor() { }
+	constructor() {
+		if (this.IS_DEBUG) console.info(`constructor model.js -- isSingleton: ${Model.instance != null}`);
+		if (Model.instance) {
+			return Model.instance;
+		}
+		Model.instance = this;
+
+		// Initialize any properties
+		this.data = "I am a singleton";
+	}
+
+	getData() {
+		return this.data;
+	}
+
+	setData(newData) {
+		this.data = newData;
+	}
 
 	init() {
 		if (this.IS_DEBUG) {
 			console.group(`new Model().init()`);
-			console.info(`init js/model/model.js`);
 			console.log(`version: ${Globals.version}`);
 			console.groupEnd();
 		}
