@@ -21,6 +21,10 @@ export class Focus {
 			if (this.IS_DEBUG) console.log('inputBlocker mouseover');
 			this.onSetFocus();
 		});
+		inputBlocker.addEventListener('click', () => {
+			if (this.IS_DEBUG) console.log('inputBlocker click');
+			this.onSetFocus();
+		});
 
 
 		// Add an active state style to the body when it gains focus

@@ -193,8 +193,7 @@ export class Model {
 		const time = (json.frameLength / json.frameRate);
 		const calculated = json.calculated;
 
-		console.log('calculated');
-		console.log(json.calculated.lenght);
+		console.log('calculated.length: ' + json.calculated.length);
 
 
 		// Extract frame data
