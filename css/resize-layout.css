@@ -24,13 +24,22 @@ body {
 }
 
 #resizer1,
-#resizer2 {
+#resizer2,
+#resizer3 {
   background: #ccc;
+}
+#resizer1:hover,
+#resizer2:hover,
+#resizer3:hover {
+  background: #171c4d;
+}
+
+#resizer1,
+#resizer2 {
   cursor: ew-resize;
 }
 
 #resizer3 {
-  background: #ccc;
   cursor: ns-resize;
   height: 5px;
 }

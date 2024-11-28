@@ -136,6 +136,12 @@ export class Inter {
 
 		// Initialize any properties
 		this.data = "I am a singleton";
+
+		const interpolatedColor = this.interpolateColor("#ff3333", "#3333ff", 0.5);
+		console.log(`Interpolated color: ${interpolatedColor}`);
+
+		console.log(this.interpolateColor("#ff3333", "#3333ff", 0.010101010101010102));
+
 	}
 
 	getData() {
@@ -210,12 +216,34 @@ export class Inter {
 		};
 	}
 
+	// interpolateValue(start, end, fraction) {
+	// 	if (start == null || end == null || isNaN(start) || isNaN(end)) {
+	// 		console.error("interpolateValue: Start or end value is undefined or NaN", start, end);
+	// 		return 0;
+	// 	}
+	// 	return start + (end - start) * fraction;
+	// }
+
+	// interpolateColor(start, end, fraction) {
+	// 	if (!start || !end) {
+	// 		console.error("interpolateColor: Start or end color is undefined", start, end);
+	// 		return "#000000";
+	// 	}
+
+	// 	const startColor = parseInt(start.slice(1), 16);
+	// 	const endColor = parseInt(end.slice(1), 16);
+
+	// 	const r = this.interpolateValue((startColor >> 16) & 0xff, (endColor >> 16) & 0xff, fraction);
+	// 	const g = this.interpolateValue((startColor >> 8) & 0xff, (endColor >> 8) & 0xff, fraction);
+	// 	const b = this.interpolateValue(startColor & 0xff, endColor & 0xff, fraction);
+
+	// 	return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+	// }
+
+
+
 	interpolateValue(start, end, fraction) {
-		if (start == null || end == null || isNaN(start) || isNaN(end)) {
-			console.error("interpolateValue: Start or end value is undefined or NaN", start, end);
-			return 0;
-		}
-		return start + (end - start) * fraction;
+		return Math.round(start + (end - start) * fraction);
 	}
 
 	interpolateColor(start, end, fraction) {
@@ -231,6 +259,7 @@ export class Inter {
 		const g = this.interpolateValue((startColor >> 8) & 0xff, (endColor >> 8) & 0xff, fraction);
 		const b = this.interpolateValue(startColor & 0xff, endColor & 0xff, fraction);
 
+		// console.log(`Interpolated color components: R: ${r}, G: ${g}, B: ${b}`);
 		return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 	}
 
