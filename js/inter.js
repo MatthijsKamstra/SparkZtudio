@@ -21,7 +21,7 @@ export class Inter {
 		"width": 800,
 		"height": 300,
 		"frameRate": 24,
-		"frameLength": 100,
+		"frameLength": 96,
 		"frames": [
 			{
 				"frameNumber": 1,

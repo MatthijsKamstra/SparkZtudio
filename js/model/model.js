@@ -207,9 +207,14 @@ export class Model {
 		const frameLength = json.frameLength;
 
 		const time = (json.frameLength / json.frameRate);
-		const calculated = json.calculated;
+		let calculated = json.calculated;
 
-		console.log('calculated.length: ' + json.calculated.length);
+		if (json.calculated) {
+			console.log('calculated.length: ' + json.calculated.length);
+		} else {
+			calculated = [];
+		}
+
 
 
 		// Extract frame data

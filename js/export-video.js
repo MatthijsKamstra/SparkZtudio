@@ -41,6 +41,8 @@ export class ExportVideo {
 			console.groupEnd();
 		}
 
+		this.setup(); // start up again..
+
 		this.isCodecSupportedList(); // test of de codec werken
 
 		// Initialize the canvas with the first SVG
@@ -96,6 +98,13 @@ export class ExportVideo {
 		const stopRecordingButton = document.getElementById("stopRecording");
 		const confirmExportButton = document.getElementById("confirmExport");
 
+		if (startRecordingButton.getEventListeners) {
+			console.log(startRecordingButton.getEventListeners());
+		} else {
+			console.log('no');
+
+		}
+
 		startRecordingButton.addEventListener("click", this.startRecording);
 		stopRecordingButton.addEventListener("click", this.stopRecording);
 		confirmExportButton.addEventListener("click", this.confirmExport);
@@ -107,7 +116,7 @@ export class ExportVideo {
 			console.log(ProjectVars);
 			console.groupEnd();
 		}
-		this.setup(); // start up again..
+
 		this.reset();
 		this.updateProgressBar();
 
@@ -181,14 +190,14 @@ export class ExportVideo {
 				this.imageArray[index] = img;
 				loadedCount++;
 
-				console.groupCollapsed(`drawSVG--${index}`);
-				console.log(frame);
-				console.log(frame.svg);
-				console.log(index);
-				console.log(this.imageArray[index]);
-				console.warn('this.imageArray.length: ' + this.imageArray.length);
-				if (this.IS_DEBUG) console.log(`${loadedCount}/${frames.length}`);
-				console.groupEnd('xxx');
+				// console.groupCollapsed(`drawSVG--${index}`);
+				// console.log(frame);
+				// console.log(frame.svg);
+				// console.log(index);
+				// console.log(this.imageArray[index]);
+				// console.warn('this.imageArray.length: ' + this.imageArray.length);
+				// if (this.IS_DEBUG) console.log(`${loadedCount}/${frames.length}`);
+				// console.groupEnd('xxx');
 
 				if (loadedCount === frames.length) {
 					if (this.IS_DEBUG) console.log('All SVGs have been prerendered and stored.');
