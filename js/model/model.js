@@ -80,10 +80,10 @@ export class Model {
 
 		// test inter
 		// new Inter().init();
-		setTimeout(function () {
-			console.clear();
-			new Inter().init();
-		}, 2000);
+		// setTimeout(function () {
+		// 	console.clear();
+		// 	new Inter().init();
+		// }, 2000);
 
 	}
 

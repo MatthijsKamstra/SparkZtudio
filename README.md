@@ -7,6 +7,8 @@ POC Flash rebuild with web tech (Flash / Spark) ???
 - 📸
 - 🔋
 
+![SparkZtudio](images/sparkztudio_v01.png)
+
 check progres on: https://matthijskamstra.github.io/SparkZtudio/
 
 ## SVG start
