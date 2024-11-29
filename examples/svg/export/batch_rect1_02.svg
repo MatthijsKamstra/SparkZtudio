@@ -7,19 +7,49 @@
    viewBox="0 0 203.2 152.4"
    version="1.1"
    id="svg1"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   sodipodi:docname="768x576_test_design.svg"
+   inkscape:export-batch-path="export"
+   inkscape:export-batch-name="batch"
+   xml:space="preserve"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs1" />
-  <g
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.36729399"
+     inkscape:cx="1044.1227"
+     inkscape:cy="2728.0599"
+     inkscape:window-width="2560"
+     inkscape:window-height="1027"
+     inkscape:window-x="1728"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1"><inkscape:page
+       x="0"
+       y="0"
+       width="203.2"
+       height="152.39999"
+       id="page2"
+       margin="0"
+       bleed="0"
+       inkscape:label="rect1_02" /></sodipodi:namedview><defs
+     id="defs1" /><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-213.2)">
-    <rect
+     transform="translate(-213.2)"><rect
        style="opacity:0.508704;fill:#ff00ff;stroke:#8b4513;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
        id="rect2-3"
        width="25.643497"
        height="54.640369"
        x="365.36978"
-       y="70.774429" />
-  </g>
-</svg>
+       y="70.774429" /></g></svg>
