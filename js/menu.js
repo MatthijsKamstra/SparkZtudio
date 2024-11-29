@@ -48,6 +48,16 @@ export class Menu {
 			if (this.IS_DEBUG) console.log('click btn closeFile');
 			this.closeFile();
 		};
+		document.getElementById('labelOpenFile').onclick = (e) => {
+			if (this.IS_DEBUG) console.log('click btn labelOpenFile');
+			e.preventDefault(); // Prevent any default label behavior
+			document.getElementById('openFileInput3').click(); // Trigger the file input click
+		};
+		document.getElementById('importFileLabel').onclick = (e) => {
+			if (this.IS_DEBUG) console.log('click btn importFileLabel');
+			e.preventDefault(); // Prevent any default label behavior
+			document.getElementById('importFile3').click(); // Trigger the file input click
+		};
 
 		/**
 		 * should only be used for .json or .sparkz

@@ -80,7 +80,7 @@ const createProjectFile = (projectNumber, svgFiles) => {
 		width,
 		height,
 		frameRate: frameRate,
-		frameLength: (frames.length * frameRate) * totalTime,
+		frameLength: (frameRate * totalTime),
 		totalTime: totalTime,
 		frames
 	};
