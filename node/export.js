@@ -85,7 +85,7 @@ const createProjectFile = (projectNumber, svgFiles) => {
 		frames
 	};
 
-	fs.writeFileSync(`${projectFilePrefix}${projectNumber}.json`, JSON.stringify(projectData, null, 2));
+	fs.writeFileSync(`${folderPath}/${projectFilePrefix}${projectNumber}.json`, JSON.stringify(projectData, null, 2));
 };
 
 const svgFiles = getSvgFiles(folderPath);
