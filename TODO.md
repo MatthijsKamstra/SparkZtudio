@@ -5,7 +5,7 @@
 - [x] timeline with icons (text, image, rect)
 - [x] timeline in table,
 - [ ] timeline with small spaces for frames and keyframes
-- [ ] use hightligh color when selected
+- [ ] use highligh color when selected
 - [x] start with project
   - [x] default svg in canvas
   - [x] open `.sparkz`/`.json` file
@@ -18,7 +18,6 @@
 - [ ] opslaan van previous projects
 - [x] afmeting rate,
 - [x] Model maken ipv Project
-- [ ] Export
 - [x] LocalStorageHandler
 - [x] zoom working
 - [x] use model more
@@ -27,8 +26,20 @@
   - [x] next keyferame
   - [x] prev keyferame
   - [x] loop
-- [ ] export using inter for betweens.
 - [x] time rounded
+- [ ] Export testen
+  - [ ] export correct svg width height
+  - [ ] check for motion object
+  - [ ] check export for color object
+  - [ ] change size canvas
+  - [ ] change length / fps
+  - [ ] rect/circle/text animation
+  - [ ] 3 rect/circle/text animation
+  - [ ] export using inter for betweens.
+  - [ ]
+- [ ] is it possible to code some extra values in .webm (data from export)
+- [ ] fix menu canvas with bigger projects
+- [ ]
 
 ---
 
