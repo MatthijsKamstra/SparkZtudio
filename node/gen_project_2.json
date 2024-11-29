@@ -1,0 +1,24 @@
+{
+  "exportName": "project_2",
+  "projectName": "Project 2",
+  "creationDate": "2024-11-29",
+  "description": "Sample project_2 file create on 2024-11-29.",
+  "version": "1.0",
+  "width": 768,
+  "height": 576,
+  "frameRate": 24,
+  "frameLength": 480,
+  "totalTime": 10,
+  "frames": [
+    {
+      "frameNumber": 1,
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"768\" height=\"576\" viewBox=\"0 0 203.2 152.4\"><path d=\"M20.588 18.494h74.675v39.78H20.588z\" style=\"fill:#adff2f;stroke:#00f;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers\"/></svg>",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 25,
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"768\" height=\"576\" viewBox=\"0 0 203.2 152.4\"><path d=\"M365.37 70.774h25.643v54.64H365.37z\" style=\"opacity:.508704;fill:#f0f;stroke:#8b4513;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers\" transform=\"translate(-213.2)\"/></svg>",
+      "keyframe": true
+    }
+  ]
+}

@@ -33,13 +33,14 @@
   - [ ] check export for color object
   - [ ] change size canvas
   - [ ] change length / fps
-  - [ ] rect/circle/text animation
-  - [ ] 3 rect/circle/text animation
+  - [ ] rect/circle/text/image animation
+  - [ ] 3 rect/circle/text/image animation
+  - [ ] check shapes width/height, x/y pos, fill color, stroke color, stroke width, opacity, rotation?
   - [ ] export using inter for betweens.
   - [ ]
 - [ ] is it possible to code some extra values in .webm (data from export)
 - [ ] fix menu canvas with bigger projects
-- [ ]
+- [x] fix label click which is buggy
 
 ---
 

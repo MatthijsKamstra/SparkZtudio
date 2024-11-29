@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="768" height="576" version="1.1" viewBox="0 0 203.2 152.4" xmlns="http://www.w3.org/2000/svg">
+ <g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="20.588" y="18.494" width="74.675" height="39.78" fill="#adff2f" stroke="#00f" stroke-width="5" style="paint-order:stroke fill markers"/>
+  <g stroke-width="20">
+   <rect x="365.37" y="70.774" width="25.643" height="54.64" fill="#f0f" opacity=".5087" stroke="#8b4513" style="paint-order:stroke fill markers"/>
+   <ellipse cx="41.176" cy="254.96" rx="30.01" ry="31.405" fill="#ff6347" stroke="#98fb98" style="paint-order:stroke fill markers"/>
+   <ellipse cx="376.39" cy="324.55" rx="30.01" ry="31.405" fill="#ff6347" opacity=".53965" stroke="#98fb98" style="paint-order:stroke fill markers"/>
+  </g>
+ </g>
+</svg>

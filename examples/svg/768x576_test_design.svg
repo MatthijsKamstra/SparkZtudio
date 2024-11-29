@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="768"
+   height="576"
+   viewBox="0 0 203.2 152.4"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   sodipodi:docname="768x576_test_design.svg"
+   inkscape:export-batch-path="export"
+   inkscape:export-batch-name="batch"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.37911495"
+     inkscape:cx="1043.2192"
+     inkscape:cy="548.64627"
+     inkscape:window-width="2560"
+     inkscape:window-height="1027"
+     inkscape:window-x="1728"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="203.2"
+       height="152.39999"
+       id="page1"
+       margin="0"
+       bleed="0"
+       inkscape:label="rect1_01" />
+    <inkscape:page
+       x="213.2"
+       y="0"
+       width="203.2"
+       height="152.39999"
+       id="page2"
+       margin="0"
+       bleed="0"
+       inkscape:label="rect1_02" />
+    <inkscape:page
+       x="1.5258789e-06"
+       y="213.55659"
+       width="203.2"
+       height="152.39999"
+       id="page3"
+       margin="0"
+       bleed="0"
+       inkscape:label="circle1_01" />
+    <inkscape:page
+       x="213.2"
+       y="213.55659"
+       width="203.2"
+       height="152.39999"
+       id="page4"
+       margin="0"
+       bleed="0"
+       inkscape:label="circle1_02" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#adff2f;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers;stroke:#0000ff"
+       id="rect2"
+       width="74.675018"
+       height="39.780151"
+       x="20.587973"
+       y="18.49428" />
+    <rect
+       style="opacity:0.508704;fill:#ff00ff;stroke:#8b4513;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect2-3"
+       width="25.643497"
+       height="54.640369"
+       x="365.36978"
+       y="70.774429" />
+    <ellipse
+       style="opacity:1;fill:#ff6347;stroke:#98fb98;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="path4"
+       cx="41.175945"
+       cy="254.96199"
+       rx="30.009586"
+       ry="31.40539" />
+    <ellipse
+       style="opacity:0.539652;fill:#ff6347;stroke:#98fb98;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="ellipse4"
+       cx="376.39041"
+       cy="324.55121"
+       rx="30.009586"
+       ry="31.40539" />
+  </g>
+</svg>

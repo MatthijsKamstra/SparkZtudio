@@ -452,9 +452,9 @@ export class Model {
 
 	openFile() {
 		if (this.IS_DEBUG) console.log('WIP new Model().openFile');
-		// new Export().image();
-		let el = document.getElementById('openFileInput3');
-		el.click();
+		// // new Export().image();
+		// let el = document.getElementById('openFileInput3');
+		// el.click();
 	}
 
 	importFile() {
