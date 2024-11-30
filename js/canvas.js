@@ -16,7 +16,7 @@ export class Canvas {
 	}
 
 	init() {
-		if (this.IS_DEBUG) console.info('new Canvas().init()');
+		if (this.IS_DEBUG) console.info('Canvas.init()');
 		this.defaultSVG();
 	}
 
@@ -35,7 +35,7 @@ export class Canvas {
 	}
 
 	defaultSVG() {
-		if (this.IS_DEBUG) console.info('defaultSVG');
+		if (this.IS_DEBUG) console.info('Canvas.defaultSVG');
 
 		// Create SVG element
 		const svgElement = document.createElementNS("http://www.w3.org/2000/svg", 'svg');

@@ -33,17 +33,22 @@
   - [ ] previous keyframe
   - [ ] next keyframe
 - [ ] Export testen
-  - [ ] Project file open en inter gebruiken voor tussen scherm
-  - [ ] export correct svg width height
+  - [x] Project file open en inter gebruiken voor tussen scherm
+  - [x] export correct svg width height
   - [ ] check for motion object
   - [ ] check export for color object
-  - [ ] change size canvas
-  - [ ] change length / fps
+  - [x] change size canvas
+  - [x] change length / fps
   - [ ] rect/circle/text/image animation
   - [ ] 3 rect/circle/text/image animation
   - [ ] check shapes width/height, x/y pos, fill color, stroke color, stroke width, opacity, rotation?
-  - [ ] export using inter for betweens.
-  - [ ] create script to genenrate quick projects base upon inkscape export
+  - [x] export using inter for betweens.
+  - [x] create script to genenrate quick projects base upon inkscape export
+  - [x] Ensures the frame length is greater than or equal to the last frame's number and adjusts it if necessary.
+  - [x] Ensures the frame length divided by the frame rate equals the time and corrects the time if needed.
+  - [x] Adjusts the width, height, and viewBox attributes in the frames' SVG content to match the project's width and height.
+  - [x] Cleans up the SVG content in the frames by removing line breaks, tabs, comments, and extra spaces.
+  - [x] Converts default web color names to their corresponding hex values in the frames' SVG content.
 - [ ] Document properties
   - [ ] change width/height
   - [ ] change frameeratge

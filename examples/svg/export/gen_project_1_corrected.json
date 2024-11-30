@@ -1,0 +1,24 @@
+{
+  "exportName": "project_1",
+  "projectName": "Project 1",
+  "creationDate": "2024-11-29",
+  "description": "Sample project_1 file create on 2024-11-29.",
+  "version": "1.0",
+  "width": 768,
+  "height": 576,
+  "frameRate": 24,
+  "frameLength": 240,
+  "totalTime": 10,
+  "frames": [
+    {
+      "frameNumber": 1,
+      "svg": "<svg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='768' height='576' viewBox='0 0 203.2 152.4'><ellipse cx='41.176' cy='254.962' rx='30.01' ry='31.405' opacity='1' fill='#ff6347' stroke='#98fb98' stroke-width='20' stroke-linecap='round' stroke-linejoin='round' stroke-dasharray='none' transform='translate(0 -213.557)'/></svg>",
+      "keyframe": true
+    },
+    {
+      "frameNumber": 25,
+      "svg": "<svg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='768' height='576' viewBox='0 0 203.2 152.4'><ellipse cx='376.39' cy='324.551' rx='30.01' ry='31.405' opacity='0.5' fill='#ff6347' stroke='#98fb98' stroke-width='20' stroke-linecap='round' stroke-linejoin='round' stroke-dasharray='none' transform='translate(0 -213.557)'/></svg>",
+      "keyframe": true
+    }
+  ]
+}

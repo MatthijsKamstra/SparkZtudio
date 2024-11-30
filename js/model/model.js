@@ -19,7 +19,7 @@ import { Tools } from '../tools.js';
 
 
 // Shared global variables
-export const ProjectVars = {
+export let ProjectVars = {
 	exportName: 'sparkztudio-project',
 	projectName: 'SparkZtudio Project',
 	creationDate: '',
@@ -84,6 +84,10 @@ export class Model {
 		// 	console.clear();
 		// 	new Inter().init();
 		// }, 2000);
+		// setTimeout(function () {
+		// 	console.clear();
+		// 	new Inter();
+		// }, 1000);
 
 	}
 
@@ -92,26 +96,19 @@ export class Model {
 	}
 
 	setProjectViaFile(jsonString) {
-		// console.clear();
+		console.clear();
 		if (this.IS_DEBUG) console.info('new Model().setProjectViaFile');
-
 
 		this.file(jsonString);
 
 		if (this.IS_DEBUG) console.log(ProjectVars.exportName);
 
-
-
-
+		// update calculated
 		// convert project file to ProjectVars
+		new Inter().calculatedFramesFromProjectVars();
 
 		// store files
 		this.storeProjectFile(jsonString);
-
-
-
-		// setSvgString2Element(ProjectVars.frames[0].svg);
-
 
 		// Canvas.setSvg(svgElement);
 		new Canvas().projectFile();
@@ -146,27 +143,28 @@ export class Model {
 
 
 	/**
+	 * convert project file to ProjectVars
 	 *
 	 * @param {*} jsonString
 	 */
 	file(jsonString) {
 
 		if (this.IS_DEBUG) {
-			console.group('new Model(..).file');
+			console.group('Model.file(..)');
 			console.groupCollapsed('jsonString');
 			console.log(jsonString);
-			console.groupEnd('jsonString');
+			console.groupEnd();
 		}
 
 		// Check if data is a string
 		if (typeof jsonString !== 'string') {
-			if (this.IS_DEBUG) console.log('The jsonString is not a string.');
+			if (this.IS_DEBUG) console.warn('The jsonString is not a string.');
 			jsonString = JSON.stringify(jsonString)
 
 			if (this.IS_DEBUG) {
-				console.groupCollapsed('jsonString');
+				console.groupCollapsed('JSON.parse - jsonString');
 				console.log(jsonString);
-				console.groupEnd('jsonString');
+				console.groupEnd();
 			}
 		}
 
@@ -176,24 +174,11 @@ export class Model {
 		if (this.IS_DEBUG) {
 			console.groupCollapsed(`json - "${json.exportName}"`);
 			console.log(json);
-			console.groupEnd('json');
+			console.groupEnd();
 		}
 
-		// // store files
-		// this.storeProjectFile(json);
-
-
-
-		// TODO: clean up svg in height and width
-		// make sure the values of the svg are same as json.width and .height
-		const projectWidth = json.width;
-		const projectHeight = json.height;
-
-		json.frames.forEach(frame => {
-			frame.svg = frame.svg.replace(/width='[^']*'/, `width='${projectWidth}'`);
-			frame.svg = frame.svg.replace(/height='[^']*'/, `height='${projectHeight}'`);
-			frame.svg = frame.svg.replace('\n', '');
-		});
+		// Validate project file
+		new Inter().validateAndCorrectProjectFile(json);
 
 		// Extract basic project information
 		const exportName = json.exportName;
@@ -210,7 +195,7 @@ export class Model {
 		let calculated = json.calculated;
 
 		if (json.calculated) {
-			console.log('calculated.length: ' + json.calculated.length);
+			if (this.IS_DEBUG) console.log('calculated.length: ' + json.calculated.length);
 		} else {
 			calculated = [];
 		}
@@ -245,6 +230,7 @@ export class Model {
 			console.groupEnd('ProjectVars');
 		}
 
+		if (this.IS_DEBUG) console.groupEnd();
 	}
 
 
@@ -294,13 +280,13 @@ export class Model {
 	}
 
 
-	cleanupSvg(svgElement) {
-		if (this.IS_DEBUG) console.log('WIP new Model().cleanupSvg');
-		// - [ ] fix missing id
-		// - [ ] remove comment?
-		// - [ ] add viewbox
-		return svgElement
-	}
+	// cleanupSvg(svgElement) {
+	// 	if (this.IS_DEBUG) console.log('WIP new Model().cleanupSvg');
+	// 	// - [ ] fix missing id
+	// 	// - [ ] remove comment?
+	// 	// - [ ] add viewbox
+	// 	return svgElement
+	// }
 
 	/**\
 	 *
@@ -308,8 +294,8 @@ export class Model {
 	 * - width
 	 * - height
 	 */
-	convertSvg2projectfile(svgElement) {
-		if (this.IS_DEBUG) console.group('new Model().convertSvg2projectfile');
+	convertSvgElement2SparkzProjectVars(svgElement) {
+		if (this.IS_DEBUG) console.groupCollapsed('Model.convertSvgElement2SparkzProjectVars');
 		if (svgElement) {
 			ProjectVars.width = parseInt(svgElement.getAttribute('width')) || Defaults.width;
 			ProjectVars.height = parseInt(svgElement.getAttribute('height')) || Defaults.height;
@@ -326,40 +312,58 @@ export class Model {
 					"frameNumber": 1,
 					"svg": new XMLSerializer().serializeToString(svgElement),
 				}];
-			// if (this.IS_DEBUG) console.log('frames: ' + JSON.stringify(ProjectVars.frames));
-			// if (this.IS_DEBUG) console.log('calculated: ' + JSON.stringify(ProjectVars.calculated));
-			// if (this.IS_DEBUG) console.log(ProjectVars);
+			if (this.IS_DEBUG) console.log('frames: ' + JSON.stringify(ProjectVars.frames));
+			if (this.IS_DEBUG) console.log('calculated: ' + JSON.stringify(ProjectVars.calculated));
+			if (this.IS_DEBUG) console.log(ProjectVars);
 		}
 		if (this.IS_DEBUG) console.groupEnd();
 	}
 
 	/**
-	 * use the default values
-	 */
-	projectFileDefault() {
-		// ProjectVars = JSON.parse(JSON.stringify(Defaults));
-		// use default values
-		ProjectVars.exportName = Defaults.exportName;
-		ProjectVars.projectName = Defaults.projectName;
-		ProjectVars.creationDate = Defaults.creationDate;
-		ProjectVars.description = Defaults.description;
-		ProjectVars.version = Defaults.version;
-		ProjectVars.width = Defaults.width;
-		ProjectVars.height = Defaults.height;
-		ProjectVars.frameRate = Defaults.frameRate;
-		ProjectVars.frameLength = Defaults.frameLength;
-		ProjectVars.time = new Date().toISOString(); // calculate
-		ProjectVars.frames = Defaults.frames;
-		ProjectVars.calculated = Defaults.calculated; // calculate
+	 * Set up project file using defaults  values
+	*/
+	defaultSparkzProjectVars() {
 
-		// console.log(Defaults.calculated);
-		// console.log(ProjectVars.calculated);
+		// // use default values
+		// ProjectVars.exportName = Defaults.exportName;
+		// ProjectVars.projectName = Defaults.projectName;
+		// ProjectVars.creationDate = new Date().toISOString(); // calculate
+		// ProjectVars.description = Defaults.description;
+		// ProjectVars.version = Defaults.version;
+		// ProjectVars.width = Defaults.width;
+		// ProjectVars.height = Defaults.height;
+		// ProjectVars.frameRate = Defaults.frameRate;
+		// ProjectVars.frameLength = Defaults.frameLength;
+		// ProjectVars.time = Defaults.time;
+		// ProjectVars.frames = Defaults.frames;
+		// ProjectVars.calculated = Defaults.calculated; // calculate
 
+
+		// Create a deep copy of Defaults
+		ProjectVars = JSON.parse(JSON.stringify(Defaults));
+
+		// Modify the properties that need to be calculated
+		ProjectVars.creationDate = new Date().toISOString();
+		ProjectVars.time = ProjectVars.frameLength / ProjectVars.frameRate;// calculate time
+		// ProjectVars.calculated = calculateFrames(ProjectVars.frames);
+
+		if (this.IS_DEBUG) {
+			console.groupCollapsed('Model.defaultSparkzProjectVars()');
+			console.log('Defaults');
+			console.log(Defaults);
+			console.log(Defaults.frames);
+			console.log(Defaults.calculated);
+			console.log('ProjectVars');
+			console.log(ProjectVars);
+			console.log(ProjectVars.frames);
+			console.log(ProjectVars.calculated);
+			console.groupEnd();
+		}
 	}
 
 	setProjectViaSvgElement(svgElement) {
 		if (this.IS_DEBUG) {
-			console.group('new Model().setProjectViaSvgElement');
+			console.groupCollapsed('Model.setProjectViaSvgElement(..)');
 			console.log(svgElement);
 			console.groupEnd();
 		}
@@ -368,15 +372,16 @@ export class Model {
 		// svgContainer.appendChild(svgElement);
 		if (!svgElement) return;
 
-		// cleanup svg
-		svgElement = this.cleanupSvg(svgElement);
+		// // cleanup svg
+		// svgElement = this.cleanupSvg(svgElement);
+
 		// set in projectfile
-		this.projectFileDefault();
+		this.defaultSparkzProjectVars();
 		// console.log('1. ------------------------------');
 		// console.log(ProjectVars);
 		// console.log(ProjectVars.calculated.length);
 
-		this.convertSvg2projectfile(svgElement);
+		this.convertSvgElement2SparkzProjectVars(svgElement);
 
 		// console.log('2. ------------------------------');
 		// console.log(ProjectVars);

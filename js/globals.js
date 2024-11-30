@@ -1,6 +1,6 @@
 // Shared global variables
 export const Globals = {
-  version: '0.1',
+  version: '0.5',
 
   zoomScale: 1,
 

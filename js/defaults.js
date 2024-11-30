@@ -3,7 +3,7 @@ export const Defaults = {
   exportName: 'sparkztudio-projectz',
   projectName: 'SparkZtudio Projectz',
   creationDate: '',
-  description: 'SparkZtudio Projectz                                                                                                                                                                                                                                               description',
+  description: 'SparkZtudio Projectz description',
   version: '1',
   width: 600,
   height: 400,

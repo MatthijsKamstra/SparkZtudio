@@ -10,7 +10,7 @@ export class ExportVideo {
 	lastValidFrame = null; // To store the last valid frame
 	imageArray = [];
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
 	constructor() {
 		if (this.IS_DEBUG) console.info(`constructor export-video.js -- isSingleton: ${ExportVideo.instance != null}`);
@@ -98,12 +98,12 @@ export class ExportVideo {
 		const stopRecordingButton = document.getElementById("stopRecording");
 		const confirmExportButton = document.getElementById("confirmExport");
 
-		if (startRecordingButton.getEventListeners) {
-			console.log(startRecordingButton.getEventListeners());
-		} else {
-			console.log('no');
+		// if (startRecordingButton.getEventListeners) {
+		// 	console.log(startRecordingButton.getEventListeners());
+		// } else {
+		// 	console.log('no');
 
-		}
+		// }
 
 		startRecordingButton.addEventListener("click", this.startRecording);
 		stopRecordingButton.addEventListener("click", this.stopRecording);
@@ -177,13 +177,13 @@ export class ExportVideo {
 	 * @param {*} callback
 	 */
 	preRenderSVGs(frames, callback) {
-		console.log('ExportVideo().preRenderSVGs(...)');
+		if (this.IS_DEBUG) console.log('ExportVideo().preRenderSVGs(...)');
 
 		// reset values
 		let loadedCount = 0;
 		this.imageArray = [];
 
-		console.warn('this.imageArray.length: ' + this.imageArray.length);
+		if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
 
 		frames.forEach((frame, index) => {
 			this.drawSVG(frame.svg, (img) => {
@@ -298,7 +298,7 @@ export class ExportVideo {
 	}
 
 	reset() {
-		console.log('ExportVideo().reset()');
+		if (this.IS_DEBUG) console.log('ExportVideo().reset()');
 
 		this.animationInterval = null;
 		this.imageArray = [];
@@ -309,10 +309,10 @@ export class ExportVideo {
 	// Start recording
 	startRecording() {
 		if (this.IS_DEBUG) console.log('ExportVideo.startRecording()');
-		console.warn('this.imageArray.length: ' + this.imageArray.length);
+		if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
 
 		if (this.imageArray.length <= 1) {
-			console.error("Not enough frames to start recording!");
+			if (this.IS_DEBUG) console.error("Not enough frames to start recording!");
 			return;
 		}
 
