@@ -15,7 +15,7 @@ export class Inter {
 	IS_DEBUG = true;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info(`constructor inter.js -- isSingleton: ${Inter.instance != null}`);
+		if (this.IS_DEBUG) console.info(`Inter constructor inter.js -- isSingleton: ${Inter.instance != null}`);
 		if (Inter.instance) {
 			return Inter.instance;
 		}
@@ -25,7 +25,7 @@ export class Inter {
 		this.data = "I am a singleton";
 
 
-		if (this.IS_DEBUG) console.group('constructor inter.js');
+		if (this.IS_DEBUG) console.groupCollapsed('constructor inter.js');
 
 		// test colors
 		const interpolatedColor = this.interpolateColor("#ff3333", "#3333ff", 0.5);
@@ -40,12 +40,14 @@ export class Inter {
 
 		if (this.IS_DEBUG) console.groupEnd();
 
-
-		// fix calculated values, cleaning up svg, etc
-		// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
-		// this.setup(InterDummyData.sparkzRectangle);
-		// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
-		// this.setup(InterDummyData.sparkzDefaultFile);
+		setTimeout(() => {
+			console.clear();
+			// fix calculated values, cleaning up svg, etc
+			// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
+			// this.setup(InterDummyData.sparkzRectangle);
+			// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
+			this.setup(InterDummyData.sparkzDefaultFile);
+		}, 2000);
 	}
 
 	getData() {
@@ -130,6 +132,16 @@ export class Inter {
 		const frameRate = projectFile.frameRate;
 		let time = projectFile.time;
 
+		if (this.IS_DEBUG) {
+			console.groupCollapsed(`check values, and update if needed`);
+			console.log('lastFrameNumber: ' + lastFrameNumber);
+			console.log('frameLength: ' + frameLength);
+			console.log('frameRate: ' + frameRate);
+			console.log('time: ' + time);
+			console.log('projectFile.frames.length: ' + projectFile.frames.length);
+			console.groupEnd();
+		}
+
 		// Correct frame length if needed
 		if (frameLength < lastFrameNumber) {
 			console.warn(`Frame length is less than the last frame's number. Setting frame length to ${lastFrameNumber}.`);
@@ -181,6 +193,17 @@ export class Inter {
 
 			frame.svg = cleanedSVG;
 		});
+
+
+		// if (this.IS_DEBUG) {
+		// 	console.groupCollapsed(`check values, and update if needed`);
+		// 	console.log('lastFrameNumber: ' + lastFrameNumber);
+		// 	console.log('frameLength: ' + frameLength);
+		// 	console.log('frameRate: ' + frameRate);
+		// 	console.log('time: ' + time);
+		// 	console.log('projectFile.frames.length: ' + projectFile.frames.length);
+		// 	console.groupEnd();
+		// }
 	}
 
 

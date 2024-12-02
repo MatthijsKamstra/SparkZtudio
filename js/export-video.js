@@ -10,10 +10,10 @@ export class ExportVideo {
 	lastValidFrame = null; // To store the last valid frame
 	imageArray = [];
 
-	IS_DEBUG = false;
+	IS_DEBUG = true;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info(`constructor export-video.js -- isSingleton: ${ExportVideo.instance != null}`);
+		if (this.IS_DEBUG) console.info(`ExportVideo constructor export-video.js -- isSingleton: ${ExportVideo.instance != null}`);
 		if (ExportVideo.instance) {
 			return ExportVideo.instance;
 		}
@@ -37,7 +37,7 @@ export class ExportVideo {
 
 	init() {
 		if (this.IS_DEBUG) {
-			console.group('ExportVideo.init');
+			console.groupCollapsed('ExportVideo.init');
 			console.groupEnd();
 		}
 
@@ -86,8 +86,10 @@ export class ExportVideo {
 	 * setup UX
 	 */
 	setup() {
-		if (this.IS_DEBUG) console.log('ExportVideo.setup()');
-
+		if (this.IS_DEBUG) {
+			console.groupCollapsed('ExportVideo.setup()');
+			console.groupEnd();
+		}
 		this.startRecording = this.startRecording.bind(this);
 		this.stopRecording = this.stopRecording.bind(this);
 		this.confirmExport = this.confirmExport.bind(this);
@@ -112,7 +114,7 @@ export class ExportVideo {
 
 	initializeCanvas() {
 		if (this.IS_DEBUG) {
-			console.group('ExportVideo.initializeCanvas()');
+			console.groupCollapsed('ExportVideo.initializeCanvas()');
 			console.log(ProjectVars);
 			console.groupEnd();
 		}
@@ -126,7 +128,7 @@ export class ExportVideo {
 		canvas.height = ProjectVars.height;
 
 		if (this.IS_DEBUG) {
-			console.group('ProjectVars.projectName: ' + ProjectVars.projectName);
+			console.groupCollapsed('ProjectVars.projectName: ' + ProjectVars.projectName);
 			console.log('ProjectVars.frames.length: ' + ProjectVars.frames.length);
 			console.log('ProjectVars.calculated.length: ' + ProjectVars.calculated.length);
 			console.groupEnd();
@@ -312,7 +314,11 @@ export class ExportVideo {
 		if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
 
 		if (this.imageArray.length <= 1) {
-			if (this.IS_DEBUG) console.error("Not enough frames to start recording!");
+			if (this.IS_DEBUG) {
+				console.error("Not enough frames to start recording!");
+				alert('Not enough frames to start recording!');
+
+			}
 			return;
 		}
 

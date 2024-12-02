@@ -118,7 +118,7 @@ export class InterDummyData {
 	};
 
 	static sparkzDefaultFile = {
-		"exportName": "default-sparkztudio-projectz",
+		"exportName": "zzdefault-sparkztudio-projectz",
 		"projectName": "Default SparkZtudio Projectz",
 		"creationDate": "2024-11-30T10:30:16.073Z",
 		"description": "SparkZtudio Projectz description",

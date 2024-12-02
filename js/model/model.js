@@ -60,7 +60,7 @@ export class Model {
 
 	init() {
 		if (this.IS_DEBUG) {
-			console.group(`new Model().init()`);
+			console.groupCollapsed(`Model.init()`);
 			console.log(`version: ${Globals.version}`);
 			console.groupEnd();
 		}
@@ -95,9 +95,19 @@ export class Model {
 		if (this.IS_DEBUG) console.info(`new Model().setup`);
 	}
 
+	/**
+	 * get file from browser, is string, want to use then convert to json
+	 *
+	 * @param {*} jsonString
+	 */
 	setProjectViaFile(jsonString) {
 		console.clear();
-		if (this.IS_DEBUG) console.info('new Model().setProjectViaFile');
+		if (this.IS_DEBUG) {
+			console.groupCollapsed('Model.setProjectViaFile(....)');
+			console.log(jsonString);
+			console.groupEnd();
+		}
+
 
 		this.file(jsonString);
 
@@ -150,8 +160,8 @@ export class Model {
 	file(jsonString) {
 
 		if (this.IS_DEBUG) {
-			console.group('Model.file(..)');
-			console.groupCollapsed('jsonString');
+			console.groupCollapsed('Model.file(..)');
+			console.log('jsonString');
 			console.log(jsonString);
 			console.groupEnd();
 		}
@@ -230,7 +240,6 @@ export class Model {
 			console.groupEnd('ProjectVars');
 		}
 
-		if (this.IS_DEBUG) console.groupEnd();
 	}
 
 
