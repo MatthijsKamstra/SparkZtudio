@@ -60,6 +60,7 @@ export class Model {
 
 	init() {
 		if (this.IS_DEBUG) {
+			console.clear();
 			console.groupCollapsed(`Model.init()`);
 			console.log(`version: ${Globals.version}`);
 			console.groupEnd();
@@ -75,7 +76,7 @@ export class Model {
 		new Properties().init();
 		new Tools().init();
 		new Shortcuts().init();
-		new ExportVideo().init();
+		new ExportVideo();
 		new Focus();
 
 		// test inter
@@ -481,7 +482,7 @@ export class Model {
 		if (this.IS_DEBUG) console.log('new Model().exportMovie');
 		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
 		modal.show();
-		new ExportVideo().initializeCanvas();
+		new ExportVideo().initVideoRenderCanvas();
 	}
 
 

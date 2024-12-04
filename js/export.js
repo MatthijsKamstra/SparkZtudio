@@ -4,7 +4,7 @@ import { Model, ProjectVars } from './model/model.js';
 
 export class Export {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
 
 	constructor() { }
 

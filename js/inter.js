@@ -24,30 +24,7 @@ export class Inter {
 		// Initialize any properties
 		this.data = "I am a singleton";
 
-
-		if (this.IS_DEBUG) console.groupCollapsed('constructor inter.js');
-
-		// test colors
-		const interpolatedColor = this.interpolateColor("#ff3333", "#3333ff", 0.5);
-		console.log(`Interpolated color: ${interpolatedColor}`);
-		console.log(this.interpolateColor("#ff3333", "#3333ff", 0.010101010101010102));
-
-		// Example usage
-		const svgString = `<svg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='768' height='576' viewBox='0 0 203.2 152.4'><ellipse cx='41.176' cy='254.962' rx='30.01' ry='31.405' style='opacity:1;fill:tomato;stroke:#98fb98;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers' transform='translate(0 -213.557)'/></svg>`;
-		const converter = new ColorConverter();
-		const updatedSVG = converter.convertSVGColors(converter.convertStyleToAttributes(svgString));
-		console.log(updatedSVG);
-
-		if (this.IS_DEBUG) console.groupEnd();
-
-		setTimeout(() => {
-			console.clear();
-			// fix calculated values, cleaning up svg, etc
-			// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
-			// this.setup(InterDummyData.sparkzRectangle);
-			// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
-			this.setup(InterDummyData.sparkzDefaultFile);
-		}, 2000);
+		this.testData();
 	}
 
 	getData() {
@@ -58,28 +35,55 @@ export class Inter {
 		this.data = newData;
 	}
 
+	testData() {
+
+		if (this.IS_DEBUG) console.groupCollapsed('Inter.testData()');
+
+		// test colors
+		const interpolatedColor = this.interpolateColor("#ff3333", "#3333ff", 0.5);
+		if (this.IS_DEBUG) console.log(`Interpolated color: ${interpolatedColor}`);
+		if (this.IS_DEBUG) console.log(this.interpolateColor("#ff3333", "#3333ff", 0.010101010101010102));
+
+		// Example usage
+		const svgString = `<svg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='768' height='576' viewBox='0 0 203.2 152.4'><ellipse cx='41.176' cy='254.962' rx='30.01' ry='31.405' style='opacity:1;fill:tomato;stroke:#98fb98;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers' transform='translate(0 -213.557)'/></svg>`;
+		const converter = new ColorConverter();
+		const updatedSVG = converter.convertSVGColors(converter.convertStyleToAttributes(svgString));
+		console.log(updatedSVG);
+
+		if (this.IS_DEBUG) console.groupEnd();
+
+		// setTimeout(() => {
+		// 	console.clear();
+		// 	// fix calculated values, cleaning up svg, etc
+		// 	// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
+		// 	// this.setup(InterDummyData.sparkzRectangle);
+		// 	// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
+		// 	this.setup(InterDummyData.sparkzDefaultFile);
+		// }, 2000);
+	}
+
 	/**
 	 * use this to setup the intercalculate the inbetween frams are calculated
 	 *
-	 * @param {*} projectFile  json file that holds the keyframes and project files
+	 * @param {*} useThisProjectFile  json file that holds the keyframes and project files
 	 */
-	setup(projectFile) {
+	setup(useThisProjectFile) {
 		if (this.IS_DEBUG) {
 			console.groupCollapsed('Inter.setup(..)');
-			console.log(projectFile);
+			console.log(useThisProjectFile);
 			console.groupEnd();
 		}
 		// Validate project file
-		this.validateAndCorrectProjectFile(projectFile);
+		this.validateAndCorrectProjectFile(useThisProjectFile);
 
 		// Calculate data for all frames and add to project
-		const frames = projectFile.frames;
-		projectFile.calculated = this.getFrameData(projectFile);
-		projectFile.calculated.forEach(frame => {
+		const frames = useThisProjectFile.frames;
+		useThisProjectFile.calculated = this.getFrameData(useThisProjectFile);
+		useThisProjectFile.calculated.forEach(frame => {
 			// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
 		});
 
-		console.log(projectFile);
+		console.log(useThisProjectFile);
 
 		// new Model().setProjectViaFile(projectFile);
 	}
@@ -94,12 +98,14 @@ export class Inter {
 		this.validateAndCorrectProjectFile(ProjectVars);
 
 		// Calculate data for all frames and add to project
-		const frames = ProjectVars.frames;
-		ProjectVars.calculated = this.getFrameData(frames);
+		// const frames = ProjectVars.frames;
+		ProjectVars.calculated = this.getFrameData(ProjectVars);
 		ProjectVars.calculated.forEach(frame => {
 			// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
 		});
 
+		console.log('Inter.calu');
+		console.log('ProjectVars');
 		console.log(ProjectVars);
 
 		// new Model().setProjectViaFile(ProjectVars);
@@ -116,50 +122,50 @@ export class Inter {
 	 * 4. Cleans up the SVG content in the frames by removing line breaks, tabs, comments, and extra spaces.
 	 * 5. Converts default web color names to their corresponding hex values in the frames' SVG content.
 	 *
-	 * @param {Object} projectFile  - The project file object containing frame details and metadata.
+	 * @param {Object} useThisProjectFile  - The project file object containing frame details and metadata.
 	 *
 	 * @throws {Error} Throws an error if the frame length is less than the last frame's number.
 	 */
-	validateAndCorrectProjectFile(projectFile) {
+	validateAndCorrectProjectFile(useThisProjectFile) {
 		if (this.IS_DEBUG) {
 			console.groupCollapsed(`Inter.validateAndCorrectProjectFile(...)`);
-			console.log(projectFile);
+			console.log(useThisProjectFile);
 			console.groupEnd();
 		}
 
-		const lastFrameNumber = projectFile.frames[projectFile.frames.length - 1].frameNumber;
-		const frameLength = projectFile.frameLength;
-		const frameRate = projectFile.frameRate;
-		let time = projectFile.time;
+		const lastFrameNumber = useThisProjectFile.frames[useThisProjectFile.frames.length - 1].frameNumber;
+		const frameLength = useThisProjectFile.frameLength;
+		const frameRate = useThisProjectFile.frameRate;
+		let time = useThisProjectFile.time;
 
 		if (this.IS_DEBUG) {
-			console.groupCollapsed(`check values, and update if needed`);
+			console.groupCollapsed(`1) Check values, and update if needed`);
 			console.log('lastFrameNumber: ' + lastFrameNumber);
 			console.log('frameLength: ' + frameLength);
 			console.log('frameRate: ' + frameRate);
 			console.log('time: ' + time);
-			console.log('projectFile.frames.length: ' + projectFile.frames.length);
+			console.log('projectFile.frames.length: ' + useThisProjectFile.frames.length);
 			console.groupEnd();
 		}
 
 		// Correct frame length if needed
 		if (frameLength < lastFrameNumber) {
 			console.warn(`Frame length is less than the last frame's number. Setting frame length to ${lastFrameNumber}.`);
-			projectFile.frameLength = lastFrameNumber;
+			useThisProjectFile.frameLength = lastFrameNumber;
 		}
 
 		// Correct time if needed
-		if (projectFile.frameLength / frameRate !== time) {
-			time = projectFile.frameLength / frameRate;
+		if (useThisProjectFile.frameLength / frameRate !== time) {
+			time = useThisProjectFile.frameLength / frameRate;
 			console.warn(`Time is inconsistent with frame length and frame rate. Setting time to ${time}.`);
-			projectFile.time = time;
+			useThisProjectFile.time = time;
 		}
 
 		// Create a ColorConverter instance
 		const converter = new ColorConverter();
 
 		// Check and correct the frames' SVG width and height to match the project dimensions and clean up SVG
-		projectFile.frames.forEach(frame => {
+		useThisProjectFile.frames.forEach(frame => {
 			// Clean up SVG content and convert color names to hex values
 			let cleanedSVG = frame.svg
 				.replace(/[\n\r\t]/g, '') // Remove line breaks and tabs
@@ -173,19 +179,19 @@ export class Inter {
 			const svgHeightMatch = cleanedSVG.match(/height=['"](\d+)['"]/);
 			const svgViewBoxMatch = cleanedSVG.match(/viewBox=['"]([0-9\s]+)['"]/);
 
-			const svgWidth = svgWidthMatch ? parseInt(svgWidthMatch[1], 10) : projectFile.width;
-			const svgHeight = svgHeightMatch ? parseInt(svgHeightMatch[1], 10) : projectFile.height;
+			const svgWidth = svgWidthMatch ? parseInt(svgWidthMatch[1], 10) : useThisProjectFile.width;
+			const svgHeight = svgHeightMatch ? parseInt(svgHeightMatch[1], 10) : useThisProjectFile.height;
 
 			// Adjust width and height to match project dimensions
-			if (svgWidth !== projectFile.width || svgHeight !== projectFile.height) {
+			if (svgWidth !== useThisProjectFile.width || svgHeight !== useThisProjectFile.height) {
 				cleanedSVG = cleanedSVG
-					.replace(/width=['"]\d+['"]/, `width="${projectFile.width}"`)
-					.replace(/height=['"]\d+['"]/, `height="${projectFile.height}"`);
+					.replace(/width=['"]\d+['"]/, `width="${useThisProjectFile.width}"`)
+					.replace(/height=['"]\d+['"]/, `height="${useThisProjectFile.height}"`);
 
 				if (svgViewBoxMatch) {
-					cleanedSVG = cleanedSVG.replace(/viewBox=['"][0-9\s]+['"]/, `viewBox="0 0 ${projectFile.width} ${projectFile.height}"`);
+					cleanedSVG = cleanedSVG.replace(/viewBox=['"][0-9\s]+['"]/, `viewBox="0 0 ${useThisProjectFile.width} ${useThisProjectFile.height}"`);
 				} else {
-					cleanedSVG = cleanedSVG.replace(/<svg/, `<svg viewBox="0 0 ${projectFile.width} ${projectFile.height}"`);
+					cleanedSVG = cleanedSVG.replace(/<svg/, `<svg viewBox="0 0 ${useThisProjectFile.width} ${useThisProjectFile.height}"`);
 				}
 
 				console.warn(`Adjusted frame ${frame.frameNumber} SVG dimensions to match project dimensions.`);
@@ -194,9 +200,8 @@ export class Inter {
 			frame.svg = cleanedSVG;
 		});
 
-
 		// if (this.IS_DEBUG) {
-		// 	console.groupCollapsed(`check values, and update if needed`);
+		// 	console.groupCollapsed(`2) Check values, and update if needed`);
 		// 	console.log('lastFrameNumber: ' + lastFrameNumber);
 		// 	console.log('frameLength: ' + frameLength);
 		// 	console.log('frameRate: ' + frameRate);
@@ -205,34 +210,6 @@ export class Inter {
 		// 	console.groupEnd();
 		// }
 	}
-
-
-
-
-
-
-
-
-	// /**
-	//  * use this to setup the intercalculate the inbetween frams are calculated
-	//  *
-	//  * @param {*} projectFile  json file that holds the keyframes and project files
-	//  */
-	// init() {
-	// 	if (this.IS_DEBUG) console.info('Inter.init()');
-
-	// 	// Calculate data for all frames and add to project
-	// 	const frames = this.projectFileTest.frames;
-	// 	this.projectFileTest.calculated = this.getFrameData(frames);
-	// 	this.projectFileTest.calculated.forEach(frame => {
-	// 		// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
-	// 	});
-
-	// 	console.log(this.projectFileTest);
-
-	// 	new Model().setProjectViaFile(this.projectFileTest);
-
-	// }
 
 	parseSVG(svg) {
 		const parser = new DOMParser();
@@ -303,6 +280,14 @@ export class Inter {
 		</svg>`.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', ' ');
 	}
 
+	/**
+	 *
+	 * @param {*} startElems
+	 * @param {*} endElems
+	 * @param {*} fraction
+	 * @param {*} elemType
+	 * @returns
+	 */
 	interpolateElements(startElems, endElems, fraction, elemType) {
 		// console.log(startElems, endElems, fraction, elemType);
 
@@ -358,79 +343,21 @@ export class Inter {
 		});
 	}
 
-	// getFrameData(frames) {
-	// 	// console.log(frames);
-
-	// 	const frameData = [];
-	// 	const frameSet = new Set();
-
-	// 	for (let i = 0; i < frames.length - 1; i++) {
-	// 		const frame1 = frames[i];
-	// 		const frame2 = frames[i + 1];
-
-	// 		// console.log(frame1);
-	// 		// console.log(frame2);
-
-
-	// 		frame1.svg = frame1.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
-	// 		frame2.svg = frame2.svg.replaceAll('\n', '').replaceAll('\r', '').replaceAll('\t', '').replaceAll('  ', '').replaceAll('> <', '><');
-	// 		const attrs1 = this.parseSVG(frame1.svg);
-	// 		const attrs2 = this.parseSVG(frame2.svg);
-
-
-	// 		// console.log(attrs1);
-	// 		// console.log(attrs2);
-
-	// 		// console.log('frame1.frameNumber: ' + frame1.frameNumber);
-	// 		// console.log('frame2.frameNumber: ' + frame2.frameNumber);
-
-
-	// 		for (let j = frame1.frameNumber; j <= frame2.frameNumber; j++) {
-	// 			if (frameSet.has(j)) continue;  // Skip if frame already exists
-	// 			frameSet.add(j);
-
-	// 			const fraction = (j - frame1.frameNumber) / (frame2.frameNumber - frame1.frameNumber);
-
-
-	// 			// console.log(attrs1);
-	// 			// console.log(attrs2);
-
-
-
-	// 			const ellipses = this.interpolateElements(attrs1.ellipses, attrs2.ellipses, fraction, 'ellipse');
-	// 			const circles = this.interpolateElements(attrs1.circles, attrs2.circles, fraction, 'circle');
-	// 			const rects = this.interpolateElements(attrs1.rects, attrs2.rects, fraction, 'rect');
-	// 			const texts = this.interpolateElements(attrs1.texts, attrs2.texts, fraction, 'text');
-
-
-	// 			// console.log(ellipses);
-	// 			// console.log(circles);
-	// 			// console.log(rects);
-	// 			// console.log(texts);
-
-
-	// 			frameData.push({
-	// 				frameNumber: j,
-	// 				svg: this.generateSVG(ellipses, circles, rects, texts)
-	// 			});
-	// 		}
-	// 	}
-
-	// 	// Ensure the last frame is included
-	// 	const lastFrame = frames[frames.length - 1];
-	// 	const lastAttrs = this.parseSVG(lastFrame.svg);
-	// 	frameData.push({
-	// 		frameNumber: lastFrame.frameNumber,
-	// 		svg: lastFrame.svg
-	// 	});
-
-	// 	return frameData;
-	// }
-
-	getFrameData(projectFile) {
+	/**
+	 *
+	 * @param {*} useThisProjectFile
+	 * @returns
+	 */
+	getFrameData(useThisProjectFile) {
+		if (this.IS_DEBUG) {
+			console.group('Inter.getFrameData( ... )');
+			console.log('useThisProjectFile:');
+			console.log(useThisProjectFile);
+			console.groupEnd();
+		}
 		const e = [];
-		const frameLength = projectFile.frameLength || 120; // Default frame length if not provided
-		const singleFrame = projectFile.frames[0]; // Assuming projectFile has only one frame
+		const frameLength = useThisProjectFile.frameLength || 120; // Default frame length if not provided
+		const singleFrame = useThisProjectFile.frames[0]; // Assuming projectFile has only one frame
 
 		// Adding the new functionality to repeat the single frame
 		for (let i = 1; i <= frameLength; i++) {
@@ -443,8 +370,8 @@ export class Inter {
 		// Now let's include the existing interpolation logic as well
 		const existingData = [];
 		const r = new Set;
-		for (let s = 0; s < projectFile.frames.length - 1; s++) {
-			const a = projectFile.frames[s], l = projectFile.frames[s + 1];
+		for (let s = 0; s < useThisProjectFile.frames.length - 1; s++) {
+			const a = useThisProjectFile.frames[s], l = useThisProjectFile.frames[s + 1];
 			a.svg = a.svg.replaceAll("\n", "").replaceAll("\r", "").replaceAll("\t", "").replaceAll("  ", "").replaceAll("> <", "><");
 			l.svg = l.svg.replaceAll("\n", "").replaceAll("\r", "").replaceAll("\t", "").replaceAll("  ", "").replaceAll("> <", "><");
 			const o = this.parseSVG(a.svg), i = this.parseSVG(l.svg);
@@ -458,7 +385,7 @@ export class Inter {
 				});
 			}
 		}
-		const s = projectFile.frames[projectFile.frames.length - 1];
+		const s = useThisProjectFile.frames[useThisProjectFile.frames.length - 1];
 		this.parseSVG(s.svg);
 		existingData.push({ frameNumber: s.frameNumber, svg: s.svg });
 
