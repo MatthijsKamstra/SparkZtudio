@@ -49,12 +49,12 @@
   - [x] Adjusts the width, height, and viewBox attributes in the frames' SVG content to match the project's width and height.
   - [x] Cleans up the SVG content in the frames by removing line breaks, tabs, comments, and extra spaces.
   - [x] Converts default web color names to their corresponding hex values in the frames' SVG content.
-- [ ] Document properties
-  - [ ] change width/height
-  - [ ] change frameeratge
-  - [ ] change framelenght
-  - [ ] add total time
-  - [ ] change total time
+- [x] Document properties
+  - [x] change width/height
+  - [x] change frameeratge
+  - [x] change framelenght
+  - [x] add total time
+  - [x] change total time
 - [ ] is it possible to code some extra values in .webm (data from export)
 - [ ] fix menu canvas with bigger projects
 - [x] fix label click which is buggy
@@ -69,3 +69,45 @@ new Model().init() -> new Inter().init()
 - dummy file projectFile
 
 -> new Model().setProjectViaFile(this.projectFileTest);
+
+## code
+
+inject metadata into export
+
+```js
+function injectMetadata(webmBlob, duration, bitrate) {
+    return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.onload = function(event) {
+            const arrayBuffer = event.target.result;
+            const dataView = new DataView(arrayBuffer);
+
+            // Example: Locate and modify the duration metadata
+            // This part is simplified and assumes you know the exact offset and size of the duration field
+            const durationOffset = 0x00; // Update with actual offset
+            const durationSize = 4; // Update with actual size
+            dataView.setFloat64(durationOffset, duration, true);
+
+            // Example: Locate and modify the bitrate metadata
+            // This part is simplified and assumes you know the exact offset and size of the bitrate field
+            const bitrateOffset = 0x00; // Update with actual offset
+            const bitrateSize = 4; // Update with actual size
+            dataView.setUint32(bitrateOffset, bitrate, true);
+
+            // Create a new Blob with the modified data
+            const updatedBlob = new Blob([dataView.buffer], { type: 'video/webm' });
+            resolve(updatedBlob);
+        };
+        fileReader.onerror = function(error) {
+            reject(error);
+        };
+        fileReader.readAsArrayBuffer(webmBlob);
+    });
+}
+
+// Usage example:
+const webmBlob = /* your WebM blob */;
+injectMetadata(webmBlob, 120, 5000).then((updatedBlob) => {
+    // Do something with the updated blob
+});
+```
