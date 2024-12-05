@@ -160,7 +160,7 @@ export class InterDummyData {
 				"keyframe": true
 			},
 			{
-				"frameNumber": 48,
+				"frameNumber": 24,
 				"svg": "<rect id='rectangle' x='700' y='500' width='100' height='50' fill='green' stroke='yellow' stroke-width='2' />",
 				"keyframe": true
 			}

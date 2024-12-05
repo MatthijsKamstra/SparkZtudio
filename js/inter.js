@@ -52,14 +52,14 @@ export class Inter {
 
 		if (this.IS_DEBUG) console.groupEnd();
 
-		setTimeout(() => {
-			console.clear();
-			// fix calculated values, cleaning up svg, etc
-			// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
-			this.setup(InterDummyData.sparkzRectangle);
-			// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
-			// this.setup(InterDummyData.sparkzDefaultFile);
-		}, 2000);
+		// setTimeout(() => {
+		// 	console.clear();
+		// 	// fix calculated values, cleaning up svg, etc
+		// 	// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
+		// 	this.setup(InterDummyData.sparkzRectangle);
+		// 	// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
+		// 	// this.setup(InterDummyData.sparkzDefaultFile);
+		// }, 2000);
 	}
 
 	/**
@@ -81,9 +81,13 @@ export class Inter {
 		useThisProjectFile.calculated = this.getFrameData(useThisProjectFile);
 		useThisProjectFile.calculated.forEach(frame => {
 			// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
+			// console.log(useThisProjectFile);
 		});
 
-		console.log(useThisProjectFile);
+		console.log(useThisProjectFile.calculated.length);
+		console.log(useThisProjectFile.frameLength);
+		// console.log(useThisProjectFile.frames);
+		// console.log(useThisProjectFile);
 
 		// new Model().setProjectViaFile(projectFile);
 	}
@@ -106,6 +110,7 @@ export class Inter {
 
 		console.log('Inter.calculatedFramesFromProjectVars: ProjectVars');
 		console.log(ProjectVars);
+
 
 		// new Model().setProjectViaFile(ProjectVars);
 
@@ -354,45 +359,57 @@ export class Inter {
 			console.log(useThisProjectFile);
 			console.groupEnd();
 		}
-		const e = [];
+
 		const frameLength = useThisProjectFile.frameLength || 120; // Default frame length if not provided
-		const singleFrame = useThisProjectFile.frames[0]; // Assuming projectFile has only one frame
+		const e = [];
+		const frames = useThisProjectFile.frames;
 
-		// Adding the new functionality to repeat the single frame
-		for (let i = 1; i <= frameLength; i++) {
-			e.push({
-				frameNumber: i,
-				svg: singleFrame.svg
-			});
-		}
+		// Array to store the interpolated frames
+		const interpolatedFrames = [];
 
-		// Now let's include the existing interpolation logic as well
-		const existingData = [];
-		const r = new Set;
-		for (let s = 0; s < useThisProjectFile.frames.length - 1; s++) {
-			const a = useThisProjectFile.frames[s], l = useThisProjectFile.frames[s + 1];
+		// Iterate over each pair of consecutive frames
+		for (let s = 0; s < frames.length - 1; s++) {
+			const a = frames[s];
+			const l = frames[s + 1];
+
+			// Clean up the SVG data
 			a.svg = a.svg.replaceAll("\n", "").replaceAll("\r", "").replaceAll("\t", "").replaceAll("  ", "").replaceAll("> <", "><");
 			l.svg = l.svg.replaceAll("\n", "").replaceAll("\r", "").replaceAll("\t", "").replaceAll("  ", "").replaceAll("> <", "><");
-			const o = this.parseSVG(a.svg), i = this.parseSVG(l.svg);
+
+			// Parse the SVG data
+			const o = this.parseSVG(a.svg);
+			const i = this.parseSVG(l.svg);
+
+			// Interpolate between the frames
 			for (let t = a.frameNumber; t <= l.frameNumber; t++) {
-				if (r.has(t)) continue;
-				r.add(t);
-				const s = (t - a.frameNumber) / (l.frameNumber - a.frameNumber), n = this.interpolateElements(o.ellipses, i.ellipses, s, "ellipse"), c = this.interpolateElements(o.circles, i.circles, s, "circle"), p = this.interpolateElements(o.rects, i.rects, s, "rect"), h = this.interpolateElements(o.texts, i.texts, s, "text");
-				existingData.push({
+				const s = (t - a.frameNumber) / (l.frameNumber - a.frameNumber);
+				const n = this.interpolateElements(o.ellipses, i.ellipses, s, "ellipse");
+				const c = this.interpolateElements(o.circles, i.circles, s, "circle");
+				const p = this.interpolateElements(o.rects, i.rects, s, "rect");
+				const h = this.interpolateElements(o.texts, i.texts, s, "text");
+
+				interpolatedFrames.push({
 					frameNumber: t,
 					svg: this.generateSVG(n, c, p, h)
 				});
 			}
 		}
-		const s = useThisProjectFile.frames[useThisProjectFile.frames.length - 1];
-		this.parseSVG(s.svg);
-		existingData.push({ frameNumber: s.frameNumber, svg: s.svg });
 
-		// Merge the existing and new data
-		const combinedData = e.concat(existingData);
+		// Ensure frame 24 is in its correct place
+		interpolatedFrames.push(frames[frames.length - 1]);
 
-		return combinedData;
+		// Repeat the last keyframe from frame 25 to frameLength
+		for (let i = frames[frames.length - 1].frameNumber + 1; i <= frameLength; i++) {
+			interpolatedFrames.push({
+				frameNumber: i,
+				svg: frames[frames.length - 1].svg
+			});
+		}
+
+		// Return the combined data
+		return interpolatedFrames;
 	}
+
 
 
 
