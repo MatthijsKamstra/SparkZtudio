@@ -52,14 +52,14 @@ export class Inter {
 
 		if (this.IS_DEBUG) console.groupEnd();
 
-		// setTimeout(() => {
-		// 	console.clear();
-		// 	// fix calculated values, cleaning up svg, etc
-		// 	// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
-		// 	// this.setup(InterDummyData.sparkzRectangle);
-		// 	// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
-		// 	this.setup(InterDummyData.sparkzDefaultFile);
-		// }, 2000);
+		setTimeout(() => {
+			console.clear();
+			// fix calculated values, cleaning up svg, etc
+			// this.setup(InterDummyData.sparkzInkscapeMinifiedFileWithStyle);
+			this.setup(InterDummyData.sparkzRectangle);
+			// this.setup(InterDummyData.sparkzInkscapeMinifiedFile);
+			// this.setup(InterDummyData.sparkzDefaultFile);
+		}, 2000);
 	}
 
 	/**
@@ -77,7 +77,7 @@ export class Inter {
 		this.validateAndCorrectProjectFile(useThisProjectFile);
 
 		// Calculate data for all frames and add to project
-		const frames = useThisProjectFile.frames;
+		// const frames = useThisProjectFile.frames;
 		useThisProjectFile.calculated = this.getFrameData(useThisProjectFile);
 		useThisProjectFile.calculated.forEach(frame => {
 			// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
@@ -104,8 +104,7 @@ export class Inter {
 			// console.log(`Frame ${frame.frameNumber}: svg=${frame.svg}`);
 		});
 
-		console.log('Inter.calu');
-		console.log('ProjectVars');
+		console.log('Inter.calculatedFramesFromProjectVars: ProjectVars');
 		console.log(ProjectVars);
 
 		// new Model().setProjectViaFile(ProjectVars);

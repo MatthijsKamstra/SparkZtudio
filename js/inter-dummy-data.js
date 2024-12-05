@@ -151,7 +151,7 @@ export class InterDummyData {
 		"width": 768,
 		"height": 576,
 		"frameRate": 24,
-		"frameLength": 240,
+		"frameLength": 48,
 		"totalTime": 10,
 		"frames": [
 			{
@@ -160,8 +160,8 @@ export class InterDummyData {
 				"keyframe": true
 			},
 			{
-				"frameNumber": 25,
-				"svg": "<rect id='rectangle' x='150' y='60' width='100' height='50' fill='green' stroke='yellow' stroke-width='2' />",
+				"frameNumber": 48,
+				"svg": "<rect id='rectangle' x='700' y='500' width='100' height='50' fill='green' stroke='yellow' stroke-width='2' />",
 				"keyframe": true
 			}
 		]
