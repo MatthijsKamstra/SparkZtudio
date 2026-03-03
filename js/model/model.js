@@ -79,16 +79,20 @@ export class Model {
 		new ExportVideo();
 		new Focus();
 
-		// test inter
-		// new Inter().init();
-		// setTimeout(function () {
-		// 	console.clear();
-		// 	new Inter().init();
-		// }, 2000);
-		// setTimeout(function () {
-		// 	console.clear();
-		// 	new Inter();
-		// }, 1000);
+		// Restore last project from localStorage
+		try {
+			const local = new LocalStorageHandler();
+			const projectFilesArray = local.getItem('projectFiles');
+			if (projectFilesArray && projectFilesArray.length > 0) {
+				const lastProject = projectFilesArray[projectFilesArray.length - 1];
+				if (lastProject) {
+					if (this.IS_DEBUG) console.info('Model.init(): restoring last project from localStorage');
+					this.setProjectViaFile(lastProject);
+				}
+			}
+		} catch (e) {
+			if (this.IS_DEBUG) console.warn('Model.init(): could not restore last project', e);
+		}
 
 	}
 
@@ -120,6 +124,14 @@ export class Model {
 
 		// store files
 		this.storeProjectFile(jsonString);
+
+		// Update navbar filename badge and page title
+		const displayName = ProjectVars.exportName || ProjectVars.projectName || 'project';
+		const fileLabel = displayName.endsWith('.json') ? displayName : displayName + '.json';
+		const nameEl = document.getElementById('currentFileName');
+		if (nameEl) nameEl.textContent = fileLabel;
+		document.title = `⚡ ${fileLabel} — Spark Studio`;
+		localStorage.setItem('sparkLastFile', JSON.stringify({ name: fileLabel, opened: Date.now() }));
 
 		// Canvas.setSvg(svgElement);
 		new Canvas().projectFile();
@@ -443,8 +455,10 @@ export class Model {
 			const frame = ProjectVars.calculated[frameIndex];
 			if (frame && frame.svg) {
 				container.innerHTML = frame.svg;
-			}
-			frameIndex++;
+			}			// update playhead display
+			document.dispatchEvent(new CustomEvent('playheadMoved', {
+				detail: { frame: frameIndex + 1, total: ProjectVars.calculated.length }
+			}));			frameIndex++;
 		}, intervalMs);
 	}
 

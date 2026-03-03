@@ -43,36 +43,40 @@ export class Properties {
 
 		document.getElementById('propertiesDocument').innerHTML =
 			`
-	<form id="projectDetailsForm">
-		<div class="form-group">
-			<label for="projectName"><strong>ProjectName:</strong></label>
-			<input type="text" class="form-control" id="projectName" value="${ProjectVars.projectName}">
+	<form id="projectDetailsForm" class="px-1 py-1" style="font-size:0.82rem">
+		<div class="mb-1">
+			<label class="form-label mb-0 fw-semibold">Project Name</label>
+			<input type="text" class="form-control form-control-sm" id="projectName" value="${ProjectVars.projectName}">
 		</div>
-		<div class="form-group">
-			<label for="exportName"><strong>ExportName:</strong></label>
-			<input type="text" class="form-control" id="exportName" value="${ProjectVars.exportName}">
+		<div class="mb-1">
+			<label class="form-label mb-0 fw-semibold">Export Name</label>
+			<input type="text" class="form-control form-control-sm" id="exportName" value="${ProjectVars.exportName}">
 		</div>
-		<div class="form-group">
-			<label for="creationDate"><strong>creationDate:</strong></label>
-			<input type="text" class="form-control" id="creationDate" value="${ProjectVars.creationDate}">
+		<div class="row g-1 mb-1">
+			<div class="col-6">
+				<label class="form-label mb-0 fw-semibold">W</label>
+				<input type="number" class="form-control form-control-sm" id="width" value="${ProjectVars.width}">
+			</div>
+			<div class="col-6">
+				<label class="form-label mb-0 fw-semibold">H</label>
+				<input type="number" class="form-control form-control-sm" id="height" value="${ProjectVars.height}">
+			</div>
 		</div>
-		<div class="form-group">
-			<label for="width"><strong>Width:</strong></label>
-			<input type="number" class="form-control" id="width" value="${ProjectVars.width}">
+		<div class="row g-1 mb-2">
+			<div class="col-6">
+				<label class="form-label mb-0 fw-semibold">FPS</label>
+				<input type="number" class="form-control form-control-sm" id="frameRate" value="${ProjectVars.frameRate}">
+			</div>
+			<div class="col-6">
+				<label class="form-label mb-0 fw-semibold">Frames</label>
+				<input type="number" class="form-control form-control-sm" id="frameLength" value="${ProjectVars.frameLength}">
+			</div>
 		</div>
-		<div class="form-group">
-			<label for="height"><strong>Height:</strong></label>
-			<input type="number" class="form-control" id="height" value="${ProjectVars.height}">
+		<div class="d-flex justify-content-between align-items-center">
+			<small class="text-muted">${ProjectVars.creationDate || ''}</small>
+			<button type="submit" class="btn btn-primary btn-sm">Save</button>
 		</div>
-		<div class="form-group">
-			<label for="frameRate"><strong>frameRate:</strong></label>
-			<input type="number" class="form-control" id="frameRate" value="${ProjectVars.frameRate}">
-		</div>
-		<div class="form-group">
-			<label for="frameLength"><strong>frameLength:</strong></label>
-			<input type="number" class="form-control" id="frameLength" value="${ProjectVars.frameLength}">
-		</div>
-		<button type="submit" class="btn btn-primary">Save</button>
+		<input type="hidden" id="creationDate" value="${ProjectVars.creationDate}">
 	</form>
 	`;
 

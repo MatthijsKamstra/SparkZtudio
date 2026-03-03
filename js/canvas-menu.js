@@ -44,7 +44,8 @@ export class CanvasMenu {
 			if (this.IS_DEBUG) console.log('click btn zoomTo100');
 			this.zoomTo100();
 		});
-
+		// clicking the zoom level badge also resets to 100%
+		document.getElementById('zoomLevelDisplay')?.addEventListener('click', () => this.zoomTo100());
 		document.getElementById('canvas-menu-zoomToFit').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click btn zoomToFit');
 			this.zoomToFit();
@@ -79,7 +80,10 @@ export class CanvasMenu {
 			const btn = document.getElementById('togglePlayStop');
 			if (btn) btn.innerHTML = '<i class="bi bi-play-fill"></i>';
 		});
-	}
+		// Update playhead display during playback
+		document.addEventListener('playheadMoved', (e) => {
+			this.updatePlayheadDisplay(e.detail.frame, e.detail.total);
+		});	}
 
 	update() {
 		if (this.IS_DEBUG) console.info('CanvasMenu.update');
@@ -96,6 +100,7 @@ export class CanvasMenu {
 		if (this.IS_DEBUG) console.info('zoomIn');
 		Globals.zoomScale += 0.1;
 		this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
+		this.updateZoomDisplay();
 	}
 
 	zoomOut() {
@@ -104,12 +109,14 @@ export class CanvasMenu {
 			Globals.zoomScale -= 0.1;
 			this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
 		}
+		this.updateZoomDisplay();
 	}
 
 	zoomTo100() {
 		if (this.IS_DEBUG) console.info('zoomTo100');
 		Globals.zoomScale = 1;
 		this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
+		this.updateZoomDisplay();
 	}
 
 	zoomToFit() {
@@ -119,6 +126,17 @@ export class CanvasMenu {
 		const scale = Math.min(containerRect.width / svgRect.width, containerRect.height / svgRect.height);
 		Globals.zoomScale = scale;
 		this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
+		this.updateZoomDisplay();
+	}
+
+	updateZoomDisplay() {
+		const el = document.getElementById('zoomLevelDisplay');
+		if (el) el.textContent = Math.round(Globals.zoomScale * 100) + '%';
+	}
+
+	updatePlayheadDisplay(frame, total) {
+		const el = document.getElementById('playheadDisplay');
+		if (el) el.textContent = `${frame} / ${total}`;
 	}
 
 	togglePlayStop() {

@@ -2,7 +2,7 @@ import { Canvas } from './canvas.js';
 import { ExportVideo } from './export-video.js';
 import { Export } from './export.js';
 import { Globals } from './globals.js';
-import { Model } from './model/model.js';
+import { Model, ProjectVars } from './model/model.js';
 import { Properties } from './properties.js';
 import { Timeline } from './timeline.js';
 
@@ -70,7 +70,6 @@ export class Menu {
 				const reader = new FileReader();
 				reader.onload = function (e) {
 					const projectFile = e.target.result;
-					if (this.IS_DEBUG) console.log(projectFile);
 					new Model().setProjectViaFile(projectFile);
 				};
 				reader.readAsText(file);
@@ -97,31 +96,34 @@ export class Menu {
 			}
 		});
 
+		// helper to safely wire menu items (guards against removed elements)
+		const wire = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+
 		// Edit menu items
-		document.getElementById('undo').onclick = function () { alert('Undo'); };
-		document.getElementById('redo').onclick = function () { alert('Redo'); };
-		document.getElementById('cut').onclick = function () { alert('Cut'); };
-		document.getElementById('copy').onclick = function () { alert('Copy'); };
-		document.getElementById('paste').onclick = function () { alert('Paste'); };
+		wire('undo', () => alert('Undo'));
+		wire('redo', () => alert('Redo'));
+		wire('cut', () => alert('Cut'));
+		wire('copy', () => alert('Copy'));
+		wire('paste', () => alert('Paste'));
 
 		// View menu items
-		document.getElementById('zoomIn').onclick = function () { alert('Zoom In'); };
-		document.getElementById('zoomOut').onclick = function () { alert('Zoom Out'); };
-		document.getElementById('fitToScreen').onclick = function () { alert('Fit to Screen'); };
+		wire('zoomIn', () => alert('Zoom In'));
+		wire('zoomOut', () => alert('Zoom Out'));
+		wire('fitToScreen', () => alert('Fit to Screen'));
 
 		// Layer menu items
-		document.getElementById('newLayer').onclick = function () { alert('New Layer'); };
-		document.getElementById('deleteLayer').onclick = function () { alert('Delete Layer'); };
-		document.getElementById('duplicateLayer').onclick = function () { alert('Duplicate Layer'); };
+		wire('newLayer', () => alert('New Layer'));
+		wire('deleteLayer', () => alert('Delete Layer'));
+		wire('duplicateLayer', () => alert('Duplicate Layer'));
 
-		// Window menu items
-		document.getElementById('minimize').onclick = function () { alert('Minimize'); };
-		document.getElementById('maximize').onclick = function () { alert('Maximize'); };
-		document.getElementById('closeWindow').onclick = function () { alert('Close Window'); };
+		// Window menu items (may not be present in all layouts)
+		wire('minimize', () => alert('Minimize'));
+		wire('maximize', () => alert('Maximize'));
+		wire('closeWindow', () => alert('Close Window'));
 
 		// Help menu items
-		document.getElementById('helpTopics').onclick = function () { alert('Help Topics'); };
-		document.getElementById('about').onclick = function () { alert('About'); };
+		wire('helpTopics', () => alert('Help Topics'));
+		wire('about', () => alert('About'));
 	}
 
 	// ____________________________________ button functions ____________________________________
@@ -132,6 +134,13 @@ export class Menu {
 
 	saveFile() {
 		new Model().saveFile();
+		// Update stored filename with current project export name
+		const name = ProjectVars.exportName ? ProjectVars.exportName + '.json' : null;
+		if (name) {
+			localStorage.setItem('sparkLastFile', JSON.stringify({ name, opened: Date.now() }));
+			const el = document.getElementById('currentFileName');
+			if (el) el.textContent = name;
+		}
 	}
 
 	saveAsFile() {

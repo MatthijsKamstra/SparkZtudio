@@ -28,65 +28,114 @@ export class Timeline {
 		this.updateTimeline();
 	}
 
-	// Function to update the timeline and show keyframes
+	// Flash-style timeline: frame numbers once at top, keyframe diamonds per layer
 	updateTimeline() {
-		const timelineTableBody = document.getElementById('timelineTableBody');
-		timelineTableBody.innerHTML = ''; // clear content
+		const totalFrames = ProjectVars.frameLength;
+		const keyframeNums = new Set((ProjectVars.frames || []).map(f => f.frameNumber));
 
-		// Iterate over layers and update the timeline
-		ProjectVars.frames.forEach((frame, index) => {
-			const layerId = frame.layerId || this.generateId();
-			const layerRow = this.createLayerDiv(layerId, index + 1);
-			timelineTableBody.appendChild(layerRow);
-		});
-
-		this.addPlayhead();
-	}
-
-	// Function to create layer divs with keyframes
-	createLayerDiv(id, index) {
-		const layerDiv = document.createElement('div');
-		layerDiv.className = 'layer-div';
-		layerDiv.dataset.layerId = id;
-
-		const keyframesDiv = document.createElement('div');
-		keyframesDiv.className = 'keyframes-container';
-
-		const totalFrames = this.calculateTotalFrames();
-		for (let i = 0; i < totalFrames; i++) {
-			const keyframeDiv = document.createElement('div');
-			keyframeDiv.className = 'keyframe';
-			keyframeDiv.style.width = '30px'; // Fixed width for each keyframe div
-			keyframeDiv.textContent = i + 1; // Keyframe number
-			keyframesDiv.appendChild(keyframeDiv);
+		// --- Rebuild thead with frame number ruler ---
+		const table = document.querySelector('#timelineWrapper table');
+		if (!table) return;
+		const thead = table.querySelector('thead');
+		const headerRow = thead.querySelector('tr');
+		// Remove old dynamic frame-number ths (keep only fixed layer control ths)
+		const FIXED_COLS = 4; // eye, lock, type, id
+		Array.from(headerRow.querySelectorAll('th.frame-num-th')).forEach(th => th.remove());
+		// Add frame number header cells
+		for (let i = 1; i <= totalFrames; i++) {
+			const th = document.createElement('th');
+			th.className = 'frame-num-th';
+			if (i === 1 || i % 5 === 0) th.textContent = i;
+			headerRow.appendChild(th);
 		}
 
-		layerDiv.appendChild(keyframesDiv);
-		return layerDiv;
+		// --- Rebuild tbody ---
+		const tbody = document.getElementById('timelineTableBody');
+		tbody.innerHTML = '';
+
+		if (!ProjectVars.frames || ProjectVars.frames.length === 0) return;
+
+		// Extract SVG element layers from the first keyframe
+		const layers = this._extractLayers(ProjectVars.frames[0].svg);
+		layers.forEach(({ id, type }) => {
+			const row = this._createTimelineRow(id, type, totalFrames, keyframeNums);
+			tbody.appendChild(row);
+		});
 	}
 
-	// Function to add a playhead
-	addPlayhead() {
-		const playhead = document.createElement('div');
-		playhead.className = 'playhead';
-		playhead.style.position = 'absolute';
-		playhead.style.height = '100%';
-		playhead.style.width = '2px';
-		playhead.style.backgroundColor = 'red';
-		playhead.style.left = '0px'; // Starting position of the playhead
-		document.getElementById('timelineWrapper').appendChild(playhead);
+	_extractLayers(svgString) {
+		if (!svgString) return [];
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(svgString, 'image/svg+xml');
+		const elements = Array.from(doc.querySelectorAll('svg > *'));
+		return elements.map(el => ({ id: el.id || this.generateId(), type: el.nodeName }));
+	}
 
-		// Add drag functionality to the playhead
-		playhead.addEventListener('mousedown', (event) => {
-			const onMouseMove = (e) => {
-				playhead.style.left = `${e.clientX - timelineWrapper.getBoundingClientRect().left}px`;
-			};
-			document.addEventListener('mousemove', onMouseMove);
+	_createTimelineRow(id, type, totalFrames, keyframeNums) {
+		const row = document.createElement('tr');
 
-			document.addEventListener('mouseup', () => {
-				document.removeEventListener('mousemove', onMouseMove);
-			}, { once: true });
+		// Eye cell
+		const eyeCell = document.createElement('td');
+		eyeCell.className = 'tl-fixed text-center';
+		const eyeIcon = document.createElement('i');
+		eyeIcon.className = 'bi bi-eye tl-icon';
+		eyeCell.appendChild(eyeIcon);
+		eyeIcon.addEventListener('click', () => {
+			const el = document.getElementById(id);
+			if (!el) return;
+			el.style.display = el.style.display === 'none' ? '' : 'none';
+			eyeIcon.className = el.style.display === 'none' ? 'bi bi-eye-slash tl-icon' : 'bi bi-eye tl-icon';
 		});
+
+		// Lock cell
+		const lockCell = document.createElement('td');
+		lockCell.className = 'tl-fixed text-center';
+		const lockIcon = document.createElement('i');
+		lockIcon.className = 'bi bi-unlock tl-icon';
+		lockCell.appendChild(lockIcon);
+		lockIcon.addEventListener('click', () => {
+			const el = document.getElementById(id);
+			if (!el) return;
+			const locked = el.getAttribute('pointer-events') === 'none';
+			el.setAttribute('pointer-events', locked ? 'all' : 'none');
+			lockIcon.className = locked ? 'bi bi-unlock tl-icon' : 'bi bi-lock tl-icon';
+		});
+
+		// Type icon cell
+		const typeCell = document.createElement('td');
+		typeCell.className = 'tl-fixed text-center';
+		const typeIcon = document.createElement('i');
+		typeIcon.className = this._typeIcon(type) + ' tl-icon';
+		typeCell.appendChild(typeIcon);
+
+		// ID label cell
+		const idCell = document.createElement('td');
+		idCell.className = 'tl-fixed tl-label text-nowrap';
+		idCell.textContent = id;
+		idCell.title = id;
+
+		row.appendChild(eyeCell);
+		row.appendChild(lockCell);
+		row.appendChild(typeCell);
+		row.appendChild(idCell);
+
+		// Frame cells — one per frame
+		for (let i = 1; i <= totalFrames; i++) {
+			const td = document.createElement('td');
+			td.className = 'kf-cell';
+			if (keyframeNums.has(i)) {
+				td.className += ' kf-cell--key';
+				td.innerHTML = '<span class="kf-diamond">◆</span>';
+			}
+			row.appendChild(td);
+		}
+
+		return row;
+	}
+
+	_typeIcon(type) {
+		const map = { rect: 'bi bi-square', circle: 'bi bi-circle', text: 'bi bi-fonts', image: 'bi bi-image' };
+		return map[type] || 'bi bi-layers';
 	}
 
 	projectFile() {
@@ -253,57 +302,22 @@ export class Timeline {
 	setSvg(data) {
 		if (this.IS_DEBUG) {
 			console.info('Timeline.setSvg()');
-			console.info(data);
 		}
 
-		this.update();
-
-		// Check if data is a string
+		// Ensure data is a string
 		if (typeof data !== 'string') {
-			if (this.IS_DEBUG) console.log('The data is not a string.');
 			const serializer = new XMLSerializer();
 			data = serializer.serializeToString(data);
-			if (this.IS_DEBUG) console.log(data);
 		}
 
-		// Parse the string to create a document fragment
-		const parser = new DOMParser();
-		const svgDoc = parser.parseFromString(data, 'image/svg+xml');
-
-		// Extract all elements from the parsed SVG
-		const elements = svgDoc.querySelectorAll('*');
-		const elementIds = [];
-
-		elements.forEach(element => {
-			if (!element.id && element.nodeName !== 'svg') {
-				element.setAttribute('id', this.generateId());
-			}
-			if (element.nodeName !== 'svg') elementIds.push({ id: element.id, type: element.nodeName });
-		});
-
-		// Display the shuffled array of IDs as layers in the panel
-		const timelineTableBody = document.getElementById('timelineTableBody');
-		timelineTableBody.innerHTML = ''; // clear content
-		elementIds.forEach(({ id, type }) => {
-			const layerRow = this.createLayerRow(id, type);
-			timelineTableBody.appendChild(layerRow);
-		});
-
-		// Serialize the modified SVG back to a string
-		const serializer = new XMLSerializer();
-		const updatedSvgString = serializer.serializeToString(svgDoc);
-
-		// Assume svgContainer is defined elsewhere in your script
+		// Set first frame SVG on canvas
 		const svgContainer = document.querySelector('#svg-container');
-		if (!svgContainer) {
-			console.error('SVG container not found');
-			return;
+		if (svgContainer) {
+			svgContainer.innerHTML = data;
 		}
 
-		// Clear existing content and set the updated SVG string
-		svgContainer.innerHTML = updatedSvgString;
-
-		if (this.IS_DEBUG) console.log('Updated SVG:', updatedSvgString);
+		// Rebuild timeline with updated ProjectVars
+		this.update();
 	}
 
 	setFrameRate() {
