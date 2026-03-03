@@ -67,10 +67,17 @@ export class CanvasMenu {
 		});
 
 
-		// Add loop lity
+		// Add loop logic
 		document.getElementById('toggleLoop').addEventListener('click', () => {
 			if (this.IS_DEBUG) console.log('click toggleLoop');
 			this.toggleLoop();
+		});
+
+		// Reset play state when playback ends naturally (no loop)
+		document.addEventListener('playbackEnded', () => {
+			this.isPlaying = false;
+			const btn = document.getElementById('togglePlayStop');
+			if (btn) btn.innerHTML = '<i class="bi bi-play-fill"></i>';
 		});
 	}
 
@@ -116,26 +123,23 @@ export class CanvasMenu {
 
 	togglePlayStop() {
 		if (this.isPlaying) {
-			new Model().play();
-		} else {
 			new Model().stop();
+		} else {
+			new Model().play(this.isLooping);
 		}
 		this.isPlaying = !this.isPlaying;
 		const toggleButton = document.getElementById('togglePlayStop');
-		toggleButton.innerHTML = this.isPlaying ? '<i class="fa fa-stop"></i>' : '<i class="fa fa-play"></i>';
-		// Logic to toggle play/stop
+		toggleButton.innerHTML = this.isPlaying
+			? '<i class="bi bi-stop-fill"></i>'
+			: '<i class="bi bi-play-fill"></i>';
 	}
 
-	// Loop lity
+	// Loop logic
 	toggleLoop() {
-		if (this.isLooping) {
-			new Model().loop(true);
-		} else {
-			new Model().loop(false);
-		}
 		this.isLooping = !this.isLooping;
+		new Model().loop(this.isLooping);
 		const loopButton = document.getElementById('toggleLoop');
-		loopButton.classList.toggle('active', this.isLooping); // Logic to toggle looping
+		loopButton.classList.toggle('active', this.isLooping);
 	}
 
 	// Keyframe navigation

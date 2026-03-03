@@ -10,6 +10,9 @@ export class ExportVideo {
 	animationInterval;
 	lastValidFrame = null; // To store the last valid frame
 	imageArray = [];
+	previewKeyframeIndex = 0;
+	lastBlobUrl = null;
+	exportIsLooping = false;
 
 	IS_DEBUG = true;
 
@@ -96,10 +99,20 @@ export class ExportVideo {
 		const startRecordingButton = document.getElementById("startRecording");
 		const stopRecordingButton = document.getElementById("stopRecording");
 		const confirmExportButton = document.getElementById("confirmExport");
+		const prevKeyframeButton = document.getElementById("exportPrevKeyframe");
+		const nextKeyframeButton = document.getElementById("exportNextKeyframe");
+		const toggleLoopButton = document.getElementById("exportToggleLoop");
 
 		startRecordingButton.addEventListener("click", this.startRecording);
 		stopRecordingButton.addEventListener("click", this.stopRecording);
 		confirmExportButton.addEventListener("click", this.confirmExport);
+
+		prevKeyframeButton?.addEventListener("click", () => this.previewKeyframe(-1));
+		nextKeyframeButton?.addEventListener("click", () => this.previewKeyframe(1));
+		toggleLoopButton?.addEventListener("click", () => {
+			this.exportIsLooping = !this.exportIsLooping;
+			toggleLoopButton.classList.toggle('active', this.exportIsLooping);
+		});
 	}
 
 	/**
@@ -257,13 +270,10 @@ export class ExportVideo {
 				this.lastValidFrame = img;
 			}
 
-			// Clear the canvas before drawing new content
+			// Clear the canvas and always draw white background (prevents transparent video)
 			this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-			// check if transparancy is possible, if not generate a white background
-			if (!this.isCodecSupported('video/webm;codecs=vp9')) {
-				this.ctx.fillStyle = 'white'; // white background
-				this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-			}
+			this.ctx.fillStyle = 'white';
+			this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 			// Draw the current frame (image)
 			this.ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -373,18 +383,18 @@ export class ExportVideo {
 
 		this.mediaRecorder.onstop = () => {
 			const blob = new Blob(this.recordedChunks, { type: "video/webm" });
-			const url = URL.createObjectURL(blob);
+			this.lastBlobUrl = URL.createObjectURL(blob);
 
-			// Create a downloadable link
+			// Auto-download
 			const a = document.createElement("a");
 			a.style.display = "none";
-			a.href = url;
+			a.href = this.lastBlobUrl;
 			a.download = `${ProjectVars.exportName}.webm`;
 			document.body.appendChild(a);
 			a.click();
+			document.body.removeChild(a);
 
-			// Clean up
-			URL.revokeObjectURL(url);
+			// Clean up chunks (keep lastBlobUrl for re-download via confirmExport)
 			this.recordedChunks = [];
 		};
 
@@ -407,22 +417,37 @@ export class ExportVideo {
 		}
 	}
 
-	// ____________________________________ export file (doesn't work right now) ____________________________________
+	/**
+	 * Navigate preview to previous or next keyframe (+1 or -1)
+	 */
+	previewKeyframe(direction) {
+		if (!ProjectVars.frames || ProjectVars.frames.length === 0) return;
+		this.previewKeyframeIndex = Math.max(0,
+			Math.min(ProjectVars.frames.length - 1, this.previewKeyframeIndex + direction));
+		const frame = ProjectVars.frames[this.previewKeyframeIndex];
+		if (frame && frame.svg) {
+			this.drawSVG(frame.svg, () => { });
+		}
+	}
 
 	/**
-	 * Confirm export (optional)
+	 * Confirm export - downloads the last recorded video
 	 */
 	confirmExport() {
-
-		console.log('confirmExport');
-		console.warn('this.imageArray.length: ' + this.imageArray.length);
-		console.warn('this.recordedChunks.length: ' + this.recordedChunks.length);
-
-
-		if (this.recordedChunks.length === 0) {
-			alert("No video recorded to export!");
+		if (this.lastBlobUrl) {
+			// Re-download the last recorded video
+			const a = document.createElement('a');
+			a.style.display = 'none';
+			a.href = this.lastBlobUrl;
+			a.download = `${ProjectVars.exportName || 'spark-export'}.webm`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		} else if (this.recordedChunks.length > 0) {
+			// Chunks present but onstop hasn't fired yet - stop recording first
+			this.stopRecording();
 		} else {
-			alert("Your video has been exported!");
+			alert('No video recorded yet. Press Play to record first.');
 		}
 	}
 

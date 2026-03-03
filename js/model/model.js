@@ -421,12 +421,39 @@ export class Model {
 		new Properties().update();
 	}
 
-	play() {
-		if (this.IS_DEBUG) console.log('new Model().play');
+	play(isLooping = false) {
+		if (this.IS_DEBUG) console.log(`new Model().play (isLooping=${isLooping})`);
+		if (!ProjectVars.calculated || ProjectVars.calculated.length === 0) {
+			new Inter().calculatedFramesFromProjectVars();
+		}
+		const container = document.getElementById('svg-container');
+		const intervalMs = 1000 / ProjectVars.frameRate;
+		let frameIndex = 0;
+		this._playInterval = setInterval(() => {
+			if (frameIndex >= ProjectVars.calculated.length) {
+				if (isLooping) {
+					frameIndex = 0; // loop back to start
+				} else {
+					clearInterval(this._playInterval);
+					this._playInterval = null;
+					document.dispatchEvent(new CustomEvent('playbackEnded'));
+					return;
+				}
+			}
+			const frame = ProjectVars.calculated[frameIndex];
+			if (frame && frame.svg) {
+				container.innerHTML = frame.svg;
+			}
+			frameIndex++;
+		}, intervalMs);
 	}
 
 	stop() {
 		if (this.IS_DEBUG) console.log('new Model().stop');
+		if (this._playInterval) {
+			clearInterval(this._playInterval);
+			this._playInterval = null;
+		}
 	}
 
 	nextKeyframe() {

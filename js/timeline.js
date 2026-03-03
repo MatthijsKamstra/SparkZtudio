@@ -116,24 +116,24 @@ export class Timeline {
 		const visibleCell = document.createElement('td');
 		visibleCell.className = 'text-center';
 		const visibleIcon = document.createElement('i');
-		visibleIcon.className = 'fa fa-eye';
+		visibleIcon.className = 'bi bi-eye';
 		visibleCell.appendChild(visibleIcon);
 		visibleIcon.addEventListener('click', () => {
 			const layer = document.getElementById(id);
 			layer.style.display = layer.style.display === 'none' ? 'block' : 'none';
-			visibleIcon.className = layer.style.display === 'none' ? 'fa fa-eye-slash' : 'fa fa-eye';
+			visibleIcon.className = layer.style.display === 'none' ? 'bi bi-eye-slash' : 'bi bi-eye';
 		});
 
 		const lockCell = document.createElement('td');
 		lockCell.className = 'text-center';
 		const lockIcon = document.createElement('i');
-		lockIcon.className = 'fa fa-unlock';
+		lockIcon.className = 'bi bi-unlock';
 		lockCell.appendChild(lockIcon);
 		lockIcon.addEventListener('click', () => {
 			const layer = document.getElementById(id);
 			const isLocked = layer.getAttribute('pointer-events') === 'none';
 			layer.setAttribute('pointer-events', isLocked ? 'all' : 'none');
-			lockIcon.className = isLocked ? 'fa fa-lock' : 'fa fa-unlock';
+			lockIcon.className = isLocked ? 'bi bi-lock' : 'bi bi-unlock';
 		});
 
 		const actionsCell = document.createElement('td');
@@ -199,11 +199,11 @@ export class Timeline {
 		const typeCell = document.createElement('td');
 		typeCell.className = 'text-center';
 		const typeIcon = document.createElement('i');
-		if (type === 'rect') typeIcon.className = 'fa fa-square-o';
-		else if (type === 'circle') typeIcon.className = 'fa fa-circle';
-		else if (type === 'text') typeIcon.className = 'fa fa-font';
-		else if (type === 'image') typeIcon.className = 'fa fa-image';
-		else typeIcon.className = 'fa fa-layer-group';
+		if (type === 'rect') typeIcon.className = 'bi bi-square';
+		else if (type === 'circle') typeIcon.className = 'bi bi-circle';
+		else if (type === 'text') typeIcon.className = 'bi bi-fonts';
+		else if (type === 'image') typeIcon.className = 'bi bi-image';
+		else typeIcon.className = 'bi bi-layers';
 		typeCell.appendChild(typeIcon);
 
 		// const framesCell = document.createElement('td');

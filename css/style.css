@@ -1,8 +1,12 @@
-/* background pattern behind canvas, gives the impression that its transparant */
+/* ============================================================
+   Style - dark/light mode aware
+   ============================================================ */
+
+/* background pattern behind canvas, gives the impression that its transparent */
 .canvas-transparant {
   margin: 0;
   padding: 0;
-  border: 1px solid black;
+  border: 1px solid var(--bs-border-color);
   display: flex;
   margin: auto;
   background-color: silver !important;
@@ -11,5 +15,52 @@
 }
 
 .active {
-  outline: 3px dashed red;
+  outline: 3px dashed var(--bs-primary);
+}
+
+/* Navbar brand */
+.navbar-brand {
+  font-family: "Kenia", sans-serif;
+  font-size: 1.2rem;
+}
+
+/* Focus reminder */
+#focusReminder {
+  transition: opacity 0.2s;
+}
+
+/* Timeline table compact */
+#timelineWrapper .table {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+}
+
+#timelineWrapper .table th,
+#timelineWrapper .table td {
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+/* FPS display in canvas menu */
+.canvas-menu-fps {
+  font-size: 0.75rem;
+}
+
+/* Active loop button */
+#toggleLoop.active,
+#exportToggleLoop.active {
+  background-color: var(--bs-primary);
+  color: white;
+  border-color: var(--bs-primary);
+}
+
+/* Properties accordion compact */
+#propertiesWrapper .accordion-button {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+#propertiesWrapper .accordion-body {
+  padding: 8px 12px;
+  font-size: 0.82rem;
 }
