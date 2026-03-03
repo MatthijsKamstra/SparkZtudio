@@ -4,12 +4,24 @@ Documentatie voor AI assistenten die aan Spark Studio werken.
 
 ## 🎯 Projectdoel
 
-**Spark Studio** is een web-gebaseerde vector animatie tool - een Flash-achtige applicatie waarin gebruikers:
+**Spark Studio** is een **Lightweight Flash-variant** - web-gebaseerde vector animatie tool voor learning purposes.
 
-- SVG shapes (rechthoeken, cirkels, tekst, lijnen) op een canvas kunnen tekenen
-- Keyframe-gebaseerde animaties kunnen maken
-- Projecten kunnen opslaan/laden als JSON
-- Animaties kunnen exporteren naar WebM/MP4 video
+### MVP Goal
+
+✨ **Single moving object** (rectangle x=0→x=400) + MP4 export
+
+### Functionaliteit
+
+- SVG shapes (rechthoeken, cirkels, tekst) op een canvas
+- Keyframe-gebaseerde animaties
+- Projecten opslaan/laden als JSON
+- Animaties exporteren naar WebM/MP4 video
+
+### Type Project
+
+- **Learning**: Personal project met AI-ondersteuning
+- **Single-user**: Geen cloud, geen collaboration
+- **Chrome-first**: Later Electron; WebM export voldoende
 
 ## 🏗️ Architectuur
 

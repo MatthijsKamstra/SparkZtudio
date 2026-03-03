@@ -2,8 +2,96 @@
 
 **Analyse datum**: 3 Maart 2026
 **Status**: POC (Proof of Concept) → Production-Ready
+**Laatst bijgewerkt**: 3 Maart 2026
 
-## 📊 Executive Summary
+## 🎯 Project Scope & Decisions (AFGESPROKEN)
+
+### Vision
+
+**"Lightweight Flash variant"** - Proof of concept dat web tech Flash-like animaties kan doen.
+
+### MVP Goal
+
+📍 **Single moving rectangle**: x=0 → x=400, export to MP4 ✅
+
+### Decisions (Fixed)
+
+| Aspect               | Beslissing                                         | Toelichting                                        |
+| -------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| **Eindproduct**      | Lightweight Flash variant                          | Niet volledig Flash-equivalent, POC afronden       |
+| **Project type**     | Personal learning                                  | Niet voor production-gebruik                       |
+| **Features**         | Fix incomplete first                               | animation → property panel → layers → video export |
+| **Browser**          | Chrome (later Electron)                            | WebM voldoende; MP4 later als nodig                |
+| **Shapes**           | Rect, Circle, Text (Line later)                    | Prioriteit: basics werkend                         |
+| **Animatable props** | Alles (x, y, width, height, fill, opacity, stroke) | Stap voor stap implementeren                       |
+| **Data model**       | Okay to refactor to nested                         | `layers[].shapes[].keyframes[]` later              |
+| **Undo/Redo**        | Optional (Phase 2)                                 | Eerst animation werkend                            |
+| **Tech stack**       | Vanilla JS (no TS yet)                             | TypeScript later als nodig                         |
+| **Testing**          | Not now                                            | Eerst POC afronden                                 |
+| **Build pipeline**   | Not now                                            | Minify/svgo later                                  |
+| **Users**            | Single-user only                                   | No cloud, no collaboration                         |
+
+### Assumptions Confirmed ✅
+
+- ✅ Keyframe animations voor all shapes = critical next step
+- ✅ UI & data logic need parallel work (ikke kan wachten)
+- ✅ Single-user browser app is genoeg
+
+---
+
+## � Current Sprint (Week 1): Get Animation Working
+
+**Goal**: Rectangle moves x=0→x=400, export to MP4 ✅
+
+### Step-by-Step Tasks
+
+**Step 1: Test Inter.js Calculation**
+
+- [ ] Open index.html in Chrome
+- [ ] Console: `new Model().init()`
+- [ ] Console: `const inter = new Inter(); inter.interpolateNumber(0, 400, 0.5);`
+- [ ] Expected: `200`
+- [ ] Report if working/broken in FINDINGS.md
+
+**Step 2: Create Test Project**
+
+- [ ] Create `examples/project/simple-move.json`
+- [ ] 2 keyframes: Frame 0 (x=0), Frame 120 (x=400)
+- [ ] Load in browser via File > Open
+
+**Step 3: Debug Canvas Animation**
+
+- [ ] Load simple-move.json
+- [ ] Click Play button
+- [ ] Watch: Does rect move smoothly on canvas?
+- [ ] Report: YES/NO in console.log
+
+**Step 4: Test Video Export**
+
+- [ ] Click ExportMovie
+- [ ] Start recording → Play animation → Stop
+- [ ] Download WebM file
+- [ ] Can VLC play it? Report: YES/NO
+
+**Step 5: If All Working**
+
+- ✅ Move to Sprint 2: Property Panel Reality
+
+**Step 6: If Any Failed**
+
+- 🔴 Debug specific component
+- 🔴 Document error in FINDINGS.md
+- 🔴 Request AI help with console output
+
+### Success Criteria
+
+- [ ] Rect animates on canvas
+- [ ] Video exports (WebM acceptable)
+- [ ] All 4 steps logged in FINDINGS.md
+
+---
+
+## �📊 Executive Summary
 
 Spark Studio is een **ambitieus web-gebaseerd animatie project** met solide fundamenten maar onvolledig geïmplementeerde features. De architectuur is clean (Singleton pattern, modular classes) maar veel kernfunctionaliteit staat half af.
 
@@ -209,89 +297,37 @@ document.getElementById("timeLineTotalFrames");
 
 ---
 
-## 🚀 Aanbevolen Development Roadmap
+## 🚀 Development Roadmap
 
-### Phase 1: Stabilisatie (2 weken)
+### Phase 1: Animation Proof of Concept (1-2 weken)
 
-**Goal**: Make existing features more robust
+**Goal**: Single rectangle moves on canvas, export to MP4
 
-1. **Keyframe System Completion**
-   - [ ] Implement `calculateFrames()` in Inter fully
-   - [ ] Store calculated frames in ProjectVars.calculated
-   - [ ] Test with simple animation: moving rect
-   - File: `js/inter.js`, `js/export.js`
+**Priority Order**:
 
-2. **Property Panel Reality**
-   - [ ] Create PropertyController class
-   - [ ] Bind DOM inputs → ProjectVars
-   - [ ] Real-time canvas updates
-   - File: Create `js/property-controller.js`
+1. ✅ **Test Inter.js** - Does interpolateNumber work?
+2. ✅ **Debug Canvas** - Does animation render on canvas?
+3. ✅ **Fix video export** - WebM/MP4 codec issues
+4. Property panel binding (second, not blocking)
+5. Layer management (can wait)
 
-3. **Layer System Basic**
-   - [ ] Create Layer model
-   - [ ] Add Layer.add() / Layer.delete()
-   - [ ] Update timeline table on changes
-   - File: Create `js/model/layer.js`
+### Phase 2: Property & Layer System (2-3 weken)
 
-4. **Timeline-Canvas Sync**
-   - [ ] Timeline click → show frame in canvas
-   - [ ] Canvas change → update timeline
-   - File: `js/timeline.js`, `js/canvas.js`
+**Goal**: Edit shape properties, manage layers
 
-### Phase 2: Core Animation (3 weken)
+1. Property panel binding (x, y, width, height, fill)
+2. Layer add/delete basic
+3. Timeline real-time updates
+4. Opacity & color animations
 
-**Goal**: Full keyframe/animation workflow
+### Phase 3: Polish & Extend (2 weken)
 
-1. **Multi-Property Animation**
-   - [ ] Position (x, y)
-   - [ ] Size (width, height)
-   - [ ] Color (fill, stroke)
-   - [ ] Opacity
-   - File: Extend `js/inter.js`
+**Goal**: Multiple animations, better UX
 
-2. **Easing Functions**
-   - [ ] Linear, Ease-in, Ease-out, Ease-in-out
-   - [ ] Custom curve support
-   - File: Create `js/easing.js`
-
-3. **Keyframe UI Improvements**
-   - [ ] Visual keyframe markers in timeline
-   - [ ] Drag to move/delete keyframes
-   - [ ] Keyframe properties panel
-   - File: Extend `js/timeline.js`
-
-4. **Video Export Robustness**
-   - [ ] Codec detection & fallback
-   - [ ] Metadata injection
-   - [ ] Progress reporting
-   - File: Improve `js/export-video.js`
-
-### Phase 3: Polish & Optimization (2 weken)
-
-**Goal**: Production-ready
-
-1. **Performance**
-   - [ ] Virtual scrolling for timeline (100+ frames)
-   - [ ] Canvas rendering optimization
-   - [ ] Lazy SVG loading for large projects
-
-2. **UX Polish**
-   - [ ] Undo/Redo implementation
-   - [ ] Tooltips & help
-   - [ ] Better error messages
-   - [ ] Keyboard shortcut cheatsheet
-
-3. **Documentation**
-   - [ ] User guide
-   - [ ] Developer guide
-   - [ ] API docs for classes
-   - [ ] Video tutorials (future)
-
-4. **Testing**
-   - [ ] Setup Jest/Vitest
-   - [ ] Unit tests for Inter/ColorConverter
-   - [ ] E2E tests for main workflow
-   - [ ] Browser compatibility matrix
+1. Bezier curve editor (optional)
+2. Easing functions
+3. Undo/Redo
+4. Performance optimization
 
 ---
 
