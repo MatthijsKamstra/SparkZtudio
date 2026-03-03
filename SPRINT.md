@@ -67,10 +67,11 @@ Then open: **http://localhost:8000**
 **Purpose**: Verify shapes animate visually on canvas
 
 **Steps**:
+
 1. Click **Play button** (groene play-knop in canvas menu)
 2. Watch canvas area - do shapes move/animate?
 
-**Expected**: Animation plays smoothly  
+**Expected**: Animation plays smoothly
 **Observations so far**: Shapes are rendered, waiting for Play button test
 
 **TODO**: Click Play and report results
@@ -84,6 +85,7 @@ Then open: **http://localhost:8000**
 **Purpose**: Verify WebM export works
 
 **Steps**:
+
 1. Click **File > ExportMovie**
 2. Modal opens
 3. Click **Start Recording**
@@ -93,6 +95,7 @@ Then open: **http://localhost:8000**
 7. Click **Yes, Export**
 
 **Questions to answer**:
+
 - [ ] File downloaded? YES/NO
 - [ ] File has content? YES/NO (> 100KB)
 - [ ] Can VLC play it? YES/NO
@@ -104,10 +107,12 @@ Then open: **http://localhost:8000**
 ### Task 5: Bug Report
 
 **Fixes already applied**:
+
 - ✅ Fixed CORS - Switched from `file://` to `http://localhost:8000`
 - ✅ App loads without errors
 
 **Current known issues**:
+
 - None so far! App is working well.
 
 **Status**: ✅ GOOD
