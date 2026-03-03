@@ -25,6 +25,68 @@ export class Timeline {
 		this.setFrameRate();
 		this.setTotalFrames();
 		this.setTotalTime();
+		this.updateTimeline();
+	}
+
+	// Function to update the timeline and show keyframes
+	updateTimeline() {
+		const timelineTableBody = document.getElementById('timelineTableBody');
+		timelineTableBody.innerHTML = ''; // clear content
+
+		// Iterate over layers and update the timeline
+		ProjectVars.frames.forEach((frame, index) => {
+			const layerId = frame.layerId || this.generateId();
+			const layerRow = this.createLayerDiv(layerId, index + 1);
+			timelineTableBody.appendChild(layerRow);
+		});
+
+		this.addPlayhead();
+	}
+
+	// Function to create layer divs with keyframes
+	createLayerDiv(id, index) {
+		const layerDiv = document.createElement('div');
+		layerDiv.className = 'layer-div';
+		layerDiv.dataset.layerId = id;
+
+		const keyframesDiv = document.createElement('div');
+		keyframesDiv.className = 'keyframes-container';
+
+		const totalFrames = this.calculateTotalFrames();
+		for (let i = 0; i < totalFrames; i++) {
+			const keyframeDiv = document.createElement('div');
+			keyframeDiv.className = 'keyframe';
+			keyframeDiv.style.width = '30px'; // Fixed width for each keyframe div
+			keyframeDiv.textContent = i + 1; // Keyframe number
+			keyframesDiv.appendChild(keyframeDiv);
+		}
+
+		layerDiv.appendChild(keyframesDiv);
+		return layerDiv;
+	}
+
+	// Function to add a playhead
+	addPlayhead() {
+		const playhead = document.createElement('div');
+		playhead.className = 'playhead';
+		playhead.style.position = 'absolute';
+		playhead.style.height = '100%';
+		playhead.style.width = '2px';
+		playhead.style.backgroundColor = 'red';
+		playhead.style.left = '0px'; // Starting position of the playhead
+		document.getElementById('timelineWrapper').appendChild(playhead);
+
+		// Add drag functionality to the playhead
+		playhead.addEventListener('mousedown', (event) => {
+			const onMouseMove = (e) => {
+				playhead.style.left = `${e.clientX - timelineWrapper.getBoundingClientRect().left}px`;
+			};
+			document.addEventListener('mousemove', onMouseMove);
+
+			document.addEventListener('mouseup', () => {
+				document.removeEventListener('mousemove', onMouseMove);
+			}, { once: true });
+		});
 	}
 
 	projectFile() {
