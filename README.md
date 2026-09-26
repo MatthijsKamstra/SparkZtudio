@@ -10,18 +10,18 @@ Proof of concept: Can web tech replicate Flash-like animation workflow?
 
 ## 🎬 Current Status
 
-| Feature          | Status | Notes                                                        |
-| ---------------- | ------ | ------------------------------------------------------------ |
-| SVG import       | ✅     | Top-level elements / Inkscape layers become layers           |
-| Layers           | ✅     | Add, delete, reorder, rename, hide, lock, distribute         |
-| Keyframes        | ✅     | F6 keyframe, F7 blank keyframe, Shift+F6 clear               |
-| Motion tween     | ✅     | x, y, scale, rotation, alpha, with ease in/out               |
-| Stage editing    | ✅     | Select, drag, arrow-key nudge, rect/oval/line/text drawing   |
-| Property panel   | ✅     | Selected layer at current frame + document settings          |
-| Undo/redo        | ✅     | Snapshot based, 100 steps                                    |
-| Video export     | ✅     | Frame-exact MP4 (H.264) or WebM (VP9/VP8) via WebCodecs      |
-| Shape tween      | 🚫     | Only transforms animate; colour/path morphing not yet        |
-| Desktop app      | 🚫     | Browser first; Electron/Tauri wrapper later                  |
+| Feature        | Status | Notes                                                      |
+| -------------- | ------ | ---------------------------------------------------------- |
+| SVG import     | ✅     | Top-level elements / Inkscape layers become layers         |
+| Layers         | ✅     | Add, delete, reorder, rename, hide, lock, distribute       |
+| Keyframes      | ✅     | F6 keyframe, F7 blank keyframe, Shift+F6 clear             |
+| Motion tween   | ✅     | x, y, scale, rotation, alpha, with ease in/out             |
+| Stage editing  | ✅     | Select, drag, arrow-key nudge, rect/oval/line/text drawing |
+| Property panel | ✅     | Selected layer at current frame + document settings        |
+| Undo/redo      | ✅     | Snapshot based, 100 steps                                  |
+| Video export   | ✅     | Frame-exact MP4 (H.264) or WebM (VP9/VP8) via WebCodecs    |
+| Shape tween    | 🚫     | Only transforms animate; colour/path morphing not yet      |
+| Desktop app    | 🚫     | Browser first; Electron/Tauri wrapper later                |
 
 ## 🚀 Getting Started
 
@@ -50,17 +50,17 @@ The app starts with a demo project (a box tweening from x=0 to x=400). Old v1 pr
 
 ### Shortcuts
 
-| Key                | Action                         |
-| ------------------ | ------------------------------ |
-| V / R / O / N / T / Z | Select, rectangle, oval, line, text, zoom |
-| F6 / F7 / Shift+F6 | Keyframe / blank keyframe / clear keyframe |
-| Enter              | Play / stop                    |
-| , / . / Home / End | Previous / next / first / last frame |
-| Arrows (+Shift)    | Nudge selected layer 1 (10) px |
-| Backspace          | Delete layer                   |
-| ⌘Z / ⇧⌘Z          | Undo / redo                    |
-| ⌘S / ⌘O / ⌘I      | Save / open / import SVG       |
-| ⌘E / ⇧⌘E          | Export movie / export PNG frame |
+| Key                   | Action                                     |
+| --------------------- | ------------------------------------------ |
+| V / R / O / N / T / Z | Select, rectangle, oval, line, text, zoom  |
+| F6 / F7 / Shift+F6    | Keyframe / blank keyframe / clear keyframe |
+| Enter                 | Play / stop                                |
+| , / . / Home / End    | Previous / next / first / last frame       |
+| Arrows (+Shift)       | Nudge selected layer 1 (10) px             |
+| Backspace             | Delete layer                               |
+| ⌘Z / ⇧⌘Z              | Undo / redo                                |
+| ⌘S / ⌘O / ⌘I          | Save / open / import SVG                   |
+| ⌘E / ⇧⌘E              | Export movie / export PNG frame            |
 
 ## 📁 Structure
 

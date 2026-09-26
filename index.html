@@ -121,9 +121,11 @@
 							<li>
 								<hr class="dropdown-divider">
 							</li>
-							<li><span class="dropdown-item-text text-muted py-0" style="font-size:0.75rem">Open Recent</span></li>
+							<li><span class="dropdown-item-text text-muted py-0" style="font-size:0.75rem">Open
+									Recent</span></li>
 							<div id="recentFilesList">
-								<li><span class="dropdown-item text-muted disabled" style="font-size:0.85rem">No recent files</span></li>
+								<li><span class="dropdown-item text-muted disabled" style="font-size:0.85rem">No recent
+										files</span></li>
 							</div>
 						</ul>
 					</li>
@@ -131,8 +133,10 @@
 						<a class="nav-link dropdown-toggle" href="#" id="editDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">Edit</a>
 						<ul class="dropdown-menu" aria-labelledby="editDropdown">
-							<li><a class="dropdown-item" href="#" id="undo">Undo <span class="opacity-25 float-end">⌘Z</span></a></li>
-							<li><a class="dropdown-item" href="#" id="redo">Redo <span class="opacity-25 float-end">⇧⌘Z</span></a></li>
+							<li><a class="dropdown-item" href="#" id="undo">Undo <span
+										class="opacity-25 float-end">⌘Z</span></a></li>
+							<li><a class="dropdown-item" href="#" id="redo">Redo <span
+										class="opacity-25 float-end">⇧⌘Z</span></a></li>
 						</ul>
 					</li>
 					<li class="nav-item dropdown">
@@ -149,8 +153,10 @@
 							data-bs-toggle="dropdown" aria-expanded="false">Layer</a>
 						<ul class="dropdown-menu" aria-labelledby="layerDropdown">
 							<li><a class="dropdown-item" href="#" id="newLayer">New Layer</a></li>
-							<li><a class="dropdown-item" href="#" id="deleteLayer">Delete Layer <span class="opacity-25 float-end">⌫</span></a></li>
-							<li><a class="dropdown-item" href="#" id="duplicateLayer">Duplicate Layer <span class="opacity-25 float-end">⌘D</span></a></li>
+							<li><a class="dropdown-item" href="#" id="deleteLayer">Delete Layer <span
+										class="opacity-25 float-end">⌫</span></a></li>
+							<li><a class="dropdown-item" href="#" id="duplicateLayer">Duplicate Layer <span
+										class="opacity-25 float-end">⌘D</span></a></li>
 							<li><a class="dropdown-item" href="#" id="distributeToLayers">Distribute to Layers</a></li>
 						</ul>
 					</li>
@@ -183,12 +189,14 @@
 	<div id="mainWrapper">
 
 		<div id="toolsWrapper" class="p-2">
-			<button id="selectTool" class="btn btn-light" title="Select / move (V)"><i class="bi bi-cursor"></i></button>
+			<button id="selectTool" class="btn btn-light" title="Select / move (V)"><i
+					class="bi bi-cursor"></i></button>
 			<button id="drawRectTool" class="btn btn-light" title="Rectangle (R)"><i class="bi bi-square"></i></button>
 			<button id="drawCircleTool" class="btn btn-light" title="Oval (O)"><i class="bi bi-circle"></i></button>
 			<button id="drawLineTool" class="btn btn-light" title="Line (N)"><i class="bi bi-dash-lg"></i></button>
 			<button id="drawTextTool" class="btn btn-light" title="Text (T)"><i class="bi bi-type"></i></button>
-			<button id="zoomTool" class="btn btn-light" title="Zoom (Z, Alt-click zooms out)"><i class="bi bi-zoom-in"></i></button>
+			<button id="zoomTool" class="btn btn-light" title="Zoom (Z, Alt-click zooms out)"><i
+					class="bi bi-zoom-in"></i></button>
 			<div class="tool-colors">
 				<label title="Fill colour"><i class="bi bi-paint-bucket"></i><input type="color" id="fillColor"></label>
 				<label title="Stroke colour"><i class="bi bi-pencil"></i><input type="color" id="strokeColor"></label>
@@ -269,18 +277,27 @@
 	<div id="timelineWrapper">
 
 		<!-- Compact toolbar -->
-		<div class="d-flex align-items-center gap-2 px-2 py-1 border-bottom" id="timelineToolbar" style="font-size:0.8rem">
+		<div class="d-flex align-items-center gap-2 px-2 py-1 border-bottom" id="timelineToolbar"
+			style="font-size:0.8rem">
 			<div class="btn-group btn-group-sm">
-				<button id="tlAddLayer" class="btn btn-outline-secondary" title="New layer"><i class="bi bi-file-earmark-plus"></i></button>
-				<button id="tlDeleteLayer" class="btn btn-outline-secondary" title="Delete layer (⌫)"><i class="bi bi-trash"></i></button>
-				<button id="tlLayerUp" class="btn btn-outline-secondary" title="Move layer up"><i class="bi bi-arrow-up"></i></button>
-				<button id="tlLayerDown" class="btn btn-outline-secondary" title="Move layer down"><i class="bi bi-arrow-down"></i></button>
+				<button id="tlAddLayer" class="btn btn-outline-secondary" title="New layer"><i
+						class="bi bi-file-earmark-plus"></i></button>
+				<button id="tlDeleteLayer" class="btn btn-outline-secondary" title="Delete layer (⌫)"><i
+						class="bi bi-trash"></i></button>
+				<button id="tlLayerUp" class="btn btn-outline-secondary" title="Move layer up"><i
+						class="bi bi-arrow-up"></i></button>
+				<button id="tlLayerDown" class="btn btn-outline-secondary" title="Move layer down"><i
+						class="bi bi-arrow-down"></i></button>
 			</div>
 			<div class="btn-group btn-group-sm">
-				<button id="tlInsertKeyframe" class="btn btn-outline-secondary" title="Insert keyframe (F6)">● Key</button>
-				<button id="tlBlankKeyframe" class="btn btn-outline-secondary" title="Insert blank keyframe (F7)">○ Blank</button>
-				<button id="tlClearKeyframe" class="btn btn-outline-secondary" title="Clear keyframe (Shift+F6)"><i class="bi bi-x-lg"></i></button>
-				<button id="tlToggleTween" class="btn btn-outline-secondary" title="Create / remove motion tween"><i class="bi bi-arrow-right"></i> Tween</button>
+				<button id="tlInsertKeyframe" class="btn btn-outline-secondary" title="Insert keyframe (F6)">●
+					Key</button>
+				<button id="tlBlankKeyframe" class="btn btn-outline-secondary" title="Insert blank keyframe (F7)">○
+					Blank</button>
+				<button id="tlClearKeyframe" class="btn btn-outline-secondary" title="Clear keyframe (Shift+F6)"><i
+						class="bi bi-x-lg"></i></button>
+				<button id="tlToggleTween" class="btn btn-outline-secondary" title="Create / remove motion tween"><i
+						class="bi bi-arrow-right"></i> Tween</button>
 			</div>
 			<label class="mb-0 text-muted ms-2">FPS</label>
 			<input type="number" class="form-control form-control-sm" id="timelineFrameRate" style="width:52px">

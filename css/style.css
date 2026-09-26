@@ -182,7 +182,14 @@
 }
 /* Flash-style motion tween span: tinted with an arrow line through the middle */
 .timeline-table td.kf-cell--tween {
-  background: linear-gradient(to bottom, transparent 48%, rgba(80, 60, 160, 0.55) 48%, rgba(80, 60, 160, 0.55) 56%, transparent 56%),
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 48%,
+      rgba(80, 60, 160, 0.55) 48%,
+      rgba(80, 60, 160, 0.55) 56%,
+      transparent 56%
+    ),
     rgba(150, 130, 230, 0.35);
 }
 .timeline-table td.kf-cell--key.kf-cell--tween {
@@ -202,7 +209,9 @@
   font-weight: 600;
 }
 .tl-current {
-  box-shadow: inset 1px 0 0 #dc3545, inset -1px 0 0 #dc3545 !important;
+  box-shadow:
+    inset 1px 0 0 #dc3545,
+    inset -1px 0 0 #dc3545 !important;
 }
 th.tl-current {
   background: #dc3545 !important;
