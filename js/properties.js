@@ -1,152 +1,168 @@
-import { Globals } from './globals.js';
 import { Model, ProjectVars } from './model/model.js';
+import { escapeXml, getLayerState, governingKeyframe, keyframeAt } from './model/project.js';
 
+// [input id, state key, display factor, step]
+const STATE_FIELDS = [
+	['propX', 'x', 1, 1],
+	['propY', 'y', 1, 1],
+	['propScaleX', 'sx', 100, 1],
+	['propScaleY', 'sy', 100, 1],
+	['propRotation', 'rot', 1, 1],
+	['propAlpha', 'alpha', 100, 1],
+];
 
+/** Property inspector: selected layer at the current frame, plus document settings. */
 export class Properties {
 
 	IS_DEBUG = false;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info('init properties.js');
-
+		if (Properties.instance) return Properties.instance;
+		Properties.instance = this;
 	}
 
 	init() {
-		if (this.IS_DEBUG) console.log('Properties().init()');
+		this.selectionEl = document.getElementById('propertiesSelection');
+		this.documentEl = document.getElementById('propertiesDocument');
 	}
 
-	update() {
-		if (this.IS_DEBUG) console.log('Properties().update()');
+	build() {
+		this.buildSelection();
+		this.buildDocument();
 	}
 
+	buildSelection() {
+		const model = new Model();
+		const layer = model.getLayer();
+		if (!layer) {
+			this.selectionEl.innerHTML = '<p class="text-muted mb-0">Select an object on the stage or a layer in the timeline.</p>';
+			return;
+		}
+		const field = ([id, , , step], label, unit = '') => `
+			<div class="col-6">
+				<label class="form-label mb-0" for="${id}">${label}</label>
+				<div class="input-group input-group-sm">
+					<input type="number" class="form-control form-control-sm" id="${id}" step="${step}">
+					${unit ? `<span class="input-group-text">${unit}</span>` : ''}
+				</div>
+			</div>`;
+		this.selectionEl.innerHTML = `
+			<form id="selectionForm" class="small" autocomplete="off">
+				<label class="form-label mb-0" for="propName">Layer</label>
+				<input type="text" class="form-control form-control-sm mb-2" id="propName" value="${escapeXml(layer.name)}">
+				<div id="propFrameInfo" class="text-muted mb-1"></div>
+				<fieldset id="propStateFields" class="row g-1 mb-2">
+					${field(STATE_FIELDS[0], 'X')}
+					${field(STATE_FIELDS[1], 'Y')}
+					${field(STATE_FIELDS[2], 'Scale W', '%')}
+					${field(STATE_FIELDS[3], 'Scale H', '%')}
+					${field(STATE_FIELDS[4], 'Rotate', '°')}
+					${field(STATE_FIELDS[5], 'Alpha', '%')}
+				</fieldset>
+				<div class="border-top pt-2">
+					<div class="form-check form-switch mb-1">
+						<input class="form-check-input" type="checkbox" id="propTween">
+						<label class="form-check-label" for="propTween">Motion tween</label>
+					</div>
+					<label class="form-label mb-0 d-flex justify-content-between" for="propEase">
+						<span>Ease</span><span id="propEaseValue" class="text-muted"></span>
+					</label>
+					<input type="range" class="form-range" id="propEase" min="-100" max="100" step="5">
+					<div class="d-flex justify-content-between text-muted" style="font-size:0.7rem"><span>in</span><span>out</span></div>
+				</div>
+				<button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-2" id="propDistribute" title="Put every object of this layer on its own layer">Distribute to Layers</button>
+			</form>`;
 
-	projectFile() {
+		const form = document.getElementById('selectionForm');
+		form.addEventListener('submit', (e) => e.preventDefault());
+		document.getElementById('propName').addEventListener('change', (e) => model.renameLayer(layer.id, e.target.value.trim()));
+		for (const [id, key, factor] of STATE_FIELDS) {
+			document.getElementById(id).addEventListener('change', (e) => {
+				let value = Number(e.target.value) / factor;
+				if (!Number.isFinite(value)) return;
+				if (key === 'alpha') value = Math.max(0, Math.min(1, value));
+				model.setLayerProps(layer.id, { [key]: value });
+			});
+		}
+		document.getElementById('propTween').addEventListener('change', (e) => model.setTween({ tween: e.target.checked }));
+		const ease = document.getElementById('propEase');
+		ease.addEventListener('input', () => { document.getElementById('propEaseValue').textContent = ease.value; });
+		ease.addEventListener('change', () => model.setTween({ ease: Number(ease.value) }));
+		document.getElementById('propDistribute').addEventListener('click', () => model.distributeToLayers(layer.id));
 
-		if (this.IS_DEBUG) {
-			console.info('> projectFile');
-			console.log(ProjectVars);
+		this.refresh();
+	}
+
+	/** Update values for the current frame without rebuilding (runs during playback). */
+	refresh() {
+		const model = new Model();
+		const layer = model.getLayer();
+		const form = document.getElementById('selectionForm');
+		if (!layer || !form || form.contains(document.activeElement)) return;
+
+		const frame = model.currentFrame;
+		const state = getLayerState(layer, frame);
+		const kf = keyframeAt(layer, frame);
+		const span = governingKeyframe(layer, frame);
+
+		document.getElementById('propStateFields').disabled = !state || layer.locked;
+		for (const [id, key, factor] of STATE_FIELDS) {
+			document.getElementById(id).value = state ? Math.round(state[key] * factor * 100) / 100 : '';
 		}
 
-		// document.getElementById('propertiesDocument').innerHTML = `
+		let info = `Frame ${frame}: `;
+		if (!state) info += 'no content here (F6 inserts a keyframe)';
+		else if (kf) info += 'keyframe';
+		else info += span?.tween ? 'tweened frame, edits add a keyframe' : 'held frame, edits add a keyframe';
+		if (layer.locked) info += ' (locked)';
+		document.getElementById('propFrameInfo').textContent = info;
 
-		// 						<ul class="ps-0">
-		// 						<li><strong>ProjectName:</strong> ${ProjectVars.projectName}</li>
-		// 						<li><strong>ExportName:</strong> ${ProjectVars.exportName}</li>
-		// 						<li><strong>creationDate:</strong> ${ProjectVars.creationDate}</li>
-		//                             <li><strong>Width:</strong> ${ProjectVars.width}</li>
-		//                             <li><strong>Height:</strong> ${ProjectVars.height}</li>
-		//                             <li><strong>frameRate:</strong> ${ProjectVars.frameRate}</li>
-		//                             <li><strong>frameLength:</strong> ${ProjectVars.frameLength}</li>
+		const tween = document.getElementById('propTween');
+		const ease = document.getElementById('propEase');
+		tween.disabled = ease.disabled = !span || span.blank;
+		tween.checked = !!span?.tween;
+		ease.value = span?.ease || 0;
+		document.getElementById('propEaseValue').textContent = ease.value;
+	}
 
-		// 						</ul>
-		//                 `;
+	buildDocument() {
+		const p = ProjectVars;
+		const model = new Model();
+		this.documentEl.innerHTML = `
+			<form id="projectDetailsForm" class="small" autocomplete="off">
+				<label class="form-label mb-0" for="docProjectName">Project name</label>
+				<input type="text" class="form-control form-control-sm mb-1" id="docProjectName" value="${escapeXml(p.projectName)}">
+				<label class="form-label mb-0" for="docExportName">File name</label>
+				<input type="text" class="form-control form-control-sm mb-1" id="docExportName" value="${escapeXml(p.exportName)}">
+				<div class="row g-1 mb-1">
+					<div class="col-6"><label class="form-label mb-0" for="docWidth">W</label>
+						<input type="number" min="1" class="form-control form-control-sm" id="docWidth" value="${p.width}"></div>
+					<div class="col-6"><label class="form-label mb-0" for="docHeight">H</label>
+						<input type="number" min="1" class="form-control form-control-sm" id="docHeight" value="${p.height}"></div>
+					<div class="col-6"><label class="form-label mb-0" for="docFrameRate">FPS</label>
+						<input type="number" min="1" class="form-control form-control-sm" id="docFrameRate" value="${p.frameRate}"></div>
+					<div class="col-6"><label class="form-label mb-0" for="docFrameLength">Frames</label>
+						<input type="number" min="1" class="form-control form-control-sm" id="docFrameLength" value="${p.frameLength}"></div>
+				</div>
+				<div class="d-flex align-items-center gap-2 mb-2">
+					<label class="form-label mb-0" for="docBackground">Background</label>
+					<input type="color" class="form-control form-control-sm form-control-color" id="docBackground" value="${escapeXml(p.background)}">
+				</div>
+				<button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
+			</form>`;
 
-		document.getElementById('propertiesDocument').innerHTML =
-			`
-	<form id="projectDetailsForm" class="px-1 py-1" style="font-size:0.82rem">
-		<div class="mb-1">
-			<label class="form-label mb-0 fw-semibold">Project Name</label>
-			<input type="text" class="form-control form-control-sm" id="projectName" value="${ProjectVars.projectName}">
-		</div>
-		<div class="mb-1">
-			<label class="form-label mb-0 fw-semibold">Export Name</label>
-			<input type="text" class="form-control form-control-sm" id="exportName" value="${ProjectVars.exportName}">
-		</div>
-		<div class="row g-1 mb-1">
-			<div class="col-6">
-				<label class="form-label mb-0 fw-semibold">W</label>
-				<input type="number" class="form-control form-control-sm" id="width" value="${ProjectVars.width}">
-			</div>
-			<div class="col-6">
-				<label class="form-label mb-0 fw-semibold">H</label>
-				<input type="number" class="form-control form-control-sm" id="height" value="${ProjectVars.height}">
-			</div>
-		</div>
-		<div class="row g-1 mb-2">
-			<div class="col-6">
-				<label class="form-label mb-0 fw-semibold">FPS</label>
-				<input type="number" class="form-control form-control-sm" id="frameRate" value="${ProjectVars.frameRate}">
-			</div>
-			<div class="col-6">
-				<label class="form-label mb-0 fw-semibold">Frames</label>
-				<input type="number" class="form-control form-control-sm" id="frameLength" value="${ProjectVars.frameLength}">
-			</div>
-		</div>
-		<div class="d-flex justify-content-between align-items-center">
-			<small class="text-muted">${ProjectVars.creationDate || ''}</small>
-			<button type="submit" class="btn btn-primary btn-sm">Save</button>
-		</div>
-		<input type="hidden" id="creationDate" value="${ProjectVars.creationDate}">
-	</form>
-	`;
-
-
-		const form = document.getElementById('projectDetailsForm');
-
-		form.addEventListener('submit', (event) => {
-			event.preventDefault(); // Prevent the form from submitting the traditional way
-
-			// Update ProjectVars with values from the form
-			ProjectVars.projectName = document.getElementById('projectName').value;
-			ProjectVars.exportName = document.getElementById('exportName').value;
-			ProjectVars.creationDate = document.getElementById('creationDate').value;
-			ProjectVars.width = parseInt(document.getElementById('width').value, 10);
-			ProjectVars.height = parseInt(document.getElementById('height').value, 10);
-			ProjectVars.frameRate = parseInt(document.getElementById('frameRate').value, 10);
-			ProjectVars.frameLength = parseInt(document.getElementById('frameLength').value, 10);
-
-			// Perform any additional actions such as saving the data or updating the UI
-			console.log('ProjectVars updated:', ProjectVars);
-
-			// Optionally, display a success message or redirect the user
-			// alert('Project details saved successfully!');
-
-			new Model().update();
+		document.getElementById('projectDetailsForm').addEventListener('submit', (e) => {
+			e.preventDefault();
+			const v = (id) => document.getElementById(id).value;
+			model.setDocument({
+				projectName: v('docProjectName'),
+				exportName: v('docExportName').trim().replace(/[\\/:*?"<>|]/g, '-') || 'spark-project',
+				width: v('docWidth'),
+				height: v('docHeight'),
+				frameRate: v('docFrameRate'),
+				frameLength: v('docFrameLength'),
+				background: v('docBackground'),
+			});
 		});
-
-
-
 	}
-
-	setSvg(svgElement) {
-
-		if (this.IS_DEBUG) {
-			console.info('setPropertyDocument');
-			console.log(svgElement);
-		}
-
-		if (typeof svgElement === 'string') {
-			if (this.IS_DEBUG) console.log('The svgElement is a string.'); // Further processing of the string data can go here
-		} else {
-			if (this.IS_DEBUG) console.log('The svgElement is not a string.'); // Handle other data types accordingly
-			const serializer = new XMLSerializer();
-			svgElement = serializer.serializeToString(svgElement);
-			if (this.IS_DEBUG) console.log(svgElement);
-		}
-
-		// Load SVG properties
-		const parser = new DOMParser();
-		const svgDoc = parser.parseFromString(svgElement, "image/svg+xml");
-		const svgEl = svgDoc.querySelector('svg');
-		if (svgEl) {
-			const width = svgEl.getAttribute('width') || 'N/A';
-			const height = svgEl.getAttribute('height') || 'N/A';
-			const viewBox = svgEl.getAttribute('viewBox') || 'N/A';
-
-			document.getElementById('propertiesDocument').innerHTML = `
-                        <div class="card">
-                            <div class="card-header">
-                                SVG Properties
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Width:</strong> ${width}</p>
-                                <p><strong>Height:</strong> ${height}</p>
-                                <p><strong>ViewBox:</strong> ${viewBox}</p>
-                            </div>
-                        </div>
-                    `;
-		}
-	}
-
-
 }

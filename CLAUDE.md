@@ -27,89 +27,86 @@ Documentatie voor AI assistenten die aan Spark Studio werken.
 
 ### Slim Singleton Pattern
 
-Alle major components zijn singletons die via de `Model` class worden geïnitialiseerd:
+Alle UI-classes zijn singletons (`new Canvas()` geeft altijd dezelfde instantie). `Model` start alles:
 
 ```javascript
-new Model().init(); // Initializes: Canvas, Menu, Timeline, Properties, Tools, etc.
+new Model().init(); // init van Canvas, CanvasMenu, Menu, Timeline, Properties, Tools, Shortcuts, ExportVideo
 ```
 
 ### Core Classes
 
-- **Model** (`js/model/model.js`) - App state & initialization hub
-- **Canvas** (`js/canvas.js`) - SVG rendering & shape management
-- **Timeline** (`js/timeline.js`) - Frame & layer management UI
-- **Inter** (`js/inter.js`) - Animation interpolation engine
-- **ExportVideo** (`js/export-video.js`) - WebM/MP4 video export
-- **Properties** (`js/properties.js`) - Property panel (WIP)
-- **Menu** (`js/menu.js`) - File operations (open, save, import)
+- **project.js** (`js/model/project.js`) - Pure functies: projectformaat v2, tweening (`getLayerState`), `renderFrameSvg`, SVG-import, v1-conversie, sanitizing
+- **Model** (`js/model/model.js`) - State (`ProjectVars`, `currentFrame`, `selectedLayerId`), undo/redo, playback, alle mutaties
+- **Canvas** (`js/canvas.js`) - Stage: rendert frame, selecteren/slepen, tekentools
+- **Timeline** (`js/timeline.js`) - Laagrijen x framekolommen, keyframes, playhead
+- **Properties** (`js/properties.js`) - Inspector voor geselecteerde laag en document
+- **ExportVideo** (`js/export-video.js`) - Frame-exacte MP4/WebM via WebCodecs + Mediabunny (CDN)
+- **Export** (`js/export.js`) - JSON opslaan, PNG van huidig frame
 
-### Key Data Structure
+### Datastroom
+
+1. UI roept een Model-methode aan (`setLayerProps`, `insertKeyframe`, `addLayer`, ...)
+2. Model doet `snapshot()` (undo), muteert `ProjectVars`, dan `changed(type)` (autosave + `notify`)
+3. `notify('structure' | 'animation' | 'frame' | 'selection')` roept `build/render/refresh` aan op Canvas, Timeline en Properties
+
+Muteer `ProjectVars` nooit buiten Model. Lees `ProjectVars` altijd vers: undo en laden wijzen een nieuw object toe.
+
+### Key Data Structure (formaat v2)
 
 ```javascript
-export let ProjectVars = {
-  width: 600,
-  height: 400,
-  frameRate: 24,
-  frameLength: 120, // 5 sec @ 24fps
-  time: 5,
-  frames: [], // Array van keyframes met SVG content
-  calculated: [], // Inter-geïnterpoleerde frames
-};
+{
+  format: 2, exportName, projectName, width, height,
+  viewBox: [0, 0, 600, 400], background: '#ffffff',
+  frameRate: 24, frameLength: 48,
+  defs: '<defs>...</defs>',            // gedeelde gradients/styles uit geimporteerde SVG
+  layers: [                             // index 0 = bovenste laag (voorgrond), zoals in Flash
+    { id, name, visible, locked,
+      content: '<rect .../>',           // SVG-markup van de laag, statisch
+      cx, cy,                           // pivot (registratiepunt), standaard midden van content
+      keyframes: [{ frame, x, y, sx, sy, rot, alpha, tween, ease, blank }] }
+  ]
+}
 ```
+
+Een laag is zichtbaar vanaf zijn eerste keyframe. `tween: true` interpoleert naar de volgende keyframe. `blank: true` is een lege keyframe (F7). Oude v1-bestanden (`frames[]` met complete SVG per keyframe) worden bij openen omgezet.
 
 ## ⚠️ Huidige Status & Problemen
 
-### ✅ Werkend
+### ✅ Werkend (v2, september 2026)
 
-- [x] SVG canvas rendering
-- [x] Basis shapes (rect, circle, text, line) tekenen
-- [x] File open/save/import (JSON, SVG)
-- [x] Keyboard shortcuts
-- [x] Timeline table UI
-- [x] Video export (WebM)
-- [x] Zoom functionaliteit
-- [x] LocalStorage persistentie
+- [x] SVG-import: top-level elementen en Inkscape-lagen worden lagen
+- [x] Lagen: toevoegen, verwijderen, volgorde, hernoemen, verbergen, vergrendelen, Distribute to Layers
+- [x] Keyframes (F6), blank keyframes (F7), clear (Shift+F6)
+- [x] Motion tween op x, y, schaal, rotatie, alpha, met ease
+- [x] Slepen op stage maakt automatisch een keyframe en tween
+- [x] Property panel gekoppeld aan laag en document
+- [x] Undo/redo (snapshots)
+- [x] Video-export MP4 (H.264) en WebM (VP9/VP8), frame-exact
+- [x] Autosave naar localStorage, Open Recent
 
-### 🚧 Onvolledig/Buggy
+### 🚧 Nog niet
 
-- [ ] **Keyframe system** - Veel TODO's in export.js, inter.js
-- [ ] **Layer management** - Tabel bestaat, maar functionaliteit ontbreekt
-- [ ] **Shape properties** - Width, height, fill, stroke, opacity animaties
-- [ ] **Property panel** - Accordion gedefinieerd maar niet gevuld met controls
-- [ ] **Animation timeline** - Geen visual feedback van keyframes in timeline
-- [ ] **Undo/Redo** - Menu items bestaan, functionaliteit ontbreekt
-- [ ] **Motion/Bezier** - Geen curve editor
-- [ ] **Color interpolation** - Color converter aanwezig, niet direct gebruikt
+- [ ] Shape tween en kleur-tween (fill/stroke)
+- [ ] Import to Stage (SVG toevoegen aan bestaand project)
+- [ ] Frames invoegen/verwijderen (F5), keyframes slepen in de timeline
+- [ ] Onion skin, library/symbols
+- [ ] Desktop-wrapper (Electron of Tauri): Mediabunny dan lokaal meeleveren
+- [ ] Ongebruikte v1-code opruimen: `inter.js`, `inter-dummy-data.js`, `inter.min.js`, `defaults.js`, `timeline-menu.js`, `utils/color-converter.js`
 
-### 🐛 Bekende Architectural Issues
+### 🐛 Aandachtspunten
 
-1. **Cross-talk tussen classes** - Model.init() initialiseert alles via console.info, geen echte dependency injection
-2. **Incomplete Property binding** - Property panel heeft dummy content
-3. **Timeline-Canvas sync** - Onvoldoende synchronisatie tussen timeline beweging en canvas updates
-4. **Export validation** - TODO: "check for motion object, check export for color object"
+1. Externe fonts en externe `<image href>` renderen niet in video-export (SVG als image laadt geen externe bronnen)
+2. `node/export.js` genereert nog v1-projecten; die worden bij openen omgezet
+3. Content uit SVG en projectbestanden gaat door `sanitizeSvgMarkup` (geen scripts, event handlers, `javascript:` links)
 
 ## 📋 Werkflow voor Verbetering
 
-### Phase 1: Stabilisatie (Priority)
+### Volgende stappen
 
-1. Maak keyframe system compleet voor alle shapes
-2. Implementeer proper layer add/delete/reorder
-3. Bind properties panel aan shape properties
-4. Fix property animations in Inter class
-
-### Phase 2: Core Features
-
-1. Implementeer Bezier curve editor
-2. Voeg easing/timing functions toe
-3. Verbeter timeline UI met keyframe visuals
-4. Implementeer undo/redo
-
-### Phase 3: Polish
-
-1. Performance optimalisatie
-2. Improved UX (tooltips, help)
-3. Export metadata in video
-4. Project templates
+1. Kleur-tween (tint/fill) als extra keyframe-eigenschap
+2. Import to Stage en frames invoegen/verwijderen (F5)
+3. Keyframes slepen in de timeline, onion skin
+4. Desktop-wrapper: Tauri of Electron, Mediabunny lokaal meeleveren, native open/save dialogs
 
 ## 🔧 Best Practices voor Aanpassingen
 
@@ -122,27 +119,27 @@ export let ProjectVars = {
 
 ### Adding Features
 
-1. **New Shape Type**: Voeg shape class toe + entry in tools.js
-2. **New Property**: Update PropertyVars, Property.js, export.js interpolation
-3. **New Animation Type**: Update Inter.js interpolation logic
+1. **New Shape Type**: Voeg een tool toe in `tools.js` en markup in `Canvas.shapeMarkup`
+2. **New Animatable Property**: Voeg de key toe aan `DEFAULT_STATE` in `project.js`, pas `layerTransform`/`renderFrameSvg` en `Canvas.render` aan, en een veld in `properties.js`
+3. **New Layer/Keyframe Action**: Methode in `Model` met `snapshot()` vooraf en `changed(type)` achteraf
 4. **UI Changes**: Altijd eerst structuur in HTML, dan CSS, dan JS
 
 ### Debug Mode
 
-Alle classes hebben `IS_DEBUG = true` - geeft console output. Zet dit uit voor production.
+Classes hebben `IS_DEBUG = false`. Zet het per class aan voor console output.
 
 ### LocalStorage
 
-`LocalStorageHandler` (`js/local-storage.js`) handelt project persistentie - vergeet niet dit aan te roepen na data wijzigingen.
+`Model.changed()` doet de autosave (`SparkZtudio-currentProject`). Open Recent staat in `SparkZtudio-projectFiles`.
 
 ## 👀 Waar Let Op
 
-### ExportVideo Complexity
+### ExportVideo
 
-- Gebruikt `MediaRecorder` API (browser-gebaseerd)
-- Canvas context 2D rendering van SVG
-- WebM codec support is inconsistent (check `isCodecSupportedList()`)
-- Metadata injection code in TODO.md is incomplete
+- Rendert elk frame via `renderFrameSvg` naar een canvas en encodeert met WebCodecs (`CanvasSource` van Mediabunny)
+- Onafhankelijk van afspeelsnelheid, dus geen haperingen of verkeerde duur
+- Beschikbare codecs worden per browser gecontroleerd met `canEncodeVideo`
+- H.264 vereist even afmetingen; de export rondt naar boven af
 
 ### Timeline Performance
 
@@ -150,32 +147,25 @@ Alle classes hebben `IS_DEBUG = true` - geeft console output. Zet dit uit voor p
 - Geen virtualization - kan traag worden bij 100+ frames
 - Later: implementeer virtual scrolling
 
-### SVG Color Handling
-
-- `ColorConverter` (`js/utils/color-converter.js`) converteert CSS naar hex
-- Somige legacy color names (tomato, etc) worden gehandeld
-- Border cases: rgb(), hsl() formats
-
 ## 📁 Bestandsstructuur Overzicht
 
 ```
 js/
 ├── model/
-│   └── model.js          # App state & init
-├── canvas.js             # SVG rendering
+│   ├── project.js        # Formaat v2, tweening, import, sanitizing ⭐
+│   └── model.js          # State, undo, playback, mutaties ⭐
+├── canvas.js             # Stage rendering en interactie
+├── canvas-menu.js        # Zoom en afspeelknoppen
 ├── timeline.js           # Timeline UI
-├── inter.js              # Animation engine ⭐
+├── properties.js         # Property panel
 ├── export-video.js       # Video export ⭐
-├── export.js             # Project export
-├── properties.js         # Property panel (WIP)
-├── menu.js               # File menu
-├── tools.js              # Drawing tools
+├── export.js             # JSON opslaan, PNG export
+├── menu.js               # Navbar menu's
+├── tools.js              # Tools en kleuren
 ├── shortcuts.js          # Keyboard shortcuts
 ├── layout.js             # Resize/layout
 ├── focus.js              # Focus management
-├── local-storage.js      # Persistentie
-└── utils/
-    └── color-converter.js
+└── local-storage.js      # Persistentie
 ```
 
 ## 🎓 Leervoet

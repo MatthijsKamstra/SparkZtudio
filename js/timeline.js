@@ -1,341 +1,171 @@
-import { Globals } from './globals.js';
-import { ProjectVars } from './model/model.js';
+import { Model, ProjectVars } from './model/model.js';
+import { escapeXml } from './model/project.js';
 
+const TYPE_ICONS = {
+	rect: 'bi-square', circle: 'bi-circle', ellipse: 'bi-circle', text: 'bi-fonts', image: 'bi-image',
+	path: 'bi-vector-pen', line: 'bi-slash-lg', polyline: 'bi-slash-lg', polygon: 'bi-pentagon', g: 'bi-collection', use: 'bi-link',
+};
+
+/** Flash-style timeline: one row per layer (top row = front), one column per frame. */
 export class Timeline {
 
 	IS_DEBUG = false;
 
+	scrubbing = false;
+
 	constructor() {
-		if (this.IS_DEBUG) console.info(`constructor timeline.js`);
+		if (Timeline.instance) return Timeline.instance;
+		Timeline.instance = this;
 	}
 
 	init() {
-		if (this.IS_DEBUG) console.info(`Timeline.init()`);
-	}
+		this.table = document.querySelector('#timelineWrapper table');
+		this.headerRow = this.table.querySelector('thead tr');
+		this.tbody = document.getElementById('timelineTableBody');
+		this.scroll = document.querySelector('#timelineWrapper .timeline-scroll');
+		const model = new Model();
 
-	/**
-	 * setup UI
-	 */
-	setup() {
-		if (this.IS_DEBUG) console.info('Timeline.setup');
-	}
+		const on = (id, fn) => document.getElementById(id)?.addEventListener('click', fn);
+		on('tlAddLayer', () => model.addLayer());
+		on('tlDeleteLayer', () => model.deleteLayer());
+		on('tlLayerUp', () => model.moveLayer(-1));
+		on('tlLayerDown', () => model.moveLayer(1));
+		on('tlInsertKeyframe', () => model.insertKeyframe());
+		on('tlBlankKeyframe', () => model.insertKeyframe({ blank: true }));
+		on('tlClearKeyframe', () => model.clearKeyframe());
+		on('tlToggleTween', () => model.toggleTween());
 
-	update() {
-		if (this.IS_DEBUG) console.info('Timeline.update');
-		this.setFrameRate();
-		this.setTotalFrames();
-		this.setTotalTime();
-		this.updateTimeline();
-	}
+		document.getElementById('timelineFrameRate').addEventListener('change', (e) => model.setDocument({ frameRate: e.target.value }));
+		document.getElementById('timeLineTotalFrames').addEventListener('change', (e) => model.setDocument({ frameLength: e.target.value }));
 
-	// Flash-style timeline: frame numbers once at top, keyframe diamonds per layer
-	updateTimeline() {
-		const totalFrames = ProjectVars.frameLength;
-		const keyframeNums = new Set((ProjectVars.frames || []).map(f => f.frameNumber));
-
-		// --- Rebuild thead with frame number ruler ---
-		const table = document.querySelector('#timelineWrapper table');
-		if (!table) return;
-		const thead = table.querySelector('thead');
-		const headerRow = thead.querySelector('tr');
-		// Remove old dynamic frame-number ths (keep only fixed layer control ths)
-		const FIXED_COLS = 4; // eye, lock, type, id
-		Array.from(headerRow.querySelectorAll('th.frame-num-th')).forEach(th => th.remove());
-		// Add frame number header cells
-		for (let i = 1; i <= totalFrames; i++) {
-			const th = document.createElement('th');
-			th.className = 'frame-num-th';
-			if (i === 1 || i % 5 === 0) th.textContent = i;
-			headerRow.appendChild(th);
-		}
-
-		// --- Rebuild tbody ---
-		const tbody = document.getElementById('timelineTableBody');
-		tbody.innerHTML = '';
-
-		if (!ProjectVars.frames || ProjectVars.frames.length === 0) return;
-
-		// Extract SVG element layers from the first keyframe
-		const layers = this._extractLayers(ProjectVars.frames[0].svg);
-		layers.forEach(({ id, type }) => {
-			const row = this._createTimelineRow(id, type, totalFrames, keyframeNums);
-			tbody.appendChild(row);
+		this.table.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+		window.addEventListener('pointermove', (e) => this.onPointerMove(e));
+		window.addEventListener('pointerup', () => { this.scrubbing = false; });
+		this.tbody.addEventListener('dblclick', (e) => {
+			const cell = e.target.closest('.tl-label');
+			if (cell) this.startRename(cell);
 		});
 	}
 
-	_extractLayers(svgString) {
-		if (!svgString) return [];
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(svgString, 'image/svg+xml');
-		const elements = Array.from(doc.querySelectorAll('svg > *'));
-		return elements.map(el => ({ id: el.id || this.generateId(), type: el.nodeName }));
+	build() {
+		const p = ProjectVars;
+		const model = new Model();
+		const total = p.frameLength;
+
+		this.headerRow.querySelectorAll('.frame-num-th').forEach((th) => th.remove());
+		let header = '';
+		for (let f = 1; f <= total; f++) header += `<th class="frame-num-th" data-frame="${f}">${f === 1 || f % 5 === 0 ? f : ''}</th>`;
+		this.headerRow.insertAdjacentHTML('beforeend', header);
+
+		this.tbody.innerHTML = p.layers.map((layer) => this.rowMarkup(layer, total, layer.id === model.selectedLayerId)).join('');
+
+		document.getElementById('timelineFrameRate').value = p.frameRate;
+		document.getElementById('timeLineTotalFrames').value = total;
+		document.getElementById('timeLineTotalTime').value = (total / p.frameRate).toFixed(2);
+
+		this.updatePlayhead();
 	}
 
-	_createTimelineRow(id, type, totalFrames, keyframeNums) {
-		const row = document.createElement('tr');
-
-		// Eye cell
-		const eyeCell = document.createElement('td');
-		eyeCell.className = 'tl-fixed text-center';
-		const eyeIcon = document.createElement('i');
-		eyeIcon.className = 'bi bi-eye tl-icon';
-		eyeCell.appendChild(eyeIcon);
-		eyeIcon.addEventListener('click', () => {
-			const el = document.getElementById(id);
-			if (!el) return;
-			el.style.display = el.style.display === 'none' ? '' : 'none';
-			eyeIcon.className = el.style.display === 'none' ? 'bi bi-eye-slash tl-icon' : 'bi bi-eye tl-icon';
-		});
-
-		// Lock cell
-		const lockCell = document.createElement('td');
-		lockCell.className = 'tl-fixed text-center';
-		const lockIcon = document.createElement('i');
-		lockIcon.className = 'bi bi-unlock tl-icon';
-		lockCell.appendChild(lockIcon);
-		lockIcon.addEventListener('click', () => {
-			const el = document.getElementById(id);
-			if (!el) return;
-			const locked = el.getAttribute('pointer-events') === 'none';
-			el.setAttribute('pointer-events', locked ? 'all' : 'none');
-			lockIcon.className = locked ? 'bi bi-unlock tl-icon' : 'bi bi-lock tl-icon';
-		});
-
-		// Type icon cell
-		const typeCell = document.createElement('td');
-		typeCell.className = 'tl-fixed text-center';
-		const typeIcon = document.createElement('i');
-		typeIcon.className = this._typeIcon(type) + ' tl-icon';
-		typeCell.appendChild(typeIcon);
-
-		// ID label cell
-		const idCell = document.createElement('td');
-		idCell.className = 'tl-fixed tl-label text-nowrap';
-		idCell.textContent = id;
-		idCell.title = id;
-
-		row.appendChild(eyeCell);
-		row.appendChild(lockCell);
-		row.appendChild(typeCell);
-		row.appendChild(idCell);
-
-		// Frame cells — one per frame
-		for (let i = 1; i <= totalFrames; i++) {
-			const td = document.createElement('td');
-			td.className = 'kf-cell';
-			if (keyframeNums.has(i)) {
-				td.className += ' kf-cell--key';
-				td.innerHTML = '<span class="kf-diamond">◆</span>';
+	rowMarkup(layer, total, selected) {
+		const id = escapeXml(layer.id);
+		const tag = (/<\s*([a-zA-Z]+)/.exec(layer.content) || [])[1];
+		const icon = TYPE_ICONS[tag] || 'bi-layers';
+		let cells = '';
+		const kfs = layer.keyframes;
+		let ki = -1;
+		for (let f = 1; f <= total; f++) {
+			while (ki + 1 < kfs.length && kfs[ki + 1].frame <= f) ki++;
+			const kf = kfs[ki];
+			const next = kfs[ki + 1];
+			let cls = 'kf-cell';
+			let inner = '';
+			if (!kf || kf.blank) {
+				if (kf && kf.frame === f) { cls += ' kf-cell--key kf-cell--blank'; inner = '○'; }
+				else if (f % 5 === 0) cls += ' kf-cell--band';
+			} else {
+				const tweening = kf.tween && next && !next.blank;
+				cls += tweening ? ' kf-cell--tween' : ' kf-cell--hold';
+				if (kf.frame === f) { cls += ' kf-cell--key'; inner = '●'; }
+				else if (!tweening && f === (next ? next.frame - 1 : total)) cls += ' kf-cell--end';
 			}
-			row.appendChild(td);
+			cells += `<td class="${cls}" data-frame="${f}">${inner}</td>`;
 		}
-
-		return row;
+		return `<tr data-layer-id="${id}" class="${selected ? 'tl-row--selected' : ''}">` +
+			`<td class="tl-fixed text-center"><i class="bi ${layer.visible ? 'bi-eye' : 'bi-eye-slash'} tl-icon" data-action="visible" title="Show/hide layer"></i></td>` +
+			`<td class="tl-fixed text-center"><i class="bi ${layer.locked ? 'bi-lock-fill' : 'bi-unlock'} tl-icon" data-action="locked" title="Lock/unlock layer"></i></td>` +
+			`<td class="tl-fixed text-center"><i class="bi ${icon} tl-icon"></i></td>` +
+			`<td class="tl-fixed tl-label text-nowrap" title="${escapeXml(layer.name)} (double-click to rename)">${escapeXml(layer.name)}</td>` +
+			`${cells}</tr>`;
 	}
 
-	_typeIcon(type) {
-		const map = { rect: 'bi bi-square', circle: 'bi bi-circle', text: 'bi bi-fonts', image: 'bi bi-image' };
-		return map[type] || 'bi bi-layers';
+	updatePlayhead() {
+		const frame = new Model().currentFrame;
+		this.table.querySelectorAll('.tl-current').forEach((el) => el.classList.remove('tl-current'));
+		this.table.querySelectorAll(`[data-frame="${frame}"]`).forEach((el) => el.classList.add('tl-current'));
+
+		const th = this.headerRow.querySelector(`[data-frame="${frame}"]`);
+		if (!th) return;
+		const fixedWidth = Array.from(this.headerRow.querySelectorAll('.tl-fixed')).reduce((w, el) => w + el.offsetWidth, 0);
+		const left = th.offsetLeft;
+		if (left < this.scroll.scrollLeft + fixedWidth) this.scroll.scrollLeft = left - fixedWidth;
+		else if (left + th.offsetWidth > this.scroll.scrollLeft + this.scroll.clientWidth) this.scroll.scrollLeft = left + th.offsetWidth - this.scroll.clientWidth;
 	}
 
-	projectFile() {
-		if (this.IS_DEBUG) console.info('Timeline.projectFile');
-		this.update();
-		this.setSvg(ProjectVars.frames[0].svg);
-
+	updateSelection() {
+		const id = new Model().selectedLayerId;
+		this.tbody.querySelectorAll('tr').forEach((tr) => tr.classList.toggle('tl-row--selected', tr.dataset.layerId === id));
 	}
 
-	// Function to generate a random ID
-	generateId() {
-		return 'id-' + Math.random().toString(36).substr(2, 9);
-	}
-
-
-	createLayerRow(id, type) {
-		const row = document.createElement('tr');
-		row.dataset.layerId = id;
-
-		const checkboxCell = document.createElement('td');
-		checkboxCell.className = 'text-center';
-		const checkbox = document.createElement('input');
-		checkbox.type = 'checkbox';
-		checkbox.className = 'form-check-input';
-		checkboxCell.appendChild(checkbox);
-
-		const visibleCell = document.createElement('td');
-		visibleCell.className = 'text-center';
-		const visibleIcon = document.createElement('i');
-		visibleIcon.className = 'bi bi-eye';
-		visibleCell.appendChild(visibleIcon);
-		visibleIcon.addEventListener('click', () => {
-			const layer = document.getElementById(id);
-			layer.style.display = layer.style.display === 'none' ? 'block' : 'none';
-			visibleIcon.className = layer.style.display === 'none' ? 'bi bi-eye-slash' : 'bi bi-eye';
-		});
-
-		const lockCell = document.createElement('td');
-		lockCell.className = 'text-center';
-		const lockIcon = document.createElement('i');
-		lockIcon.className = 'bi bi-unlock';
-		lockCell.appendChild(lockIcon);
-		lockIcon.addEventListener('click', () => {
-			const layer = document.getElementById(id);
-			const isLocked = layer.getAttribute('pointer-events') === 'none';
-			layer.setAttribute('pointer-events', isLocked ? 'all' : 'none');
-			lockIcon.className = isLocked ? 'bi bi-lock' : 'bi bi-unlock';
-		});
-
-		const actionsCell = document.createElement('td');
-		const actionsDropdown = document.createElement('div');
-		actionsDropdown.className = 'dropup';
-		const actionsButton = document.createElement('button');
-		actionsButton.className = 'btn btn-sm btn-secondary dropdown-toggle';
-		actionsButton.textContent = 'Actions';
-		actionsButton.setAttribute('data-bs-toggle', 'dropdown');
-		const actionsMenu = document.createElement('ul');
-		actionsMenu.className = 'dropdown-menu';
-
-		const moveUpItem = document.createElement('li');
-		const moveUpLink = document.createElement('a');
-		moveUpLink.className = 'dropdown-item';
-		moveUpLink.textContent = 'Up';
-		moveUpLink.addEventListener('click', () => {
-			const layer = document.getElementById(id);
-			const previousLayer = layer.previousElementSibling;
-			if (previousLayer) {
-				layer.parentNode.insertBefore(layer, previousLayer);
-				row.parentNode.insertBefore(row, row.previousElementSibling);
-			}
-		});
-		moveUpItem.appendChild(moveUpLink);
-
-		const moveDownItem = document.createElement('li');
-		const moveDownLink = document.createElement('a');
-		moveDownLink.className = 'dropdown-item';
-		moveDownLink.textContent = 'Down';
-		moveDownLink.addEventListener('click', () => {
-			const layer = document.getElementById(id);
-			const nextLayer = layer.nextElementSibling;
-			if (nextLayer) {
-				layer.parentNode.insertBefore(nextLayer, layer);
-				row.parentNode.insertBefore(row.nextElementSibling, row);
-			}
-		});
-		moveDownItem.appendChild(moveDownLink);
-
-		const deleteItem = document.createElement('li');
-		const deleteLink = document.createElement('a');
-		deleteLink.className = 'dropdown-item';
-		deleteLink.textContent = 'Delete';
-		deleteLink.addEventListener('click', () => {
-			const layer = document.getElementById(id);
-			layer.remove();
-			row.remove();
-		});
-		deleteItem.appendChild(deleteLink);
-
-		actionsMenu.appendChild(moveUpItem);
-		actionsMenu.appendChild(moveDownItem);
-		actionsMenu.appendChild(deleteItem);
-		actionsDropdown.appendChild(actionsButton);
-		actionsDropdown.appendChild(actionsMenu);
-		actionsCell.appendChild(actionsDropdown);
-
-		const idCell = document.createElement('td');
-		idCell.className = 'text-nowrap';
-		idCell.textContent = id;
-
-		const typeCell = document.createElement('td');
-		typeCell.className = 'text-center';
-		const typeIcon = document.createElement('i');
-		if (type === 'rect') typeIcon.className = 'bi bi-square';
-		else if (type === 'circle') typeIcon.className = 'bi bi-circle';
-		else if (type === 'text') typeIcon.className = 'bi bi-fonts';
-		else if (type === 'image') typeIcon.className = 'bi bi-image';
-		else typeIcon.className = 'bi bi-layers';
-		typeCell.appendChild(typeIcon);
-
-		// const framesCell = document.createElement('td');
-		// // framesCell.textContent = ProjectVars.frameLength;
-		// framesCell.innerHTML = '<table class="table-bordered table-striped-columns"><tr><td>1</td><td>2</td><td>3</td></tr></table>';
-		// // framesCell.textContent = this.calculateTotalFrames();
-
-
-		const framesCell = document.createElement('td');
-		framesCell.classList = 'm-0 p-0';
-		const framesDiv = document.createElement('div');
-		framesDiv.className = 'frames-container d-flex h-100';
-		const totalFrames = this.calculateTotalFrames();
-		for (let i = 0; i < totalFrames; i++) {
-			const frameDiv = document.createElement('div');
-			frameDiv.id = `${id}-${type}-${i + 1}`;
-			frameDiv.className = 'frame text-center';
-			frameDiv.style.width = '30px';
-			// Fixed width for each frame div
-			frameDiv.style.border = '1px solid #ccc';
-			// frameDiv.style.resize = 'horizontal';
-			// frameDiv.style.overflow = 'auto';
-			frameDiv.textContent = i + 1;
-			framesDiv.appendChild(frameDiv);
+	onPointerDown(e) {
+		if (e.button !== 0) return;
+		const model = new Model();
+		const row = e.target.closest('tr[data-layer-id]');
+		const action = e.target.dataset.action;
+		if (row && action) {
+			model.toggleLayerFlag(row.dataset.layerId, action);
+			return;
 		}
-		framesCell.appendChild(framesDiv);
-
-		// order table
-		row.appendChild(checkboxCell);
-		row.appendChild(visibleCell);
-		row.appendChild(lockCell);
-		row.appendChild(actionsCell);
-		row.appendChild(typeCell);
-		row.appendChild(idCell);
-		row.appendChild(framesCell);
-
-		return row;
-	}
-
-	calculateTotalFrames() {
-		// const frameRate = document.getElementById('timelineFrameRate').value || 0;
-		// const totalFrames = document.getElementById('timeLineTotalFrames').value || 0;
-		// return frameRate * totalFrames;
-		return ProjectVars.frameLength;
-	}
-
-	setSvg(data) {
-		if (this.IS_DEBUG) {
-			console.info('Timeline.setSvg()');
+		if (row) model.select(row.dataset.layerId);
+		const frameEl = e.target.closest('[data-frame]');
+		if (frameEl) {
+			e.preventDefault();
+			model.stop();
+			model.setFrame(Number(frameEl.dataset.frame));
+			this.scrubbing = true;
 		}
-
-		// Ensure data is a string
-		if (typeof data !== 'string') {
-			const serializer = new XMLSerializer();
-			data = serializer.serializeToString(data);
-		}
-
-		// Set first frame SVG on canvas
-		const svgContainer = document.querySelector('#svg-container');
-		if (svgContainer) {
-			svgContainer.innerHTML = data;
-		}
-
-		// Rebuild timeline with updated ProjectVars
-		this.update();
 	}
 
-	setFrameRate() {
-		if (this.IS_DEBUG) console.info('Timeline.setFrameRate');
-		const el = document.getElementById('timelineFrameRate');
-		el.value = ProjectVars.frameRate;
+	onPointerMove(e) {
+		if (!this.scrubbing) return;
+		const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('#timelineWrapper [data-frame]');
+		if (el) new Model().setFrame(Number(el.dataset.frame));
 	}
 
-	setTotalFrames() {
-		if (this.IS_DEBUG) console.info('Timeline.setTotalFrames');
-		const el = document.getElementById('timeLineTotalFrames');
-		el.value = ProjectVars.frameLength;
+	startRename(cell) {
+		const id = cell.closest('tr').dataset.layerId;
+		const layer = new Model().getLayer(id);
+		if (!layer) return;
+		const input = document.createElement('input');
+		input.type = 'text';
+		input.value = layer.name;
+		input.className = 'tl-label-input';
+		cell.textContent = '';
+		cell.appendChild(input);
+		input.focus();
+		input.select();
+		let done = false;
+		const finish = (save) => {
+			if (done) return;
+			done = true;
+			const name = input.value.trim();
+			if (save && name && name !== layer.name) new Model().renameLayer(id, name);
+			else this.build();
+		};
+		input.addEventListener('blur', () => finish(true));
+		input.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') finish(true);
+			if (e.key === 'Escape') finish(false);
+			e.stopPropagation();
+		});
 	}
-
-	setTotalTime() {
-		if (this.IS_DEBUG) console.info('Timeline.setTotalTime');
-		const el = document.getElementById('timeLineTotalTime');
-		el.value = (ProjectVars.frameLength / ProjectVars.frameRate).toFixed(2);
-	}
-
 }

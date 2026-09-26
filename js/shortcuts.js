@@ -1,132 +1,63 @@
-import { ExportVideo } from './export-video.js';
-import { Export } from './export.js';
-import { Globals } from './globals.js';
+import { Canvas } from './canvas.js';
 import { Model } from './model/model.js';
+import { Tools } from './tools.js';
 
-
+/** Keyboard shortcuts, Flash key bindings where they exist. */
 export class Shortcuts {
 
 	IS_DEBUG = false;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info(`constructor shortcuts.js`);
+		if (Shortcuts.instance) return Shortcuts.instance;
+		Shortcuts.instance = this;
 	}
 
 	init() {
-		if (this.IS_DEBUG) console.info(`Shortcuts.init()`);
-
-		document.addEventListener('keydown', function (event) {
-			// console.log('keydown');
-
-			if (event.metaKey && event.key === 'n') {
-				// ⌘N
-				event.preventDefault(); // Prevent the default action
-				new Model().newFile();
-
-			} else if (event.metaKey && event.key === 'o') {
-				console.log('Shortcuts: open');
-
-				// ⌘O
-				event.preventDefault(); // Prevent the default action
-				new Model().openFile();
-
-			} else if (event.shiftKey && event.metaKey && event.key === 's') {
-				// ⇧⌘S
-				event.preventDefault(); // Prevent the default action
-				new Model().saveAsFile();
-
-			} else if (event.metaKey && event.key === 's') {
-				// ⌘S
-				event.preventDefault(); // Prevent the default action
-				new Model().saveFile();
-
-
-			} else if (event.metaKey && event.key === 'w') {
-				// ⌘W
-				event.preventDefault(); // Prevent the default action
-				new Model().closeFile();
-
-			} else if (event.metaKey && event.key === 'i') {
-				console.log('Shortcuts Import');
-				// ⌘I
-				event.preventDefault(); // Prevent the default action
-				new Model().importFile();
-
-
-			} else if (event.shiftKey && event.metaKey && event.key === 'e') {
-				// start with shiftkey first (⇧⌘E) then the rest (⌘E)
-				console.log('Shortcuts export image');
-				// ⇧⌘E
-				event.preventDefault(); // Prevent the default action
-				new Model().exportMovie();
-
-			} else if (event.metaKey && event.key === 'e') {
-				console.log('Shortcuts Export movie');
-				// ⌘E
-				event.preventDefault(); // Prevent the default action
-				new Model().exportFile();
-
-			} else {
-
-			}
-		});
-
+		document.addEventListener('keydown', (e) => this.onKeyDown(e));
 	}
 
-	// const openFileInput = document.getElementById('openFileInput');
-	// openFileInput.addEventListener('change', function () {
-	// 	const file = openFileInput.files[0];
-	// 	if (file) {
-	// 		// Implement your open file logic here
-	// 		console.log('File opened:', file.name);
-	// 	}
-	// });
+	onKeyDown(e) {
+		const target = e.target;
+		if (target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+		if (document.querySelector('.modal.show')) return;
 
+		const model = new Model();
+		const key = e.key.toLowerCase();
+		const cmd = e.metaKey || e.ctrlKey;
+		const run = (fn) => { e.preventDefault(); fn(); };
 
+		if (cmd) {
+			if (key === 'z' && e.shiftKey) return run(() => model.redo());
+			if (key === 'z') return run(() => model.undo());
+			if (key === 'y') return run(() => model.redo());
+			if (key === 'n') return run(() => model.newFile());
+			if (key === 'o') return run(() => model.openFile());
+			if (key === 's') return run(() => model.saveFile());
+			if (key === 'i') return run(() => model.importFile());
+			if (key === 'e' && e.shiftKey) return run(() => model.exportFile());
+			if (key === 'e') return run(() => model.exportMovie());
+			if (key === 'd') return run(() => model.duplicateLayer());
+			return;
+		}
 
+		switch (e.key) {
+			case 'F6': return run(() => (e.shiftKey ? model.clearKeyframe() : model.insertKeyframe()));
+			case 'F7': return run(() => model.insertKeyframe({ blank: true }));
+			case 'Enter': return run(() => model.togglePlay());
+			case ',': return run(() => model.prevFrame());
+			case '.': return run(() => model.nextFrame());
+			case 'Home': return run(() => { model.stop(); model.setFrame(1); });
+			case 'End': return run(() => { model.stop(); model.setFrame(Infinity); });
+			case 'Delete':
+			case 'Backspace': return run(() => model.deleteLayer());
+			case 'ArrowLeft': return run(() => new Canvas().nudge(e.shiftKey ? -10 : -1, 0));
+			case 'ArrowRight': return run(() => new Canvas().nudge(e.shiftKey ? 10 : 1, 0));
+			case 'ArrowUp': return run(() => new Canvas().nudge(0, e.shiftKey ? -10 : -1));
+			case 'ArrowDown': return run(() => new Canvas().nudge(0, e.shiftKey ? 10 : 1));
+			case 'Escape': return run(() => model.select(null));
+		}
 
-	// importFile() {
-	// 	console.log('importFile');
-
-	// 	// doesn't work
-
-	// 	// Create the file input element
-	// 	const fileInput = document.createElement('input');
-	// 	fileInput.type = 'file';
-	// 	fileInput.accept = '.svg';
-	// 	fileInput.style.display = 'none';
-	// 	fileInput.id = 'openFileInputww';
-
-	// 	// Create the label element
-	// 	const label = document.createElement('label');
-	// 	label.for = 'openFileInputww';
-	// 	label.textContent = 'Open...';
-	// 	label.className = 'dropdown-item';
-
-
-	// 	// Append the file input to the body
-	// 	document.body.appendChild(label);
-	// 	document.body.appendChild(fileInput);
-
-	// 	// Add change event listener to the file input
-	// 	fileInput.addEventListener('change', function (event) {
-	// 		const file = event.target.files[0];
-	// 		if (file) {
-	// 			const reader = new FileReader();
-	// 			reader.onload = function (e) {
-	// 				console.log('File content:', e.target.result);
-	// 				// Add your logic to handle the file content here
-	// 			};
-	// 			reader.readAsText(file);
-	// 		}
-	// 	});
-
-	// 	label.click();
-	// 	fileInput.click();
-	// 	// Trigger the file input click on label click
-	// 	label.addEventListener('click', function () {
-	// 		console.log('click');
-
-	// 	});
-	// }
+		const tools = { v: 'select', r: 'rect', o: 'ellipse', n: 'line', t: 'text', z: 'zoom' };
+		if (tools[key] && !e.altKey) run(() => new Tools().setTool(tools[key]));
+	}
 }

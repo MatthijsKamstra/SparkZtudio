@@ -1,174 +1,73 @@
 import { Globals } from './globals.js';
 import { Model, ProjectVars } from './model/model.js';
-import { Properties } from './properties.js';
-import { Timeline } from './timeline.js';
 
+/** Zoom and playback controls under the stage. */
 export class CanvasMenu {
 
 	IS_DEBUG = false;
 
-	svgElement;
-	canvasWrapper;
-	isPlaying = false;
-	isLooping = false
-
 	constructor() {
-		if (this.IS_DEBUG) console.info('constructor canvas-menu.js');
+		if (CanvasMenu.instance) return CanvasMenu.instance;
+		CanvasMenu.instance = this;
 	}
 
 	init() {
-		if (this.IS_DEBUG) console.info('CanvasMenu.init()');
-		this.svgElement = document.getElementById(Globals.svgContainerID);
-		this.canvasWrapper = document.getElementById('canvasWrapper');
-		this.setup();
+		this.svgContainer = document.getElementById(Globals.svgContainerID);
+		this.svgWrapper = document.getElementById('svgWrapper');
+		const model = new Model();
+		const on = (id, fn) => document.getElementById(id)?.addEventListener('click', fn);
+
+		on('canvas-menu-zoomIn', () => this.zoomIn());
+		on('canvas-menu-zoomOut', () => this.zoomOut());
+		on('canvas-menu-zoomTo100', () => this.zoomTo100());
+		on('zoomLevelDisplay', () => this.zoomTo100());
+		on('canvas-menu-zoomToFit', () => this.zoomToFit());
+		on('prevKeyframe', () => model.previousKeyframe());
+		on('nextKeyframe', () => model.nextKeyframe());
+		on('togglePlayStop', () => model.togglePlay());
+		on('toggleLoop', () => model.loop(!model.isLooping));
 	}
 
-	/**
-	 * setup UI
-	 */
-	setup() {
-		if (this.IS_DEBUG) console.info('CanvasMenu.setup');
-
-		// Add zoom lity
-		document.getElementById('canvas-menu-zoomIn').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click btn zoomIn');
-			this.zoomIn();
-		});
-
-		document.getElementById('canvas-menu-zoomOut').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click btn zoomOut');
-			this.zoomOut();
-		});
-
-		document.getElementById('canvas-menu-zoomTo100').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click btn zoomTo100');
-			this.zoomTo100();
-		});
-		// clicking the zoom level badge also resets to 100%
-		document.getElementById('zoomLevelDisplay')?.addEventListener('click', () => this.zoomTo100());
-		document.getElementById('canvas-menu-zoomToFit').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click btn zoomToFit');
-			this.zoomToFit();
-		});
-
-		// Add keyframe lity
-		document.getElementById('prevKeyframe').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click prevKeyframe');
-			this.prevKeyframe();
-		});
-
-		document.getElementById('togglePlayStop').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click togglePlayStop');
-			this.togglePlayStop();
-		});
-
-		document.getElementById('nextKeyframe').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click nextKeyframe');
-			this.nextKeyframe();
-		});
-
-
-		// Add loop logic
-		document.getElementById('toggleLoop').addEventListener('click', () => {
-			if (this.IS_DEBUG) console.log('click toggleLoop');
-			this.toggleLoop();
-		});
-
-		// Reset play state when playback ends naturally (no loop)
-		document.addEventListener('playbackEnded', () => {
-			this.isPlaying = false;
-			const btn = document.getElementById('togglePlayStop');
-			if (btn) btn.innerHTML = '<i class="bi bi-play-fill"></i>';
-		});
-		// Update playhead display during playback
-		document.addEventListener('playheadMoved', (e) => {
-			this.updatePlayheadDisplay(e.detail.frame, e.detail.total);
-		});	}
-
+	/** Sync buttons and read-outs with the model. */
 	update() {
-		if (this.IS_DEBUG) console.info('CanvasMenu.update');
+		const model = new Model();
+		const playBtn = document.getElementById('togglePlayStop');
+		if (playBtn) playBtn.innerHTML = model.isPlaying ? '<i class="bi bi-stop-fill"></i>' : '<i class="bi bi-play-fill"></i>';
+		document.getElementById('toggleLoop')?.classList.toggle('active', model.isLooping);
+		const playhead = document.getElementById('playheadDisplay');
+		if (playhead) playhead.textContent = `${model.currentFrame} / ${ProjectVars.frameLength}`;
+		const fps = document.getElementById('fpsValue');
+		if (fps) fps.textContent = ProjectVars.frameRate;
 	}
 
-	projectFile() {
-		if (this.IS_DEBUG) console.info('CanvasMenu.projectFile');
-		const svgElement = ProjectVars.frames[0].svg;
+	// ____________________________________ zoom ____________________________________
+
+	setZoom(scale) {
+		Globals.zoomScale = Math.max(0.05, Math.min(8, scale));
+		this.svgContainer.style.transform = `scale(${Globals.zoomScale})`;
+		const el = document.getElementById('zoomLevelDisplay');
+		if (el) el.textContent = `${Math.round(Globals.zoomScale * 100)}%`;
 	}
 
-	// ____________________________________ button function  ____________________________________
+	zoomIn() { this.setZoom(Globals.zoomScale * 1.25); }
 
-	zoomIn() {
-		if (this.IS_DEBUG) console.info('zoomIn');
-		Globals.zoomScale += 0.1;
-		this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
-		this.updateZoomDisplay();
-	}
+	zoomOut() { this.setZoom(Globals.zoomScale / 1.25); }
 
-	zoomOut() {
-		if (this.IS_DEBUG) console.info('zoomOut');
-		if (Globals.zoomScale > 0.1) {
-			Globals.zoomScale -= 0.1;
-			this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
-		}
-		this.updateZoomDisplay();
-	}
-
-	zoomTo100() {
-		if (this.IS_DEBUG) console.info('zoomTo100');
-		Globals.zoomScale = 1;
-		this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
-		this.updateZoomDisplay();
-	}
+	zoomTo100() { this.setZoom(1); }
 
 	zoomToFit() {
-		if (this.IS_DEBUG) console.info('zoomToFit');
-		const containerRect = canvasWrapper.getBoundingClientRect();
-		const svgRect = this.svgElement.getBoundingClientRect();
-		const scale = Math.min(containerRect.width / svgRect.width, containerRect.height / svgRect.height);
-		Globals.zoomScale = scale;
-		this.svgElement.style.transform = `scale(${Globals.zoomScale})`;
-		this.updateZoomDisplay();
+		const area = this.svgWrapper.getBoundingClientRect();
+		const menuHeight = document.getElementById('canvasMenu')?.offsetHeight || 0;
+		const scale = Math.min((area.width - 40) / ProjectVars.width, (area.height - menuHeight - 40) / ProjectVars.height);
+		if (scale > 0) this.setZoom(scale);
 	}
 
-	updateZoomDisplay() {
-		const el = document.getElementById('zoomLevelDisplay');
-		if (el) el.textContent = Math.round(Globals.zoomScale * 100) + '%';
-	}
-
-	updatePlayheadDisplay(frame, total) {
-		const el = document.getElementById('playheadDisplay');
-		if (el) el.textContent = `${frame} / ${total}`;
-	}
-
-	togglePlayStop() {
-		if (this.isPlaying) {
-			new Model().stop();
-		} else {
-			new Model().play(this.isLooping);
+	/** After loading: shrink the stage when it does not fit, never enlarge. */
+	fitIfTooLarge() {
+		const area = this.svgWrapper.getBoundingClientRect();
+		const menuHeight = document.getElementById('canvasMenu')?.offsetHeight || 0;
+		if (ProjectVars.width * Globals.zoomScale > area.width - 40 || ProjectVars.height * Globals.zoomScale > area.height - menuHeight - 40) {
+			this.zoomToFit();
 		}
-		this.isPlaying = !this.isPlaying;
-		const toggleButton = document.getElementById('togglePlayStop');
-		toggleButton.innerHTML = this.isPlaying
-			? '<i class="bi bi-stop-fill"></i>'
-			: '<i class="bi bi-play-fill"></i>';
 	}
-
-	// Loop logic
-	toggleLoop() {
-		this.isLooping = !this.isLooping;
-		new Model().loop(this.isLooping);
-		const loopButton = document.getElementById('toggleLoop');
-		loopButton.classList.toggle('active', this.isLooping);
-	}
-
-	// Keyframe navigation
-	prevKeyframe() {
-		// Logic to move to the previous keyframe
-		new Model().previousKeyframe();
-	}
-
-	nextKeyframe() {
-		// Logic to move to the next keyframe
-		new Model().nextKeyframe();
-	}
-
 }

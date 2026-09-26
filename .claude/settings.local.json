@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:pencil2d.org)",
+      "WebFetch(domain:wickeditor.com)",
+      "WebFetch(domain:docs.glaxnimate.org)",
+      "WebFetch(domain:gamefromscratch.com)"
     ]
   }
 }

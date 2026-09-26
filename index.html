@@ -118,21 +118,25 @@
 							</li>
 							<li><a class="dropdown-item disabled" href="#" id="closeFile">Close <span
 										class="opacity-25 float-end">⌘W</span></a></li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li><span class="dropdown-item-text text-muted py-0" style="font-size:0.75rem">Open Recent</span></li>
+							<div id="recentFilesList">
+								<li><span class="dropdown-item text-muted disabled" style="font-size:0.85rem">No recent files</span></li>
+							</div>
 						</ul>
 					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle disabled" href="#" id="editDropdown" role="button"
+						<a class="nav-link dropdown-toggle" href="#" id="editDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">Edit</a>
 						<ul class="dropdown-menu" aria-labelledby="editDropdown">
-							<li><a class="dropdown-item" href="#" id="undo">Undo</a></li>
-							<li><a class="dropdown-item" href="#" id="redo">Redo</a></li>
-							<li><a class="dropdown-item" href="#" id="cut">Cut</a></li>
-							<li><a class="dropdown-item" href="#" id="copy">Copy</a></li>
-							<li><a class="dropdown-item" href="#" id="paste">Paste</a></li>
+							<li><a class="dropdown-item" href="#" id="undo">Undo <span class="opacity-25 float-end">⌘Z</span></a></li>
+							<li><a class="dropdown-item" href="#" id="redo">Redo <span class="opacity-25 float-end">⇧⌘Z</span></a></li>
 						</ul>
 					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle disabled" href="#" id="viewDropdown" role="button"
+						<a class="nav-link dropdown-toggle" href="#" id="viewDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">View</a>
 						<ul class="dropdown-menu" aria-labelledby="viewDropdown">
 							<li><a class="dropdown-item" href="#" id="zoomIn">Zoom In</a></li>
@@ -141,12 +145,13 @@
 						</ul>
 					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle disabled" href="#" id="layerDropdown" role="button"
+						<a class="nav-link dropdown-toggle" href="#" id="layerDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">Layer</a>
 						<ul class="dropdown-menu" aria-labelledby="layerDropdown">
 							<li><a class="dropdown-item" href="#" id="newLayer">New Layer</a></li>
-							<li><a class="dropdown-item" href="#" id="deleteLayer">Delete Layer</a></li>
-							<li><a class="dropdown-item" href="#" id="duplicateLayer">Duplicate Layer</a></li>
+							<li><a class="dropdown-item" href="#" id="deleteLayer">Delete Layer <span class="opacity-25 float-end">⌫</span></a></li>
+							<li><a class="dropdown-item" href="#" id="duplicateLayer">Duplicate Layer <span class="opacity-25 float-end">⌘D</span></a></li>
+							<li><a class="dropdown-item" href="#" id="distributeToLayers">Distribute to Layers</a></li>
 						</ul>
 					</li>
 					<li class="nav-item dropdown">
@@ -159,7 +164,8 @@
 					</li>
 				</ul>
 				<div class="d-flex align-items-center gap-2">
-					<span id="currentFileName" class="text-muted small text-truncate" style="max-width:160px" title="Current file"></span>
+					<span id="currentFileName" class="text-muted small text-truncate" style="max-width:160px"
+						title="Current file"></span>
 					<div id="focusReminder" class="text-danger" title="no focus, means no shortcuts">
 						<i class="bi bi-exclamation-circle-fill"></i>
 					</div>
@@ -177,12 +183,17 @@
 	<div id="mainWrapper">
 
 		<div id="toolsWrapper" class="p-2">
-			<button id="selectTool" class="btn btn-light" title="Select"><i class="bi bi-cursor"></i></button>
-			<button id="drawRectTool" class="btn btn-light" title="Rectangle"><i class="bi bi-square"></i></button>
-			<button id="drawCircleTool" class="btn btn-light" title="Circle"><i class="bi bi-circle"></i></button>
-			<button id="drawLineTool" class="btn btn-light" title="Line"><i class="bi bi-dash-lg"></i></button>
-			<button id="drawTextTool" class="btn btn-light" title="Text"><i class="bi bi-type"></i></button>
-			<button id="zoomTool" class="btn btn-light" title="Zoom"><i class="bi bi-zoom-in"></i></button>
+			<button id="selectTool" class="btn btn-light" title="Select / move (V)"><i class="bi bi-cursor"></i></button>
+			<button id="drawRectTool" class="btn btn-light" title="Rectangle (R)"><i class="bi bi-square"></i></button>
+			<button id="drawCircleTool" class="btn btn-light" title="Oval (O)"><i class="bi bi-circle"></i></button>
+			<button id="drawLineTool" class="btn btn-light" title="Line (N)"><i class="bi bi-dash-lg"></i></button>
+			<button id="drawTextTool" class="btn btn-light" title="Text (T)"><i class="bi bi-type"></i></button>
+			<button id="zoomTool" class="btn btn-light" title="Zoom (Z, Alt-click zooms out)"><i class="bi bi-zoom-in"></i></button>
+			<div class="tool-colors">
+				<label title="Fill colour"><i class="bi bi-paint-bucket"></i><input type="color" id="fillColor"></label>
+				<label title="Stroke colour"><i class="bi bi-pencil"></i><input type="color" id="strokeColor"></label>
+				<input type="number" id="strokeWidth" min="0" max="50" title="Stroke width (px)">
+			</div>
 		</div>
 
 		<div id="resizer1" class="resizer"></div>
@@ -194,7 +205,8 @@
 				<div class="canvas-menu-zoom d-flex align-items-center gap-1">
 					<button id="canvas-menu-zoomOut" class="btn btn-outline-secondary btn-sm" title="Zoom Out"><i
 							class="bi bi-zoom-out"></i></button>
-					<span id="zoomLevelDisplay" class="badge bg-secondary" style="min-width:38px;text-align:center;cursor:pointer" title="Click for 100%">100%</span>
+					<span id="zoomLevelDisplay" class="badge bg-secondary"
+						style="min-width:38px;text-align:center;cursor:pointer" title="Click for 100%">100%</span>
 					<button id="canvas-menu-zoomIn" class="btn btn-outline-secondary btn-sm" title="Zoom In"><i
 							class="bi bi-zoom-in"></i></button>
 					<button id="canvas-menu-zoomTo100" class="btn btn-outline-secondary btn-sm" title="Zoom 100%"><i
@@ -211,7 +223,8 @@
 							class="bi bi-skip-forward-fill"></i></button>
 					<button id="toggleLoop" class="btn btn-outline-secondary btn-sm" title="Toggle Loop"><i
 							class="bi bi-repeat"></i></button>
-					<span id="playheadDisplay" class="text-muted" style="font-size:0.72rem;min-width:50px;text-align:center">0 / 0</span>
+					<span id="playheadDisplay" class="text-muted"
+						style="font-size:0.72rem;min-width:50px;text-align:center">0 / 0</span>
 				</div>
 				<div class="canvas-menu-fps text-muted small px-2" id="canvasFpsDisplay">
 					<span id="fpsValue">24</span> fps
@@ -225,57 +238,29 @@
 				<div class="accordion-item">
 					<h2 class="accordion-header">
 						<button class="accordion-button" type="button" data-bs-toggle="collapse"
-							data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-							Document properties
+							data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+							Properties
 						</button>
 					</h2>
-					<div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+					<div id="collapseTwo" class="accordion-collapse collapse show">
 						<div class="accordion-body">
-							<div id="propertiesDocument"><strong>This is the first item's accordion body.</strong>
-								It is
-								shown by default, until the
-								collapse
-								plugin adds the appropriate classes that we use to style each element. These classes
-								control
-								the overall
-								appearance, as well as the showing and hiding via CSS transitions. You can modify
-								any of
-								this with
-								custom CSS or overriding our default variables. It's also worth noting that just
-								about
-								any
-								HTML can go
-								within the <code>.accordion-body</code>, though the transition does limit overflow.
-							</div>
-
+							<div id="propertiesSelection"></div>
 						</div>
 					</div>
 				</div>
 				<div class="accordion-item">
 					<h2 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-							data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-							Properties
+						<button class="accordion-button" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+							Document
 						</button>
 					</h2>
-					<div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					<div id="collapseOne" class="accordion-collapse collapse show">
 						<div class="accordion-body">
-							<strong>This is the second item's accordion body.</strong> It is hidden by default,
-							until
-							the collapse
-							plugin adds the appropriate classes that we use to style each element. These classes
-							control
-							the overall
-							appearance, as well as the showing and hiding via CSS transitions. You can modify any of
-							this with
-							custom CSS or overriding our default variables. It's also worth noting that just about
-							any
-							HTML can go
-							within the <code>.accordion-body</code>, though the transition does limit overflow.
+							<div id="propertiesDocument"></div>
 						</div>
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>
@@ -284,13 +269,26 @@
 	<div id="timelineWrapper">
 
 		<!-- Compact toolbar -->
-		<div class="d-flex align-items-center gap-2 px-2 py-1 border-bottom" style="font-size:0.8rem">
-			<label class="mb-0 text-muted">FPS</label>
+		<div class="d-flex align-items-center gap-2 px-2 py-1 border-bottom" id="timelineToolbar" style="font-size:0.8rem">
+			<div class="btn-group btn-group-sm">
+				<button id="tlAddLayer" class="btn btn-outline-secondary" title="New layer"><i class="bi bi-file-earmark-plus"></i></button>
+				<button id="tlDeleteLayer" class="btn btn-outline-secondary" title="Delete layer (⌫)"><i class="bi bi-trash"></i></button>
+				<button id="tlLayerUp" class="btn btn-outline-secondary" title="Move layer up"><i class="bi bi-arrow-up"></i></button>
+				<button id="tlLayerDown" class="btn btn-outline-secondary" title="Move layer down"><i class="bi bi-arrow-down"></i></button>
+			</div>
+			<div class="btn-group btn-group-sm">
+				<button id="tlInsertKeyframe" class="btn btn-outline-secondary" title="Insert keyframe (F6)">● Key</button>
+				<button id="tlBlankKeyframe" class="btn btn-outline-secondary" title="Insert blank keyframe (F7)">○ Blank</button>
+				<button id="tlClearKeyframe" class="btn btn-outline-secondary" title="Clear keyframe (Shift+F6)"><i class="bi bi-x-lg"></i></button>
+				<button id="tlToggleTween" class="btn btn-outline-secondary" title="Create / remove motion tween"><i class="bi bi-arrow-right"></i> Tween</button>
+			</div>
+			<label class="mb-0 text-muted ms-2">FPS</label>
 			<input type="number" class="form-control form-control-sm" id="timelineFrameRate" style="width:52px">
 			<label class="mb-0 text-muted">Frames</label>
 			<input type="number" class="form-control form-control-sm" id="timeLineTotalFrames" style="width:62px">
 			<label class="mb-0 text-muted">Time</label>
-			<input type="number" class="form-control form-control-sm" id="timeLineTotalTime" style="width:56px" readonly>
+			<input type="number" class="form-control form-control-sm" id="timeLineTotalTime" style="width:56px"
+				readonly>
 		</div>
 
 		<!-- Flash-style timeline table -->
@@ -336,10 +334,6 @@
 							<input type="number" class="form-control" id="svgHeight" placeholder="Enter height"
 								value="1080" required>
 						</div>
-						<div class="form-group">
-							<label for="svgViewBox">ViewBox</label>
-							<input type="text" class="form-control" id="svgViewBox" placeholder="Enter viewBox">
-						</div>
 					</form>
 				</div>
 				<div class="modal-footer">
@@ -366,36 +360,30 @@
 						</div>
 					</div>
 
-					<div class="progress mb-2" id="progressContainer" role="progressbar" aria-label="Recording Progress"
+					<div class="progress mb-2" id="progressContainer" role="progressbar" aria-label="Export progress"
 						aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
 						<div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
 					</div>
 
-					<!-- Video controls (same as canvas) -->
-					<div class="d-flex justify-content-between align-items-center mt-2">
-						<div class="d-flex gap-1">
-							<button id="exportPrevKeyframe" class="btn btn-outline-secondary btn-sm"
-								title="Previous Keyframe"><i class="bi bi-skip-backward-fill"></i></button>
-							<button id="startRecording" class="btn btn-success btn-sm" title="Start / Play">
-								<i class="bi bi-play-fill"></i> Start
-							</button>
-							<button id="stopRecording" class="btn btn-danger btn-sm" title="Stop">
-								<i class="bi bi-stop-fill"></i> Stop
-							</button>
-							<button id="exportNextKeyframe" class="btn btn-outline-secondary btn-sm"
-								title="Next Keyframe"><i class="bi bi-skip-forward-fill"></i></button>
-							<button id="exportToggleLoop" class="btn btn-outline-secondary btn-sm"
-								title="Toggle Loop"><i class="bi bi-repeat"></i></button>
-						</div>
-						<div class="text-muted small"><span id="exportFpsValue">24</span> fps</div>
+					<div class="d-flex flex-wrap align-items-center gap-2">
+						<label for="exportFormat" class="mb-0">Format</label>
+						<select id="exportFormat" class="form-select form-select-sm" style="width:auto"></select>
+						<span id="exportInfo" class="text-muted small"></span>
 					</div>
+					<div id="exportStatus" class="small text-muted mt-2"></div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
 						<i class="bi bi-x-lg"></i> Close
 					</button>
-					<button type="button" class="btn btn-primary" id="confirmExport">
-						<i class="bi bi-download"></i> Save Video
+					<button type="button" class="btn btn-outline-danger" id="cancelRender" disabled>
+						<i class="bi bi-stop-fill"></i> Cancel
+					</button>
+					<button type="button" class="btn btn-success" id="renderVideo">
+						<i class="bi bi-film"></i> Render video
+					</button>
+					<button type="button" class="btn btn-primary" id="confirmExport" disabled>
+						<i class="bi bi-download"></i> Save again
 					</button>
 				</div>
 			</div>

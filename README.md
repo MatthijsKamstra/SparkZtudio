@@ -10,61 +10,71 @@ Proof of concept: Can web tech replicate Flash-like animation workflow?
 
 ## 🎬 Current Status
 
-| Feature          | Status | Notes                            |
-| ---------------- | ------ | -------------------------------- |
-| SVG canvas       | ✅     | Draw shapes working              |
-| Tools            | ✅     | Rect, circle, text, zoom         |
-| File I/O         | ✅     | Save/load JSON projects          |
-| Animation        | 🔧     | WIP - keyframe system incomplete |
-| Video export     | 🔧     | WebM works; MP4 codec issues     |
-| Property panel   | 🚫     | UI stub, no binding              |
-| Layer management | 🚫     | No add/delete/reorder            |
+| Feature          | Status | Notes                                                        |
+| ---------------- | ------ | ------------------------------------------------------------ |
+| SVG import       | ✅     | Top-level elements / Inkscape layers become layers           |
+| Layers           | ✅     | Add, delete, reorder, rename, hide, lock, distribute         |
+| Keyframes        | ✅     | F6 keyframe, F7 blank keyframe, Shift+F6 clear               |
+| Motion tween     | ✅     | x, y, scale, rotation, alpha, with ease in/out               |
+| Stage editing    | ✅     | Select, drag, arrow-key nudge, rect/oval/line/text drawing   |
+| Property panel   | ✅     | Selected layer at current frame + document settings          |
+| Undo/redo        | ✅     | Snapshot based, 100 steps                                    |
+| Video export     | ✅     | Frame-exact MP4 (H.264) or WebM (VP9/VP8) via WebCodecs      |
+| Shape tween      | 🚫     | Only transforms animate; colour/path morphing not yet        |
+| Desktop app      | 🚫     | Browser first; Electron/Tauri wrapper later                  |
 
 ## 🚀 Getting Started
 
-### 1. Open in Browser
+### 1. Run it
+
+ES modules need a web server (opening `index.html` via `file://` does not work):
 
 ```bash
-cd /Users/matthijskamstra/Documents/GIT/spark-studio
-# Open index.html in Chrome
+cd spark-studio
+python3 -m http.server 8000
+# open http://localhost:8000 in Chrome, Edge, Firefox or Safari
 ```
 
-### 2. Create Animation
+No build step. Bootstrap and the video encoder library ([Mediabunny](https://mediabunny.dev)) load from a CDN.
 
-- **File** > New
-- Draw rectangle with **Rect Tool**
-- Add 2 keyframes to timeline (frame 0 & 120)
-- Adjust position in second keyframe
-- **Canvas > Play** to preview
-- **File > ExportMovie** for WebM
+### 2. Animate an SVG
 
-### 3. Load Example
+1. **File > Import** an `.svg`. Every top-level element (or Inkscape layer) becomes a timeline layer.
+2. Everything on one layer? Select it and use **Layer > Distribute to Layers**.
+3. Click a frame in the timeline (e.g. frame 24) and drag the object on the stage. A keyframe is created and the span before it becomes a motion tween.
+4. Fine-tune X/Y/scale/rotation/alpha and easing in the **Properties** panel.
+5. **Enter** plays, **,** and **.** step frames.
+6. **File > Save** writes a `.json` project; **File > Export Movie** renders MP4 or WebM.
 
-- **File** > Open
-- Select `examples/project/simple-move.json`
-- Click Play
+The app starts with a demo project (a box tweening from x=0 to x=400). Old v1 project files (`frames[]` with SVG snapshots) are converted on open.
+
+### Shortcuts
+
+| Key                | Action                         |
+| ------------------ | ------------------------------ |
+| V / R / O / N / T / Z | Select, rectangle, oval, line, text, zoom |
+| F6 / F7 / Shift+F6 | Keyframe / blank keyframe / clear keyframe |
+| Enter              | Play / stop                    |
+| , / . / Home / End | Previous / next / first / last frame |
+| Arrows (+Shift)    | Nudge selected layer 1 (10) px |
+| Backspace          | Delete layer                   |
+| ⌘Z / ⇧⌘Z          | Undo / redo                    |
+| ⌘S / ⌘O / ⌘I      | Save / open / import SVG       |
+| ⌘E / ⇧⌘E          | Export movie / export PNG frame |
 
 ## 📁 Structure
 
 ```
 js/
-├── model/model.js         # App state (Singleton)
-├── canvas.js              # SVG rendering
-├── inter.js               # Animation interpolation ⭐
-├── export-video.js        # Video export ⭐
-├── timeline.js            # Timeline UI
-├── properties.js          # Property panel (WIP)
-├── menu.js                # File operations
-├── tools.js               # Drawing tools
-└── ...other classes
-
-css/
-├── style.css
-├── canvas.css
-├── resize-layout.css
-└── nested.css
-
-examples/project/          # Sample animations
+├── model/project.js       # Project format v2: layers, keyframes, tweening, SVG import, v1 conversion
+├── model/model.js         # App state (singleton): selection, current frame, undo, playback
+├── canvas.js              # Stage: renders a frame, select/drag, drawing tools
+├── timeline.js            # Layer rows × frame columns, keyframes, playhead
+├── properties.js          # Property inspector
+├── export-video.js        # WebCodecs + Mediabunny video export
+├── export.js              # Save JSON, export PNG
+├── menu.js / shortcuts.js / tools.js / canvas-menu.js
+└── inter.js, defaults.js, utils/color-converter.js   # v1 engine, no longer used
 ```
 
 ## 📖 Documentation
@@ -102,11 +112,10 @@ See FINDINGS.md for complete Phase 1-3 roadmap.
 
 ## 🐛 Known Issues
 
-1. **Inter.js**: `calculateFrames()` incomplete - check console
-2. **Properties**: Panel is stub - no real binding
-3. **WebM codec**: Varies across browsers
-4. **Layer system**: Table exists but no logic
-5. **Undo/Redo**: UI exists but no history stack
+1. Only transforms tween (position, scale, rotation, alpha). Fill/stroke colour and path shape tweens are not implemented.
+2. Converting v1 projects keeps position and size changes, not colour changes.
+3. External fonts and `<image href="https://...">` do not render in exported video (SVG-as-image cannot load external resources). Embed images as data URIs.
+4. The VS Code integrated browser cannot preview WebM; the files themselves are valid.
 
 See TODO.md for complete list.
 

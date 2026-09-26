@@ -1,530 +1,479 @@
 import { CanvasMenu } from '../canvas-menu.js';
 import { Canvas } from '../canvas.js';
-import { Defaults } from '../defaults.js';
 import { ExportVideo } from '../export-video.js';
 import { Export } from '../export.js';
 import { Focus } from '../focus.js';
 import { Globals } from '../globals.js';
-import { Inter } from '../inter.js';
 import { Layout } from '../layout.js';
 import { LocalStorageHandler } from '../local-storage.js';
 import { Menu } from '../menu.js';
 import { Properties } from '../properties.js';
 import { Shortcuts } from '../shortcuts.js';
-import { TimelineMenu } from '../timeline-menu.js';
 import { Timeline } from '../timeline.js';
 import { Tools } from '../tools.js';
-// import { Model, ProjectVars } from './model/model.js';
+import {
+	createDemoProject, createKeyframe, createLayer, createProject, DEFAULT_STATE, getLayerState,
+	governingKeyframe, importSvgProject, keyframeAt, normalizeProject, pickState, sortKeyframes, splitLayerContent,
+} from './project.js';
 
+// The open project (format v2, see project.js). Reassigned on load/undo, so always read it fresh.
+export let ProjectVars = createProject();
 
-
-// Shared global variables
-export let ProjectVars = {
-	exportName: 'sparkztudio-project',
-	projectName: 'SparkZtudio Project',
-	creationDate: '',
-	description: 'SparkZtudio Project description',
-	version: '1',
-	width: 600,
-	height: 400,
-	frameRate: 24,
-	frameLength: 24 * 5, // 5 seconds
-	time: 5, // 5 seconds
-	frames: [],
-	calculated: []
-};
-
+const UNDO_LIMIT = 100;
 
 export class Model {
 
-	IS_DEBUG = true;
+	IS_DEBUG = false;
+
+	currentFrame = 1;
+	selectedLayerId = null;
+	isPlaying = false;
+	isLooping = false;
+	undoStack = [];
+	redoStack = [];
 
 	constructor() {
-		if (this.IS_DEBUG) console.info(`constructor model.js -- isSingleton: ${Model.instance != null}`);
-		if (Model.instance) {
-			return Model.instance;
-		}
+		if (Model.instance) return Model.instance;
 		Model.instance = this;
-
-		// Initialize any properties
-		this.data = "I am a singleton";
-	}
-
-	getData() {
-		return this.data;
-	}
-
-	setData(newData) {
-		this.data = newData;
 	}
 
 	init() {
-		if (this.IS_DEBUG) {
-			console.clear();
-			console.groupCollapsed(`Model.init()`);
-			console.log(`version: ${Globals.version}`);
-			console.groupEnd();
-		}
+		if (this.IS_DEBUG) console.info(`Model.init() version ${Globals.version}`);
 
-		// jumpstart all
+		new Layout().init();
 		new Canvas().init();
 		new CanvasMenu().init();
-		new Layout().init();
 		new Menu().init();
 		new Timeline().init();
-		new TimelineMenu().init();
 		new Properties().init();
 		new Tools().init();
 		new Shortcuts().init();
-		new ExportVideo();
+		new ExportVideo().init();
 		new Focus();
 
-		// Restore last project from localStorage
-		try {
-			const local = new LocalStorageHandler();
-			const projectFilesArray = local.getItem('projectFiles');
-			if (projectFilesArray && projectFilesArray.length > 0) {
-				const lastProject = projectFilesArray[projectFilesArray.length - 1];
-				if (lastProject) {
-					if (this.IS_DEBUG) console.info('Model.init(): restoring last project from localStorage');
-					this.setProjectViaFile(lastProject);
-				}
+		this.isLooping = localStorage.getItem('sparkLoop') === 'true';
+
+		let project = null;
+		const saved = new LocalStorageHandler().getItem('currentProject');
+		if (saved) {
+			try {
+				project = normalizeProject(saved);
+			} catch (e) {
+				console.warn('Model.init(): could not restore autosaved project', e);
 			}
+		}
+		this.load(project || createDemoProject(), { remember: false });
+	}
+
+	// ____________________________________ project lifecycle ____________________________________
+
+	load(project, { remember = true } = {}) {
+		this.stop();
+		ProjectVars = project;
+		this.currentFrame = 1;
+		this.selectedLayerId = null;
+		this.undoStack = [];
+		this.redoStack = [];
+		if (remember) this.storeProjectFile();
+		this.autosave();
+		this.updateTitle();
+		this.notify('structure');
+		new Menu().refreshRecentFiles();
+	}
+
+	openProjectText(text) {
+		try {
+			this.load(normalizeProject(text));
 		} catch (e) {
-			if (this.IS_DEBUG) console.warn('Model.init(): could not restore last project', e);
+			alert(`Could not open project: ${e.message}`);
 		}
-
 	}
 
-	setup() {
-		if (this.IS_DEBUG) console.info(`new Model().setup`);
+	importSvgText(text, fileName) {
+		try {
+			this.load(importSvgProject(text, fileName));
+		} catch (e) {
+			alert(`Could not import SVG: ${e.message}`);
+		}
 	}
 
-	/**
-	 * get file from browser, is string, want to use then convert to json
-	 *
-	 * @param {*} jsonString
-	 */
-	setProjectViaFile(jsonString) {
-		console.clear();
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('Model.setProjectViaFile(....)');
-			console.log(jsonString);
-			console.groupEnd();
-		}
+	newProject({ width, height }) {
+		this.load(createProject({ width, height }), { remember: false });
+	}
 
+	/** Keep the last 5 opened projects for File > Open Recent. */
+	storeProjectFile() {
+		const local = new LocalStorageHandler();
+		const list = local.getItem('projectFiles') || [];
+		list.push(JSON.stringify(ProjectVars));
+		while (list.length > 5) list.shift();
+		local.setItem('projectFiles', list);
+	}
 
-		this.file(jsonString);
+	autosave() {
+		clearTimeout(this._autosaveTimer);
+		this._autosaveTimer = setTimeout(() => new LocalStorageHandler().setItem('currentProject', ProjectVars), 300);
+	}
 
-		if (this.IS_DEBUG) console.log(ProjectVars.exportName);
-
-		// update calculated
-		// convert project file to ProjectVars
-		new Inter().calculatedFramesFromProjectVars();
-
-		// store files
-		this.storeProjectFile(jsonString);
-
-		// Update navbar filename badge and page title
-		const displayName = ProjectVars.exportName || ProjectVars.projectName || 'project';
-		const fileLabel = displayName.endsWith('.json') ? displayName : displayName + '.json';
+	updateTitle() {
+		const fileLabel = `${ProjectVars.exportName || 'project'}.json`;
 		const nameEl = document.getElementById('currentFileName');
 		if (nameEl) nameEl.textContent = fileLabel;
 		document.title = `⚡ ${fileLabel} — Spark Studio`;
 		localStorage.setItem('sparkLastFile', JSON.stringify({ name: fileLabel, opened: Date.now() }));
-
-		// Canvas.setSvg(svgElement);
-		new Canvas().projectFile();
-
-		// Timeline.setSvg(svgElement);
-		new Timeline().projectFile();
-
-		// new Properties().setSvg(svgElement); // not sure this is usefull
-		new Properties().projectFile();
 	}
 
 	/**
-	 * bewaar alle files in local storage
-	 * @param {*} json
+	 * structure: layers/content/document changed -> rebuild everything
+	 * animation: keyframes changed -> re-render stage, rebuild timeline
+	 * frame: playhead moved
+	 * selection: selected layer changed
 	 */
-	storeProjectFile(json) {
-		// store a list of items
-		let local = new LocalStorageHandler();
-		let projectFilesArray = local.getItem('projectFiles');
-		// if (this.IS_DEBUG) console.log(projectFilesArray);
-		if (!projectFilesArray) projectFilesArray = [];
-		// if (this.IS_DEBUG) console.log(projectFilesArray);
-
-		projectFilesArray.push(json);
-		// Remove the oldest item if the array length exceeds 5
-		if (projectFilesArray.length > 5) {
-			projectFilesArray.shift(); // remove the first item
+	notify(type) {
+		const canvas = new Canvas();
+		const timeline = new Timeline();
+		const properties = new Properties();
+		switch (type) {
+			case 'structure': canvas.build(); timeline.build(); properties.build(); break;
+			case 'animation': canvas.render(); timeline.build(); properties.build(); break;
+			case 'frame': canvas.render(); timeline.updatePlayhead(); properties.refresh(); break;
+			case 'selection': canvas.updateSelection(); timeline.updateSelection(); properties.build(); break;
 		}
-		// if (this.IS_DEBUG) console.log(projectFilesArray);
-		local.setItem('projectFiles', projectFilesArray);
+		new CanvasMenu().update();
 	}
 
+	// ____________________________________ undo ____________________________________
 
-	/**
-	 * convert project file to ProjectVars
-	 *
-	 * @param {*} jsonString
-	 */
-	file(jsonString) {
-
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('Model.file(..)');
-			console.log('jsonString');
-			console.log(jsonString);
-			console.groupEnd();
-		}
-
-		// Check if data is a string
-		if (typeof jsonString !== 'string') {
-			if (this.IS_DEBUG) console.warn('The jsonString is not a string.');
-			jsonString = JSON.stringify(jsonString)
-
-			if (this.IS_DEBUG) {
-				console.groupCollapsed('JSON.parse - jsonString');
-				console.log(jsonString);
-				console.groupEnd();
-			}
-		}
-
-		// Parse the JSON string
-		const json = JSON.parse(jsonString);
-
-		if (this.IS_DEBUG) {
-			console.groupCollapsed(`json - "${json.exportName}"`);
-			console.log(json);
-			console.groupEnd();
-		}
-
-		// Validate project file
-		new Inter().validateAndCorrectProjectFile(json);
-
-		// Extract basic project information
-		const exportName = json.exportName;
-		const projectName = json.projectName;
-		const creationDate = json.creationDate;
-		const description = json.description;
-		const version = json.version;
-		const width = json.width;
-		const height = json.height;
-		const frameRate = json.frameRate;
-		const frameLength = json.frameLength;
-
-		const time = (json.frameLength / json.frameRate);
-		let calculated = json.calculated;
-
-		if (json.calculated) {
-			if (this.IS_DEBUG) console.log('calculated.length: ' + json.calculated.length);
-		} else {
-			calculated = [];
-		}
-
-
-
-		// Extract frame data
-		const frames = json.frames.map(frame => ({
-			frameNumber: frame.frameNumber,
-			svg: frame.svg,
-			keyframe: frame.keyframe,
-			tween: frame.tween
-		}));
-
-
-		ProjectVars.exportName = exportName;
-		ProjectVars.projectName = projectName;
-		ProjectVars.creationDate = creationDate;
-		ProjectVars.description = description;
-		ProjectVars.version = version;
-		ProjectVars.width = width;
-		ProjectVars.height = height;
-		ProjectVars.frameRate = frameRate;
-		ProjectVars.frameLength = frameLength;
-		ProjectVars.time = time; // calculate
-		ProjectVars.frames = frames;
-		ProjectVars.calculated = calculated; // calculate
-
-		if (this.IS_DEBUG) {
-			console.groupCollapsed(`ProjectVars - "${ProjectVars.exportName}"`);
-			console.log(ProjectVars);
-			console.groupEnd('ProjectVars');
-		}
-
+	/** Call before every mutation of ProjectVars. */
+	snapshot() {
+		this.undoStack.push(JSON.stringify(ProjectVars));
+		if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
+		this.redoStack = [];
 	}
 
-
-	setSvgString2Element(svgString) {
-		// Parse the string to create a document fragment
-		const parser = new DOMParser();
-		const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-		const svgElement = svgDoc.querySelector('svg');
-		this.setProjectViaSvgElement(svgElement);
+	/** Call after every mutation of ProjectVars. */
+	changed(type) {
+		this.autosave();
+		this.notify(type);
 	}
 
-	setSvg(data) {
-		if (this.IS_DEBUG) console.info('> setSvg');
-		if (this.IS_DEBUG) console.info(data);
+	undo() { this.restoreFrom(this.undoStack, this.redoStack); }
 
-		// Check if data is a string
-		if (typeof data !== 'string') {
-			if (this.IS_DEBUG) console.log('The data is not a string.');
-			const serializer = new XMLSerializer();
-			data = serializer.serializeToString(data);
-			if (this.IS_DEBUG) console.log(data);
-		}
+	redo() { this.restoreFrom(this.redoStack, this.undoStack); }
 
-
-		// Parse the string to create a document fragment
-		const parser = new DOMParser();
-		const svgDoc = parser.parseFromString(data, 'image/svg+xml');
-		const svgElement = svgDoc.querySelector('svg');
-		if (svgElement) {
-			ProjectVars.width = parseInt(svgElement.getAttribute('width')) || 600;
-			ProjectVars.height = parseInt(svgElement.getAttribute('height')) || 400;
-			ProjectVars.creationDate = new Date().toLocaleDateString();
-			ProjectVars.frames = [
-				{
-					"frameNumber": 1,
-					"svg": data,
-					"tween": "linear",
-					"keyframe": true
-				}];
-			ProjectVars.calculated = [
-				{
-					"frameNumber": 1,
-					"svg": data,
-				}];
-		}
-		if (this.IS_DEBUG) console.log(ProjectVars);
+	restoreFrom(from, to) {
+		if (from.length === 0) return;
+		this.stop();
+		to.push(JSON.stringify(ProjectVars));
+		ProjectVars = JSON.parse(from.pop());
+		if (!this.getLayer()) this.selectedLayerId = null;
+		this.currentFrame = Math.min(this.currentFrame, ProjectVars.frameLength);
+		this.changed('structure');
 	}
 
+	// ____________________________________ frame & selection ____________________________________
 
-	// cleanupSvg(svgElement) {
-	// 	if (this.IS_DEBUG) console.log('WIP new Model().cleanupSvg');
-	// 	// - [ ] fix missing id
-	// 	// - [ ] remove comment?
-	// 	// - [ ] add viewbox
-	// 	return svgElement
-	// }
-
-	/**\
-	 *
-	 * haal info uit de svg die we kunnen gebruiken voor projectvars
-	 * - width
-	 * - height
-	 */
-	convertSvgElement2SparkzProjectVars(svgElement) {
-		if (this.IS_DEBUG) console.groupCollapsed('Model.convertSvgElement2SparkzProjectVars');
-		if (svgElement) {
-			ProjectVars.width = parseInt(svgElement.getAttribute('width')) || Defaults.width;
-			ProjectVars.height = parseInt(svgElement.getAttribute('height')) || Defaults.height;
-			ProjectVars.creationDate = new Date().toISOString();
-			ProjectVars.frames = [
-				{
-					"frameNumber": 1,
-					"svg": new XMLSerializer().serializeToString(svgElement),
-					"tween": "linear",
-					"keyframe": true
-				}];
-			ProjectVars.calculated = [
-				{
-					"frameNumber": 1,
-					"svg": new XMLSerializer().serializeToString(svgElement),
-				}];
-			if (this.IS_DEBUG) console.log('frames: ' + JSON.stringify(ProjectVars.frames));
-			if (this.IS_DEBUG) console.log('calculated: ' + JSON.stringify(ProjectVars.calculated));
-			if (this.IS_DEBUG) console.log(ProjectVars);
-		}
-		if (this.IS_DEBUG) console.groupEnd();
+	getLayer(id = this.selectedLayerId) {
+		return ProjectVars.layers.find((l) => l.id === id) || null;
 	}
 
-	/**
-	 * Set up project file using defaults  values
-	*/
-	defaultSparkzProjectVars() {
-
-		// // use default values
-		// ProjectVars.exportName = Defaults.exportName;
-		// ProjectVars.projectName = Defaults.projectName;
-		// ProjectVars.creationDate = new Date().toISOString(); // calculate
-		// ProjectVars.description = Defaults.description;
-		// ProjectVars.version = Defaults.version;
-		// ProjectVars.width = Defaults.width;
-		// ProjectVars.height = Defaults.height;
-		// ProjectVars.frameRate = Defaults.frameRate;
-		// ProjectVars.frameLength = Defaults.frameLength;
-		// ProjectVars.time = Defaults.time;
-		// ProjectVars.frames = Defaults.frames;
-		// ProjectVars.calculated = Defaults.calculated; // calculate
-
-
-		// Create a deep copy of Defaults
-		ProjectVars = JSON.parse(JSON.stringify(Defaults));
-
-		// Modify the properties that need to be calculated
-		ProjectVars.creationDate = new Date().toISOString();
-		ProjectVars.time = ProjectVars.frameLength / ProjectVars.frameRate;// calculate time
-		// ProjectVars.calculated = calculateFrames(ProjectVars.frames);
-
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('Model.defaultSparkzProjectVars()');
-			console.log('Defaults');
-			console.log(Defaults);
-			console.log(Defaults.frames);
-			console.log(Defaults.calculated);
-			console.log('ProjectVars');
-			console.log(ProjectVars);
-			console.log(ProjectVars.frames);
-			console.log(ProjectVars.calculated);
-			console.groupEnd();
-		}
+	setFrame(frame) {
+		const f = Math.max(1, Math.min(ProjectVars.frameLength, Math.round(frame)));
+		if (f === this.currentFrame) return;
+		this.currentFrame = f;
+		this.notify('frame');
 	}
 
-	setProjectViaSvgElement(svgElement) {
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('Model.setProjectViaSvgElement(..)');
-			console.log(svgElement);
-			console.groupEnd();
-		}
-		// const svgContainer = document.getElementById(Globals.svgContainerID);
-		// Append SVG to container
-		// svgContainer.appendChild(svgElement);
-		if (!svgElement) return;
-
-		// // cleanup svg
-		// svgElement = this.cleanupSvg(svgElement);
-
-		// set in projectfile
-		this.defaultSparkzProjectVars();
-		// console.log('1. ------------------------------');
-		// console.log(ProjectVars);
-		// console.log(ProjectVars.calculated.length);
-
-		this.convertSvgElement2SparkzProjectVars(svgElement);
-
-		// console.log('2. ------------------------------');
-		// console.log(ProjectVars);
-		// console.log(ProjectVars.calculated);
-		// console.log(ProjectVars.calculated.length);
-
-		this.file(ProjectVars);
-
-		// console.log('3. ------------------------------');
-		// console.log(ProjectVars);
-		// console.log(ProjectVars.calculated);
-		// console.log(ProjectVars.calculated.length);
-
-		// set in canvas
-		new Canvas().setSvg(svgElement);
-		// set in timeline
-		new Timeline().setSvg(svgElement);
-		// set in properties
-		new Properties().setSvg(svgElement); // not sure this is usefull
-		new Properties().projectFile(); // usefull
+	select(layerId) {
+		if (layerId === this.selectedLayerId) return;
+		this.selectedLayerId = layerId;
+		this.notify('selection');
 	}
 
-	update() {
-		if (this.IS_DEBUG) console.log('update');
-		new Canvas().update();
-		new Timeline().update();
-		new Properties().update();
-	}
+	nextFrame() { this.stop(); this.setFrame(this.currentFrame + 1); }
 
-	play(isLooping = false) {
-		if (this.IS_DEBUG) console.log(`new Model().play (isLooping=${isLooping})`);
-		if (!ProjectVars.calculated || ProjectVars.calculated.length === 0) {
-			new Inter().calculatedFramesFromProjectVars();
-		}
-		const container = document.getElementById('svg-container');
-		const intervalMs = 1000 / ProjectVars.frameRate;
-		let frameIndex = 0;
-		this._playInterval = setInterval(() => {
-			if (frameIndex >= ProjectVars.calculated.length) {
-				if (isLooping) {
-					frameIndex = 0; // loop back to start
-				} else {
-					clearInterval(this._playInterval);
-					this._playInterval = null;
-					document.dispatchEvent(new CustomEvent('playbackEnded'));
-					return;
-				}
-			}
-			const frame = ProjectVars.calculated[frameIndex];
-			if (frame && frame.svg) {
-				container.innerHTML = frame.svg;
-			}			// update playhead display
-			document.dispatchEvent(new CustomEvent('playheadMoved', {
-				detail: { frame: frameIndex + 1, total: ProjectVars.calculated.length }
-			}));			frameIndex++;
-		}, intervalMs);
-	}
+	prevFrame() { this.stop(); this.setFrame(this.currentFrame - 1); }
 
-	stop() {
-		if (this.IS_DEBUG) console.log('new Model().stop');
-		if (this._playInterval) {
-			clearInterval(this._playInterval);
-			this._playInterval = null;
-		}
+	/** Keyframe frames of the selected layer, or of all layers when nothing is selected. */
+	keyframeFrames() {
+		const layers = this.getLayer() ? [this.getLayer()] : ProjectVars.layers;
+		return [...new Set(layers.flatMap((l) => l.keyframes.map((k) => k.frame)))].sort((a, b) => a - b);
 	}
 
 	nextKeyframe() {
-		if (this.IS_DEBUG) console.log('new Model().nextKeyframe');
+		this.stop();
+		const next = this.keyframeFrames().find((f) => f > this.currentFrame);
+		this.setFrame(next ?? ProjectVars.frameLength);
 	}
 
 	previousKeyframe() {
-		if (this.IS_DEBUG) console.log('new Model().previousKeyframe');
+		this.stop();
+		const prev = this.keyframeFrames().reverse().find((f) => f < this.currentFrame);
+		this.setFrame(prev ?? 1);
+	}
+
+	// ____________________________________ playback ____________________________________
+
+	play() {
+		if (this.isPlaying) return;
+		this.isPlaying = true;
+		if (this.currentFrame >= ProjectVars.frameLength) this.setFrame(1);
+		const interval = 1000 / ProjectVars.frameRate;
+		let last = performance.now();
+		const tick = (now) => {
+			if (!this.isPlaying) return;
+			if (now - last >= interval) {
+				last += interval * Math.floor((now - last) / interval);
+				let next = this.currentFrame + 1;
+				if (next > ProjectVars.frameLength) {
+					if (!this.isLooping) { this.stop(); return; }
+					next = 1;
+				}
+				this.setFrame(next);
+			}
+			this._raf = requestAnimationFrame(tick);
+		};
+		this._raf = requestAnimationFrame(tick);
+		new CanvasMenu().update();
+	}
+
+	stop() {
+		if (!this.isPlaying) return;
+		this.isPlaying = false;
+		cancelAnimationFrame(this._raf);
+		new CanvasMenu().update();
+	}
+
+	togglePlay() {
+		if (this.isPlaying) this.stop();
+		else this.play();
 	}
 
 	loop(isLoop) {
-		if (this.IS_DEBUG) console.log(`new Model().loop (${isLoop})`);
+		this.isLooping = isLoop;
+		localStorage.setItem('sparkLoop', isLoop);
+		new CanvasMenu().update();
 	}
+
+	// ____________________________________ layers ____________________________________
+
+	nextLayerName(base = 'Layer') {
+		let n = 1;
+		while (ProjectVars.layers.some((l) => l.name === `${base} ${n}`)) n++;
+		return `${base} ${n}`;
+	}
+
+	/** New layer above the selected one (Flash behaviour), with a keyframe on frame 1. */
+	addLayer({ name, content = '' } = {}) {
+		this.snapshot();
+		const layer = createLayer({ name: name || this.nextLayerName(), content });
+		const index = Math.max(0, ProjectVars.layers.findIndex((l) => l.id === this.selectedLayerId));
+		ProjectVars.layers.splice(index, 0, layer);
+		this.selectedLayerId = layer.id;
+		this.changed('structure');
+		return layer;
+	}
+
+	/** Drawing tools: draw into the selected layer when it is still empty, otherwise make a new layer. */
+	addShape(name, markup) {
+		const layer = this.getLayer();
+		if (layer && !layer.content.trim() && !layer.locked) {
+			this.snapshot();
+			layer.content = markup;
+			layer.cx = layer.cy = null;
+			this.changed('structure');
+			return;
+		}
+		this.addLayer({ name: this.nextLayerName(name), content: markup });
+	}
+
+	deleteLayer(id = this.selectedLayerId) {
+		const index = ProjectVars.layers.findIndex((l) => l.id === id);
+		if (index < 0 || ProjectVars.layers.length <= 1) return;
+		this.snapshot();
+		ProjectVars.layers.splice(index, 1);
+		const neighbour = ProjectVars.layers[Math.min(index, ProjectVars.layers.length - 1)];
+		this.selectedLayerId = neighbour ? neighbour.id : null;
+		this.changed('structure');
+	}
+
+	/** direction -1 = up (towards the front), +1 = down. */
+	moveLayer(direction, id = this.selectedLayerId) {
+		const layers = ProjectVars.layers;
+		const index = layers.findIndex((l) => l.id === id);
+		const target = index + direction;
+		if (index < 0 || target < 0 || target >= layers.length) return;
+		this.snapshot();
+		[layers[index], layers[target]] = [layers[target], layers[index]];
+		this.changed('structure');
+	}
+
+	duplicateLayer(id = this.selectedLayerId) {
+		const layer = this.getLayer(id);
+		if (!layer) return;
+		this.snapshot();
+		const copy = JSON.parse(JSON.stringify(layer));
+		copy.id = createLayer().id;
+		copy.name = `${layer.name} copy`;
+		ProjectVars.layers.splice(ProjectVars.layers.indexOf(layer), 0, copy);
+		this.selectedLayerId = copy.id;
+		this.changed('structure');
+	}
+
+	renameLayer(id, name) {
+		const layer = this.getLayer(id);
+		if (!layer || !name || layer.name === name) return;
+		this.snapshot();
+		layer.name = name;
+		this.changed('animation');
+	}
+
+	toggleLayerFlag(id, flag) {
+		const layer = this.getLayer(id);
+		if (!layer) return;
+		layer[flag] = !layer[flag];
+		this.changed('animation');
+	}
+
+	distributeToLayers(id = this.selectedLayerId) {
+		const layer = this.getLayer(id);
+		if (!layer) return;
+		const parts = splitLayerContent(layer);
+		if (parts.length < 2) {
+			alert('This layer has only one object; nothing to distribute.');
+			return;
+		}
+		this.snapshot();
+		const newLayers = parts.map((p) => {
+			const l = createLayer({ name: p.name, content: p.content });
+			l.keyframes = JSON.parse(JSON.stringify(layer.keyframes));
+			return l;
+		}).reverse();
+		ProjectVars.layers.splice(ProjectVars.layers.indexOf(layer), 1, ...newLayers);
+		this.selectedLayerId = newLayers[0].id;
+		this.changed('structure');
+	}
+
+	// ____________________________________ keyframes ____________________________________
+
+	/** F6 (keyframe) / F7 (blank keyframe) on the selected layer at the current frame. */
+	insertKeyframe({ blank = false } = {}) {
+		const layer = this.getLayer();
+		if (!layer) return;
+		const frame = this.currentFrame;
+		const existing = keyframeAt(layer, frame);
+		if (existing && existing.blank === blank) return;
+		this.snapshot();
+		if (existing) {
+			existing.blank = blank;
+		} else {
+			const prev = governingKeyframe(layer, frame);
+			const state = getLayerState(layer, frame) || (prev ? pickState(prev) : DEFAULT_STATE);
+			layer.keyframes.push(createKeyframe(frame, state, { blank, tween: !blank && !!prev?.tween, ease: prev?.ease || 0 }));
+			sortKeyframes(layer);
+		}
+		this.changed('animation');
+	}
+
+	/** Shift+F6: remove the keyframe at the current frame (a layer always keeps one). */
+	clearKeyframe() {
+		const layer = this.getLayer();
+		const kf = layer && keyframeAt(layer, this.currentFrame);
+		if (!kf || layer.keyframes.length <= 1) return;
+		this.snapshot();
+		layer.keyframes.splice(layer.keyframes.indexOf(kf), 1);
+		this.changed('animation');
+	}
+
+	/** Change the tween settings of the keyframe span the playhead is in. */
+	setTween({ tween, ease }) {
+		const layer = this.getLayer();
+		const kf = layer && governingKeyframe(layer, this.currentFrame);
+		if (!kf) return;
+		this.snapshot();
+		if (tween !== undefined) kf.tween = tween;
+		if (ease !== undefined) kf.ease = Math.max(-100, Math.min(100, ease));
+		this.changed('animation');
+	}
+
+	toggleTween() {
+		const layer = this.getLayer();
+		const kf = layer && governingKeyframe(layer, this.currentFrame);
+		if (kf) this.setTween({ tween: !kf.tween });
+	}
+
+	/**
+	 * Set x/y/sx/sy/rot/alpha of a layer at the current frame.
+	 * Without a keyframe here one is created and the span before it becomes a motion tween.
+	 */
+	setLayerProps(id, props) {
+		const layer = this.getLayer(id);
+		if (!layer) return;
+		const frame = this.currentFrame;
+		const state = getLayerState(layer, frame);
+		if (!state) return;
+		this.snapshot();
+		let kf = keyframeAt(layer, frame);
+		if (!kf) {
+			const prev = governingKeyframe(layer, frame);
+			kf = createKeyframe(frame, state, { tween: prev.tween, ease: prev.ease });
+			prev.tween = true;
+			layer.keyframes.push(kf);
+			sortKeyframes(layer);
+		}
+		Object.assign(kf, pickState(props));
+		this.changed('animation');
+	}
+
+	// ____________________________________ document ____________________________________
+
+	setDocument(props) {
+		this.snapshot();
+		const p = ProjectVars;
+		const [vx, vy, vw, vh] = p.viewBox;
+		const followsSize = vx === 0 && vy === 0 && vw === p.width && vh === p.height;
+		for (const key of ['projectName', 'exportName', 'background']) {
+			if (props[key] !== undefined) p[key] = String(props[key]);
+		}
+		for (const key of ['width', 'height', 'frameRate', 'frameLength']) {
+			const v = Math.round(Number(props[key]));
+			if (props[key] !== undefined && Number.isFinite(v) && v >= 1) p[key] = v;
+		}
+		if (followsSize) p.viewBox = [0, 0, p.width, p.height];
+		this.currentFrame = Math.min(this.currentFrame, p.frameLength);
+		this.updateTitle();
+		this.changed('structure');
+	}
+
+	// ____________________________________ file menu ____________________________________
 
 	newFile() {
-		if (this.IS_DEBUG) console.log('new Model().newFile');
-		const modal = new bootstrap.Modal(document.getElementById('svgPropertiesModal'));
+		const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('svgPropertiesModal'));
 		modal.show();
-	}
-
-	saveFile() {
-		if (this.IS_DEBUG) console.log('new Model().saveFile');
-		new Export().file();
-	}
-
-	saveAsFile() {
-		if (this.IS_DEBUG) console.log('WIP New Model().saveAsFile');
-	}
-
-	closeFile() {
-		if (this.IS_DEBUG) console.log('WIP New Model().closeFile');
-	}
-
-	exportFile() {
-		if (this.IS_DEBUG) console.log('new Model().exportFile');
-		new Export().image();
 	}
 
 	openFile() {
-		if (this.IS_DEBUG) console.log('WIP new Model().openFile');
-		let el = document.getElementById('openFileInput3');
-		el.click();
+		document.getElementById('openFileInput3').click();
 	}
 
 	importFile() {
-		if (this.IS_DEBUG) console.log('WIP new Model().importFile');
-		// new Export().image();
-		let el = document.getElementById('importFile3');
-		el.click();
+		document.getElementById('importFile3').click();
+	}
+
+	saveFile() {
+		new Export().file();
+	}
+
+	saveAsFile() { }
+
+	closeFile() { }
+
+	exportFile() {
+		new Export().image();
 	}
 
 	exportMovie() {
-		if (this.IS_DEBUG) console.log('new Model().exportMovie');
-		const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
-		modal.show();
-		new ExportVideo().initVideoRenderCanvas();
+		this.stop();
+		new ExportVideo().open();
 	}
-
-
 }

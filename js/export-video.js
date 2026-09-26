@@ -1,460 +1,185 @@
-import { Inter } from './inter.js';
 import { Model, ProjectVars } from './model/model.js';
+import { renderFrameSvg } from './model/project.js';
 
+// Loaded on demand; vendor this file when packaging the desktop app for offline use.
+const MEDIABUNNY_URL = 'https://cdn.jsdelivr.net/npm/mediabunny@1.60.0/+esm';
+
+const FORMATS = [
+	{ id: 'mp4', label: 'MP4 (H.264)', codec: 'avc', ext: 'mp4', mime: 'video/mp4' },
+	{ id: 'webm-vp9', label: 'WebM (VP9)', codec: 'vp9', ext: 'webm', mime: 'video/webm' },
+	{ id: 'webm-vp8', label: 'WebM (VP8)', codec: 'vp8', ext: 'webm', mime: 'video/webm' },
+];
+
+/**
+ * Frame-exact video export: every frame is rendered to a canvas and encoded with WebCodecs,
+ * so the result does not depend on playback speed (unlike MediaRecorder).
+ */
 export class ExportVideo {
 
-	ctx;
-	mediaRecorder;
-	recordedChunks = [];
-	frameIndex = 0;
-	animationInterval;
-	lastValidFrame = null; // To store the last valid frame
-	imageArray = [];
-	previewKeyframeIndex = 0;
-	lastBlobUrl = null;
-	exportIsLooping = false;
+	IS_DEBUG = false;
 
-	IS_DEBUG = true;
+	rendering = false;
+	cancelled = false;
+	lastBlobUrl = null;
+	lastFileName = null;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info(`ExportVideo constructor export-video.js -- isSingleton: ${ExportVideo.instance != null}`);
-		if (ExportVideo.instance) {
-			return ExportVideo.instance;
-		}
+		if (ExportVideo.instance) return ExportVideo.instance;
 		ExportVideo.instance = this;
-
-		// Initialize any properties
-		this.data = "I am a singleton";
-
-
-		const canvas = document.getElementById("canvas");
-		this.ctx = canvas.getContext("2d");
-
-
-		this.setup(); // start up again..
-
-		this.isCodecSupportedList(); // test of de codec werken
-
-		// Initialize the canvas with the first SVG
-		this.initVideoRenderCanvas();
 	}
 
-	getData() {
-		return this.data;
+	init() {
+		this.modalEl = document.getElementById('exampleModal');
+		this.canvas = document.getElementById('canvas');
+		this.ctx = this.canvas.getContext('2d');
+		this.formatSelect = document.getElementById('exportFormat');
+		this.statusEl = document.getElementById('exportStatus');
+		this.renderBtn = document.getElementById('renderVideo');
+		this.cancelBtn = document.getElementById('cancelRender');
+		this.saveBtn = document.getElementById('confirmExport');
+
+		this.renderBtn.addEventListener('click', () => this.render());
+		this.cancelBtn.addEventListener('click', () => { this.cancelled = true; });
+		this.saveBtn.addEventListener('click', () => this.download());
+		this.modalEl.addEventListener('hide.bs.modal', () => { this.cancelled = true; });
 	}
 
-	setData(newData) {
-		this.data = newData;
+	async open() {
+		bootstrap.Modal.getOrCreateInstance(this.modalEl).show();
+		this.setProgress(0);
+		this.saveBtn.disabled = !this.lastBlobUrl;
+		const p = ProjectVars;
+		document.getElementById('exportInfo').textContent =
+			`${even(p.width)}×${even(p.height)} px, ${p.frameRate} fps, ${p.frameLength} frames (${(p.frameLength / p.frameRate).toFixed(2)} s)`;
+		this.canvas.width = even(p.width);
+		this.canvas.height = even(p.height);
+		await this.drawFrame(new Model().currentFrame);
+		await this.populateFormats();
 	}
 
-	/**
-	 * @deprecated
-	 */
-	init() { console.warn('ExportVideo.init() <- deprecated'); }
-
-	/**
-	 * a helper to get the video settings
-	 */
-	isCodecSupportedList() {
-		const mimeTypes = [
-			// video
-			'video/webm',
-			'video/webm;codecs=vp8',
-			'video/webm;codecs=vp9',
-			'video/webm;codecs=vp9.0',
-			'video/webm;codecs=h264',
-			'video/webm;codecs=av1',
-			"video/webm;codecs=daala",
-			'video/mp4',
-			// audio
-			'audio/webm',
-			'audio/webm;codecs=opus',
-			'audio/webm;codecs=vorbis',
-			'audio/mp4',
-		];
-
-		if (this.IS_DEBUG) console.groupCollapsed('Is Codec supported?');
-		mimeTypes.forEach((mimeType) => {
-			const isSupported = this.isCodecSupported(mimeType);
-			if (this.IS_DEBUG) console.log(`${mimeType}: ${isSupported ? 'Supported' : 'Not Supported'}`);
-		});
-		if (this.IS_DEBUG) console.groupEnd();
-
-	}
-
-	/**
-	 * setup UX (buttons and the clicks for the buttons)
-	 */
-	setup() {
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('ExportVideo.setup()');
-			console.groupEnd();
-		}
-		this.startRecording = this.startRecording.bind(this);
-		this.stopRecording = this.stopRecording.bind(this);
-		this.confirmExport = this.confirmExport.bind(this);
-		this.startCanvasAnimation = this.startCanvasAnimation.bind(this);
-		this.stopCanvasAnimation = this.stopCanvasAnimation.bind(this);
-
-		const startRecordingButton = document.getElementById("startRecording");
-		const stopRecordingButton = document.getElementById("stopRecording");
-		const confirmExportButton = document.getElementById("confirmExport");
-		const prevKeyframeButton = document.getElementById("exportPrevKeyframe");
-		const nextKeyframeButton = document.getElementById("exportNextKeyframe");
-		const toggleLoopButton = document.getElementById("exportToggleLoop");
-
-		startRecordingButton.addEventListener("click", this.startRecording);
-		stopRecordingButton.addEventListener("click", this.stopRecording);
-		confirmExportButton.addEventListener("click", this.confirmExport);
-
-		prevKeyframeButton?.addEventListener("click", () => this.previewKeyframe(-1));
-		nextKeyframeButton?.addEventListener("click", () => this.previewKeyframe(1));
-		toggleLoopButton?.addEventListener("click", () => {
-			this.exportIsLooping = !this.exportIsLooping;
-			toggleLoopButton.classList.toggle('active', this.exportIsLooping);
-		});
-	}
-
-	/**
-	 * set up the first frame of the export preview modal (pure astectics)
-	 */
-	initVideoRenderCanvas() {
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('ExportVideo.initializeCanvas()');
-			console.log(ProjectVars);
-			console.groupEnd();
-		}
-
-		this.reset();
-		this.updateProgressBar();
-
-		// Set canvas dimensions
-		const canvas = document.getElementById("canvas");
-		canvas.width = ProjectVars.width;
-		canvas.height = ProjectVars.height;
-
-		if (this.IS_DEBUG) {
-			console.groupCollapsed('ProjectVars.projectName: ' + ProjectVars.projectName);
-			console.log('ProjectVars.frames.length: ' + ProjectVars.frames.length);
-			console.log('ProjectVars.calculated.length: ' + ProjectVars.calculated.length);
-			console.groupEnd();
-		}
-
-
-		// don't need that for the export first frame
-
-		// if (this.IS_DEBUG) console.log('--> preRenderSVGs');
-		// this.preRenderSVGs(ProjectVars.calculated, () => {
-		// 	if (this.IS_DEBUG) console.log('ExportVideo.initializeCanvas(): Renders ready!');
-		// 	if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
-		// 	if (this.IS_DEBUG) console.warn('this.recordedChunks.length: ' + this.recordedChunks.length);
-		// });
-		// if (this.IS_DEBUG) console.log('preRenderSVGs -->');
-
-		if (ProjectVars.frames && ProjectVars.frames.length > 0) {
-			if (this.IS_DEBUG) console.log('Use frame with first svg');
-			const firstFrame = ProjectVars.frames[0];
-			this.drawSVG(firstFrame.svg, () => { }); // Draw the first frame's SVG
-		} else {
-			if (this.IS_DEBUG) console.error("No frames found in ProjectVars!");
-		}
-	}
-
-	/**
-	 * improve the load for svg new Export().image() ?????
-	 * to draw SVG onto canvas
-	 *
-	 * @param {*} svg
-	 * @param {*} callback
-	 */
-	drawSVG(svg, callback) {
-		const svgBlob = new Blob([svg], { type: "image/svg+xml" });
-		const url = URL.createObjectURL(svgBlob);
-		const img = new Image();
-		img.onload = () => {
-			this.ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-			this.ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the SVG
-			URL.revokeObjectURL(url); // Clean up the object URL
-			callback(img);
-		};
-		img.onerror = () => console.error("Image failed to load for:", svg);
-		img.src = url;
-	}
-
-	/**
-	 * Pre-render all SVGs and store in an array
-	 *
-	 * @param {*} frames
-	 * @param {*} callback
-	 */
-	preRenderSVGs(frames, callback) {
-		if (this.IS_DEBUG) console.log('ExportVideo().preRenderSVGs(...)');
-
-		// reset values
-		let loadedCount = 0;
-		this.imageArray = [];
-
-		if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
-
-		frames.forEach((frame, index) => {
-			this.drawSVG(frame.svg, (img) => {
-				this.imageArray[index] = img;
-				loadedCount++;
-
-				// console.groupCollapsed(`drawSVG--${index}`);
-				// console.log(frame);
-				// console.log(frame.svg);
-				// console.log(index);
-				// console.log(this.imageArray[index]);
-				// console.warn('this.imageArray.length: ' + this.imageArray.length);
-				// if (this.IS_DEBUG) console.log(`${loadedCount}/${frames.length}`);
-				// console.groupEnd('xxx');
-
-				if (loadedCount === frames.length) {
-					if (this.IS_DEBUG) console.log('All SVGs have been prerendered and stored.');
-					callback();
-				}
-			});
-		});
-	}
-
-	// Update the progress bar
-	updateProgressBar() {
-		const progress = ((this.frameIndex / ProjectVars.frameLength) * 100).toFixed(2);
-		const progressBar = document.querySelector(".progress-bar");
-		progressBar.style.width = `${progress}%`;
-		progressBar.textContent = `${progress}%`;
-	}
-
-	startCanvasAnimation() {
-		console.log(`ExportVideo().startCanvasAnimation()`);
-
-		console.warn('this.imageArray.length: ' + this.imageArray.length);
-
-		this.frameIndex = 0;
-		const intervalMs = 1000 / ProjectVars.frameRate; // Time per frame in milliseconds
-		const totalTime = (ProjectVars.frameLength / ProjectVars.frameRate).toFixed(2); // Total duration in seconds
-
-		this.animationInterval = setInterval(() => {
-			console.log('this.frameIndex/ProjectVars.frameLength: ' + this.frameIndex + "/" + ProjectVars.frameLength);
-
-			// Stop animation when the frameIndex exceeds the frameLength
-			if (this.frameIndex >= ProjectVars.frameLength) {
-				this.stopCanvasAnimation(); // Stop the animation interval
-				if (this.mediaRecorder && this.mediaRecorder.state === "recording") {
-					this.mediaRecorder.stop(); // Stop recording
-					if (this.IS_DEBUG) console.log("Recording stopped...");
-				}
-				return;
-			}
-
-			// Get the current frame image
-			let img = this.imageArray[this.frameIndex];
-
-			// If the current frame is null, use the last valid image
-			if (!img && this.lastValidFrame) {
-				// console.log('this.lastValidFrame');
-
-				img = this.lastValidFrame;
-			}
-
-			// If there is no valid frame, log an error and stop the animation
-			if (!img) {
-				if (this.IS_DEBUG) console.error(`No valid frame found at index: ${frameIndex}`);
-				this.stopCanvasAnimation();
-				return;
-			}
-
-			// Store the current frame if it's valid (not null)
-			if (img) {
-				this.lastValidFrame = img;
-			}
-
-			// Clear the canvas and always draw white background (prevents transparent video)
-			this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-			this.ctx.fillStyle = 'white';
-			this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-			// Draw the current frame (image)
-			this.ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-			// only visible in debug mode
-			if (this.IS_DEBUG) {
-				// Overlay frame information after the SVG is drawn
-				this.ctx.font = "20px Arial";
-				this.ctx.fillStyle = "red";
-				const currentTime = (this.frameIndex / ProjectVars.frameRate).toFixed(2); // Current time in seconds
-
-				// Text for Frame Info (draw after the SVG)
-				this.ctx.fillText(`Frame: ${this.frameIndex + 1}/${ProjectVars.frameLength}`, 20, 60);
-				this.ctx.fillText(`Frame Rate: ${ProjectVars.frameRate} FPS`, 20, 90);
-				this.ctx.fillText(`Time: ${currentTime}s / ${totalTime}s`, 20, 120);
-			}
-
-			// Update progress
-			this.frameIndex++;
-			this.updateProgressBar();
-		}, intervalMs);
-	}
-
-	stopCanvasAnimation() {
-		console.log('ExportVideo().stopCanvasAnimation()')
-		if (this.animationInterval) {
-			clearInterval(this.animationInterval);
-			this.reset();
-		}
-	}
-
-	/**
-	 * reset all the values to theres initial values
-	 */
-	reset() {
-		if (this.IS_DEBUG) console.log('ExportVideo().reset()');
-
-		this.animationInterval = null; // js interval func reference
-		this.imageArray = [];
-		this.recordedChunks = [];
-		this.frameIndex = 0; // start with 0
-	}
-
-	/**
-	 * Start recording the video
-	 * - reset?
-	 * - calculate the frames
-	 */
-	startRecording() {
-		if (this.IS_DEBUG) console.log('ExportVideo.startRecording()');
-
-		// start with the reset
-		this.reset();
-
-		// calculate the values
-		if (this.IS_DEBUG) console.log(ProjectVars);
-		new Inter().calculatedFramesFromProjectVars();
-		if (this.IS_DEBUG) console.log(ProjectVars);
-
-		// generate the this.imageArray.length
-
-		if (this.IS_DEBUG) console.log('--> preRenderSVGs');
-		this.preRenderSVGs(ProjectVars.calculated, () => {
-			if (this.IS_DEBUG) console.log('ExportVideo.initializeCanvas(): Renders ready!');
-			if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
-			if (this.IS_DEBUG) console.warn('this.recordedChunks.length: ' + this.recordedChunks.length);
-			if (this.IS_DEBUG) console.log('preRenderSVGs -->');
-			this.startMediaRecorder();
-		});
-
-
-	}
-
-	startMediaRecorder() {
-		if (this.IS_DEBUG) console.log('ExportVideo.startMediaRecorder()');
-		if (this.IS_DEBUG) console.warn('this.imageArray.length: ' + this.imageArray.length);
-
-		if (this.imageArray.length <= 1) {
-			if (this.IS_DEBUG) {
-				console.error("Not enough frames to start recording!");
-				alert('Not enough frames to start recording!');
-			}
+	async populateFormats() {
+		this.formatSelect.innerHTML = '';
+		if (!('VideoEncoder' in window)) {
+			this.setStatus('This browser cannot encode video (WebCodecs missing). Use a recent Chrome, Edge, Firefox or Safari.', 'danger');
+			this.renderBtn.disabled = true;
 			return;
 		}
-
-		const canvas = document.getElementById("canvas");
-		const canvasStream = canvas.captureStream(ProjectVars.frameRate); // Capture at project frame rate
-
-		// Firefox doesn't support vp9, so check and use the one Firefox supports
-		let options;
-		if (this.isCodecSupported('video/webm;codecs=vp9')) {
-			options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 1000000 };
-		} else if (this.isCodecSupported('video/webm;codecs=vp8')) {
-			options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1000000 };
-		} else {
-			console.error("No supported codec found. Recording might not work.");
+		this.setStatus('Checking available codecs…');
+		let mediabunny;
+		try {
+			mediabunny = await import(MEDIABUNNY_URL);
+		} catch (e) {
+			this.setStatus('Could not load the video encoder library (offline?).', 'danger');
+			this.renderBtn.disabled = true;
 			return;
 		}
-
-
-		this.mediaRecorder = new MediaRecorder(canvasStream, options);
-		this.mediaRecorder.ondataavailable = (event) => {
-			if (event.data.size > 0) {
-				this.recordedChunks.push(event.data);
+		const size = { width: even(ProjectVars.width), height: even(ProjectVars.height) };
+		for (const format of FORMATS) {
+			if (await mediabunny.canEncodeVideo(format.codec, size).catch(() => false)) {
+				this.formatSelect.add(new Option(format.label, format.id));
 			}
-		};
+		}
+		const saved = localStorage.getItem('sparkExportFormat');
+		if (saved && [...this.formatSelect.options].some((o) => o.value === saved)) this.formatSelect.value = saved;
+		this.renderBtn.disabled = this.formatSelect.options.length === 0;
+		this.setStatus(this.renderBtn.disabled ? 'No supported video codec found.' : 'Ready.', this.renderBtn.disabled ? 'danger' : 'muted');
+	}
 
-		this.mediaRecorder.onstop = () => {
-			const blob = new Blob(this.recordedChunks, { type: "video/webm" });
+	async drawFrame(frame) {
+		const url = URL.createObjectURL(new Blob([renderFrameSvg(ProjectVars, frame)], { type: 'image/svg+xml' }));
+		try {
+			const img = new Image();
+			img.src = url;
+			await img.decode();
+			this.ctx.fillStyle = ProjectVars.background || '#ffffff';
+			this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+			this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+		} finally {
+			URL.revokeObjectURL(url);
+		}
+	}
+
+	async render() {
+		if (this.rendering) return;
+		const format = FORMATS.find((f) => f.id === this.formatSelect.value);
+		if (!format) return;
+		localStorage.setItem('sparkExportFormat', format.id);
+
+		this.rendering = true;
+		this.cancelled = false;
+		this.renderBtn.disabled = this.saveBtn.disabled = this.formatSelect.disabled = true;
+		this.cancelBtn.disabled = false;
+
+		const p = ProjectVars;
+		const { Output, Mp4OutputFormat, WebMOutputFormat, BufferTarget, CanvasSource, Quality } = await import(MEDIABUNNY_URL);
+		this.canvas.width = even(p.width);
+		this.canvas.height = even(p.height);
+
+		const output = new Output({
+			format: format.ext === 'mp4' ? new Mp4OutputFormat({ fastStart: 'in-memory' }) : new WebMOutputFormat(),
+			target: new BufferTarget(),
+		});
+		const source = new CanvasSource(this.canvas, { codec: format.codec, quality: new Quality('high') });
+		output.addVideoTrack(source, { frameRate: p.frameRate });
+
+		try {
+			await output.start();
+			const duration = 1 / p.frameRate;
+			for (let frame = 1; frame <= p.frameLength; frame++) {
+				if (this.cancelled) throw new Error('cancelled');
+				await this.drawFrame(frame);
+				await source.add((frame - 1) * duration, duration);
+				this.setProgress(frame / p.frameLength);
+				this.setStatus(`Rendering frame ${frame} of ${p.frameLength}…`);
+			}
+			source.close();
+			await output.finalize();
+
+			const blob = new Blob([output.target.buffer], { type: format.mime });
+			if (this.lastBlobUrl) URL.revokeObjectURL(this.lastBlobUrl);
 			this.lastBlobUrl = URL.createObjectURL(blob);
-
-			// Auto-download
-			const a = document.createElement("a");
-			a.style.display = "none";
-			a.href = this.lastBlobUrl;
-			a.download = `${ProjectVars.exportName}.webm`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-
-			// Clean up chunks (keep lastBlobUrl for re-download via confirmExport)
-			this.recordedChunks = [];
-		};
-
-		console.warn('this.imageArray.length: ' + this.imageArray.length);
-
-		this.mediaRecorder.start();
-		this.startCanvasAnimation();
-
-		console.log("Recording started...");
-	}
-
-	/**
-	 * Stop recording
-	 */
-	stopRecording() {
-		this.stopCanvasAnimation();
-		if (this.mediaRecorder && this.mediaRecorder.state === "recording") {
-			this.mediaRecorder.stop();
-			if (this.IS_DEBUG) console.log("Recording stopped...");
+			this.lastFileName = `${p.exportName || 'spark-export'}.${format.ext}`;
+			this.setStatus(`Done: ${this.lastFileName}, ${(blob.size / 1024 / 1024).toFixed(2)} MB.`, 'success');
+			this.download();
+		} catch (e) {
+			if (output.state !== 'finalized' && output.state !== 'canceled') await output.cancel().catch(() => { });
+			if (this.cancelled) this.setStatus('Export cancelled.', 'warning');
+			else {
+				console.error('Video export failed', e);
+				this.setStatus(`Export failed: ${e.message}`, 'danger');
+			}
+		} finally {
+			this.rendering = false;
+			this.renderBtn.disabled = this.formatSelect.disabled = false;
+			this.cancelBtn.disabled = true;
+			this.saveBtn.disabled = !this.lastBlobUrl;
 		}
 	}
 
-	/**
-	 * Navigate preview to previous or next keyframe (+1 or -1)
-	 */
-	previewKeyframe(direction) {
-		if (!ProjectVars.frames || ProjectVars.frames.length === 0) return;
-		this.previewKeyframeIndex = Math.max(0,
-			Math.min(ProjectVars.frames.length - 1, this.previewKeyframeIndex + direction));
-		const frame = ProjectVars.frames[this.previewKeyframeIndex];
-		if (frame && frame.svg) {
-			this.drawSVG(frame.svg, () => { });
-		}
+	download() {
+		if (!this.lastBlobUrl) return;
+		const a = document.createElement('a');
+		a.href = this.lastBlobUrl;
+		a.download = this.lastFileName;
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
 	}
 
-	/**
-	 * Confirm export - downloads the last recorded video
-	 */
-	confirmExport() {
-		if (this.lastBlobUrl) {
-			// Re-download the last recorded video
-			const a = document.createElement('a');
-			a.style.display = 'none';
-			a.href = this.lastBlobUrl;
-			a.download = `${ProjectVars.exportName || 'spark-export'}.webm`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-		} else if (this.recordedChunks.length > 0) {
-			// Chunks present but onstop hasn't fired yet - stop recording first
-			this.stopRecording();
-		} else {
-			alert('No video recorded yet. Press Play to record first.');
-		}
+	setProgress(fraction) {
+		const pct = Math.round(fraction * 100);
+		const bar = document.getElementById('progressBar');
+		bar.style.width = `${pct}%`;
+		bar.textContent = `${pct}%`;
 	}
 
-	// ____________________________________ codec ____________________________________
-
-	isCodecSupported(mimeType) {
-		return MediaRecorder.isTypeSupported(mimeType);
+	setStatus(text, tone = 'muted') {
+		this.statusEl.className = `small text-${tone}`;
+		this.statusEl.textContent = text;
 	}
+}
 
+// H.264 needs even dimensions.
+function even(n) {
+	return Math.max(2, Math.ceil(n / 2) * 2);
 }

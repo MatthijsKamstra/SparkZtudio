@@ -1,162 +1,105 @@
-import { Canvas } from './canvas.js';
-import { ExportVideo } from './export-video.js';
-import { Export } from './export.js';
-import { Globals } from './globals.js';
-import { Model, ProjectVars } from './model/model.js';
-import { Properties } from './properties.js';
-import { Timeline } from './timeline.js';
+import { CanvasMenu } from './canvas-menu.js';
+import { LocalStorageHandler } from './local-storage.js';
+import { Model } from './model/model.js';
 
+/** Navbar menus (File, Edit, View, Layer) and the New Document dialog. */
 export class Menu {
 
 	IS_DEBUG = false;
 
 	constructor() {
-		if (this.IS_DEBUG) console.info('constructor menu.js');
+		if (Menu.instance) return Menu.instance;
+		Menu.instance = this;
 	}
 
 	init() {
-		if (this.IS_DEBUG) console.info('Menu.init()');
-		this.setup();
-	}
-
-	/**
-	 * setup UI
-	 */
-	setup() {
-		// File menu items
-		document.getElementById('newFile').onclick = () => {
-			if (this.IS_DEBUG) console.log('click btn newFile');
-			this.newFile();
-		};
-		document.getElementById('saveFile').onclick = () => {
-			if (this.IS_DEBUG) console.log('click btn saveFile');
-			this.saveFile();
-		};
-		document.getElementById('saveAsFile').onclick = () => {
-			if (this.IS_DEBUG) console.log('click btn saveAsFile');
-			this.saveAsFile();
-		};
-		document.getElementById('exportFile').onclick = () => {
-			if (this.IS_DEBUG) console.log('click btn exportFile');
-			this.exportFile();
-		};
-		document.getElementById('exportMovie').onclick = () => {
-			if (this.IS_DEBUG) console.log('click btn exportMovie');
-			this.exportMovie();
-		};
-		document.getElementById('closeFile').onclick = () => {
-			if (this.IS_DEBUG) console.log('click btn closeFile');
-			this.closeFile();
-		};
-		document.getElementById('labelOpenFile').onclick = (e) => {
-			if (this.IS_DEBUG) console.log('click btn labelOpenFile');
-			e.preventDefault(); // Prevent any default label behavior
-			document.getElementById('openFileInput3').click(); // Trigger the file input click
-		};
-		document.getElementById('importFileLabel').onclick = (e) => {
-			if (this.IS_DEBUG) console.log('click btn importFileLabel');
-			e.preventDefault(); // Prevent any default label behavior
-			document.getElementById('importFile3').click(); // Trigger the file input click
+		const model = new Model();
+		const wire = (id, fn) => {
+			const el = document.getElementById(id);
+			if (el) el.addEventListener('click', (e) => { e.preventDefault(); fn(); });
 		};
 
-		/**
-		 * should only be used for .json or .sparkz
-		 */
-		// Open file input
-		document.getElementById('openFileInput3').addEventListener('change', function (event) {
-			if (this.IS_DEBUG) console.log('openFileInput');
-			const file = event.target.files[0];
-			if (file) {
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					const projectFile = e.target.result;
-					new Model().setProjectViaFile(projectFile);
-				};
-				reader.readAsText(file);
-			}
+		// File
+		wire('newFile', () => model.newFile());
+		wire('saveFile', () => model.saveFile());
+		wire('exportFile', () => model.exportFile());
+		wire('exportMovie', () => model.exportMovie());
+		wire('labelOpenFile', () => model.openFile());
+		wire('importFileLabel', () => model.importFile());
+
+		document.getElementById('openFileInput3').addEventListener('change', (e) => {
+			this.readFile(e.target, (text) => model.openProjectText(text));
+		});
+		document.getElementById('importFile3').addEventListener('change', (e) => {
+			this.readFile(e.target, (text, file) => model.importSvgText(text, file.name));
 		});
 
-		/**
-		 * should only be used for .svg
-		 */
-		// Open file input
-		document.getElementById('importFile3').addEventListener('change', function (event) {
-			if (this.IS_DEBUG) console.log('importFile');
-			const file = event.target.files[0];
-			if (file) {
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					const svgString = e.target.result;
-					const parser = new DOMParser();
-					const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-					const svgElement = svgDoc.querySelector('svg');
-					new Model().setProjectViaSvgElement(svgElement)
-				};
-				reader.readAsText(file);
-			}
+		document.getElementById('createSvgButton').addEventListener('click', () => {
+			const width = Number(document.getElementById('svgWidth').value);
+			const height = Number(document.getElementById('svgHeight').value);
+			if (!(width > 0 && height > 0)) return;
+			bootstrap.Modal.getOrCreateInstance(document.getElementById('svgPropertiesModal')).hide();
+			model.newProject({ width, height });
 		});
 
-		// helper to safely wire menu items (guards against removed elements)
-		const wire = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+		// Edit
+		wire('undo', () => model.undo());
+		wire('redo', () => model.redo());
 
-		// Edit menu items
-		wire('undo', () => alert('Undo'));
-		wire('redo', () => alert('Redo'));
-		wire('cut', () => alert('Cut'));
-		wire('copy', () => alert('Copy'));
-		wire('paste', () => alert('Paste'));
+		// View
+		const canvasMenu = new CanvasMenu();
+		wire('zoomIn', () => canvasMenu.zoomIn());
+		wire('zoomOut', () => canvasMenu.zoomOut());
+		wire('fitToScreen', () => canvasMenu.zoomToFit());
 
-		// View menu items
-		wire('zoomIn', () => alert('Zoom In'));
-		wire('zoomOut', () => alert('Zoom Out'));
-		wire('fitToScreen', () => alert('Fit to Screen'));
+		// Layer
+		wire('newLayer', () => model.addLayer());
+		wire('deleteLayer', () => model.deleteLayer());
+		wire('duplicateLayer', () => model.duplicateLayer());
+		wire('distributeToLayers', () => model.distributeToLayers());
 
-		// Layer menu items
-		wire('newLayer', () => alert('New Layer'));
-		wire('deleteLayer', () => alert('Delete Layer'));
-		wire('duplicateLayer', () => alert('Duplicate Layer'));
-
-		// Window menu items (may not be present in all layouts)
-		wire('minimize', () => alert('Minimize'));
-		wire('maximize', () => alert('Maximize'));
-		wire('closeWindow', () => alert('Close Window'));
-
-		// Help menu items
-		wire('helpTopics', () => alert('Help Topics'));
-		wire('about', () => alert('About'));
+		this.refreshRecentFiles();
 	}
 
-	// ____________________________________ button functions ____________________________________
-
-	newFile() {
-		new Model().newFile();
+	readFile(input, callback) {
+		const file = input.files[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.onload = () => callback(reader.result, file);
+		reader.readAsText(file);
+		input.value = ''; // allow opening the same file again
 	}
 
-	saveFile() {
-		new Model().saveFile();
-		// Update stored filename with current project export name
-		const name = ProjectVars.exportName ? ProjectVars.exportName + '.json' : null;
-		if (name) {
-			localStorage.setItem('sparkLastFile', JSON.stringify({ name, opened: Date.now() }));
-			const el = document.getElementById('currentFileName');
-			if (el) el.textContent = name;
+	/** File > Open Recent, from the last 5 projects stored in localStorage. */
+	refreshRecentFiles() {
+		const container = document.getElementById('recentFilesList');
+		if (!container) return;
+		const list = new LocalStorageHandler().getItem('projectFiles') || [];
+		container.innerHTML = '';
+		if (list.length === 0) {
+			container.innerHTML = '<li><span class="dropdown-item text-muted disabled small">No recent files</span></li>';
+			return;
 		}
+		[...list].reverse().forEach((jsonStr) => {
+			let name;
+			try {
+				const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+				name = `${data.exportName || data.projectName || 'Untitled'}.json`;
+			} catch (e) {
+				return;
+			}
+			const li = document.createElement('li');
+			const a = document.createElement('a');
+			a.className = 'dropdown-item text-truncate small';
+			a.href = '#';
+			a.title = name;
+			a.textContent = name;
+			a.addEventListener('click', (e) => {
+				e.preventDefault();
+				new Model().openProjectText(jsonStr);
+			});
+			li.appendChild(a);
+			container.appendChild(li);
+		});
 	}
-
-	saveAsFile() {
-		new Model().saveAsFile();
-	}
-
-	exportFile() {
-		new Model().exportFile();
-	}
-
-	exportMovie() {
-		new Model().exportMovie();
-	}
-
-	closeFile() {
-		new Model().closeFile();
-	}
-
 }
