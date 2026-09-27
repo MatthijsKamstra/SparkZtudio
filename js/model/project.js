@@ -231,6 +231,98 @@ export function importSvgProject(svgText, fileName = 'imported.svg') {
 	return createProject({ exportName: baseName, projectName: baseName, width, height, viewBox, defs, layers });
 }
 
+// ____________________________________ appearance & text ____________________________________
+
+const PAINTABLE_TAGS = new Set(['rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text']);
+const STROKE_ONLY_TAGS = new Set(['line', 'polyline']);
+
+function contentDoc(markup) {
+	return parseSvgDocument(`<svg xmlns="${SVG_NS}" xmlns:xlink="${XLINK_NS}">${markup}</svg>`);
+}
+
+function serializeChildren(root) {
+	return Array.from(root.children).map(serialize).join('');
+}
+
+/** Every drawable element inside a layer, so a colour change hits grouped shapes too. */
+function paintTargets(root) {
+	const out = [];
+	const walk = (el) => {
+		for (const child of Array.from(el.children)) {
+			if (PAINTABLE_TAGS.has(child.localName)) out.push(child);
+			walk(child);
+		}
+	};
+	walk(root);
+	return out;
+}
+
+function readPaint(el, name) {
+	return el.style?.getPropertyValue(name) || el.getAttribute(name) || '';
+}
+
+function writePaint(el, name, value) {
+	if (el.style?.getPropertyValue(name)) el.style.setProperty(name, value);
+	el.setAttribute(name, value);
+}
+
+/** Any CSS colour to #rrggbb, or null for none/gradients/unknown values. */
+export function toHexColor(value) {
+	if (!value || value === 'none' || /^url\(/i.test(value)) return null;
+	const ctx = toHexColor.ctx || (toHexColor.ctx = document.createElement('canvas').getContext('2d'));
+	ctx.fillStyle = '#000000';
+	ctx.fillStyle = value;
+	const out = ctx.fillStyle;
+	return /^#[0-9a-f]{6}$/i.test(out) ? out : null;
+}
+
+/** Fill/stroke/font of a layer, taken from its first drawable element. */
+export function readLayerStyle(content) {
+	const doc = contentDoc(content);
+	if (!doc) return null;
+	const targets = paintTargets(doc.documentElement);
+	if (targets.length === 0) return null;
+	const first = targets[0];
+	const texts = targets.filter((el) => el.localName === 'text');
+	const editableText = texts.length === 1 && texts[0].children.length === 0 ? texts[0] : null;
+	const fill = readPaint(first, 'fill');
+	const stroke = readPaint(first, 'stroke');
+	return {
+		hasFill: targets.some((el) => !STROKE_ONLY_TAGS.has(el.localName)),
+		fill: toHexColor(fill) || '#000000',
+		fillNone: fill === 'none',
+		stroke: toHexColor(stroke) || '#000000',
+		strokeNone: !stroke || stroke === 'none',
+		strokeWidth: num(readPaint(first, 'stroke-width'), 0),
+		isText: texts.length > 0,
+		fontSize: texts.length ? num(readPaint(texts[0], 'font-size'), 16) : null,
+		text: editableText ? editableText.textContent : null,
+	};
+}
+
+/** Returns new markup with fill/stroke/stroke-width/font-size applied to every drawable element. */
+export function applyLayerStyle(content, props) {
+	const doc = contentDoc(content);
+	if (!doc) return content;
+	for (const el of paintTargets(doc.documentElement)) {
+		const strokeOnly = STROKE_ONLY_TAGS.has(el.localName);
+		if (props.fill !== undefined && !strokeOnly) writePaint(el, 'fill', props.fill);
+		if (props.stroke !== undefined) writePaint(el, 'stroke', props.stroke);
+		if (props.strokeWidth !== undefined) writePaint(el, 'stroke-width', String(props.strokeWidth));
+		if (props.fontSize !== undefined && el.localName === 'text') writePaint(el, 'font-size', String(props.fontSize));
+	}
+	return serializeChildren(doc.documentElement);
+}
+
+export function setLayerTextContent(content, text) {
+	const doc = contentDoc(content);
+	if (!doc) return content;
+	const target = paintTargets(doc.documentElement).find((el) => el.localName === 'text');
+	if (!target) return content;
+	target.textContent = text;
+	return serializeChildren(doc.documentElement);
+}
+
 /** Split a layer's content into one layer per top-level element (Flash: Distribute to Layers). */
 export function splitLayerContent(layer) {
 	const doc = parseSvgDocument(`<svg xmlns="${SVG_NS}" xmlns:xlink="${XLINK_NS}">${layer.content}</svg>`);

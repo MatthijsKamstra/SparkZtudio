@@ -12,8 +12,9 @@ import { Shortcuts } from '../shortcuts.js';
 import { Timeline } from '../timeline.js';
 import { Tools } from '../tools.js';
 import {
-	createDemoProject, createKeyframe, createLayer, createProject, DEFAULT_STATE, getLayerState,
-	governingKeyframe, importSvgProject, keyframeAt, normalizeProject, pickState, sortKeyframes, splitLayerContent,
+	applyLayerStyle, createDemoProject, createKeyframe, createLayer, createProject, DEFAULT_STATE, getLayerState,
+	governingKeyframe, importSvgProject, keyframeAt, normalizeProject, pickState, setLayerTextContent,
+	sortKeyframes, splitLayerContent,
 } from './project.js';
 
 // The open project (format v2, see project.js). Reassigned on load/undo, so always read it fresh.
@@ -351,6 +352,27 @@ export class Model {
 		}).reverse();
 		ProjectVars.layers.splice(ProjectVars.layers.indexOf(layer), 1, ...newLayers);
 		this.selectedLayerId = newLayers[0].id;
+		this.changed('structure');
+	}
+
+	/** Fill/stroke/stroke-width/font-size of the layer artwork (not animated). */
+	setLayerStyle(id, props) {
+		const layer = this.getLayer(id);
+		if (!layer || layer.locked) return;
+		const content = applyLayerStyle(layer.content, props);
+		if (content === layer.content) return;
+		this.snapshot();
+		layer.content = content;
+		this.changed('structure');
+	}
+
+	setLayerText(id, text) {
+		const layer = this.getLayer(id);
+		if (!layer || layer.locked) return;
+		const content = setLayerTextContent(layer.content, text);
+		if (content === layer.content) return;
+		this.snapshot();
+		layer.content = content;
 		this.changed('structure');
 	}
 

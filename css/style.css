@@ -240,15 +240,64 @@ th.tl-current {
 #svg-container[data-tool="zoom"] {
   cursor: zoom-in;
 }
-.spark-selection {
+.spark-selection .spark-outline {
   fill: none;
   stroke: #0d6efd;
   stroke-width: 1px;
   stroke-dasharray: 4 3;
   vector-effect: non-scaling-stroke;
 }
+.spark-handle {
+  fill: #fff;
+  stroke: #0d6efd;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  pointer-events: all;
+}
+.spark-handle:hover {
+  fill: #0d6efd;
+}
+.spark-handle--rotate {
+  cursor: grab;
+}
+.spark-pivot {
+  fill: none;
+  stroke: #dc3545;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
 .spark-draw * {
   opacity: 0.6;
+}
+.spark-text-input {
+  position: absolute;
+  z-index: 5;
+  min-width: 160px;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border: 1px solid #0d6efd;
+  border-radius: 3px;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+/* Timeline context menu */
+.spark-context-menu {
+  position: fixed;
+  z-index: 1080;
+  font-size: 0.8rem;
+  min-width: 232px;
+  padding: 4px 0;
+}
+.spark-context-menu .dropdown-item {
+  padding: 2px 10px;
+}
+.spark-context-menu hr {
+  margin: 4px 0;
+}
+.spark-context-menu__mark {
+  display: inline-block;
+  width: 16px;
 }
 
 /* Tools */
@@ -291,13 +340,55 @@ th.tl-current {
 
 /* Properties accordion compact */
 #propertiesWrapper .accordion-button {
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 #propertiesWrapper .accordion-body {
-  padding: 8px 12px;
-  font-size: 0.82rem;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+}
+
+.prop-form .prop-group .input-group-text {
+  padding: 1px 5px;
+  font-size: 0.7rem;
+  min-width: 34px;
+  justify-content: center;
+  background: var(--bs-tertiary-bg);
+}
+.prop-form .prop-group .form-control {
+  padding: 1px 5px;
+  font-size: 0.75rem;
+  height: 24px;
+}
+.prop-form .prop-group .btn {
+  padding: 1px 6px;
+  font-size: 0.75rem;
+}
+.prop-form input[type="color"].form-control-color {
+  width: 34px;
+  height: 22px;
+  padding: 1px;
+}
+.prop-form .form-check-label,
+.prop-form .form-check-input {
+  font-size: 0.7rem;
+}
+.prop-form .form-range {
+  height: 14px;
+}
+.prop-info {
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+.prop-divider {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--bs-border-color);
+}
+.prop-form fieldset:disabled {
+  opacity: 0.5;
 }
 
 /* ============================================================

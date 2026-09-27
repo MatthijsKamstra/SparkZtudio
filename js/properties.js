@@ -1,5 +1,5 @@
 import { Model, ProjectVars } from './model/model.js';
-import { escapeXml, getLayerState, governingKeyframe, keyframeAt } from './model/project.js';
+import { escapeXml, getLayerState, governingKeyframe, keyframeAt, readLayerStyle } from './model/project.js';
 
 // [input id, state key, display factor, step]
 const STATE_FIELDS = [
@@ -10,6 +10,15 @@ const STATE_FIELDS = [
 	['propRotation', 'rot', 1, 1],
 	['propAlpha', 'alpha', 100, 1],
 ];
+
+/** Compact label + number input, half a row wide. */
+const field = (id, label, step = 1) => `
+	<div class="col-6">
+		<div class="input-group input-group-sm prop-group">
+			<span class="input-group-text">${label}</span>
+			<input type="number" class="form-control" id="${id}" step="${step}">
+		</div>
+	</div>`;
 
 /** Property inspector: selected layer at the current frame, plus document settings. */
 export class Properties {
@@ -35,62 +44,118 @@ export class Properties {
 		const model = new Model();
 		const layer = model.getLayer();
 		if (!layer) {
-			this.selectionEl.innerHTML = '<p class="text-muted mb-0">Select an object on the stage or a layer in the timeline.</p>';
+			this.selectionEl.innerHTML = '<p class="text-muted prop-info mb-0">Select an object on the stage or a layer in the timeline.</p>';
 			return;
 		}
-		const field = ([id, , , step], label, unit = '') => `
-			<div class="col-6">
-				<label class="form-label mb-0" for="${id}">${label}</label>
-				<div class="input-group input-group-sm">
-					<input type="number" class="form-control form-control-sm" id="${id}" step="${step}">
-					${unit ? `<span class="input-group-text">${unit}</span>` : ''}
-				</div>
-			</div>`;
+		const style = readLayerStyle(layer.content);
 		this.selectionEl.innerHTML = `
-			<form id="selectionForm" class="small" autocomplete="off">
-				<label class="form-label mb-0" for="propName">Layer</label>
-				<input type="text" class="form-control form-control-sm mb-2" id="propName" value="${escapeXml(layer.name)}">
-				<div id="propFrameInfo" class="text-muted mb-1"></div>
-				<fieldset id="propStateFields" class="row g-1 mb-2">
-					${field(STATE_FIELDS[0], 'X')}
-					${field(STATE_FIELDS[1], 'Y')}
-					${field(STATE_FIELDS[2], 'Scale W', '%')}
-					${field(STATE_FIELDS[3], 'Scale H', '%')}
-					${field(STATE_FIELDS[4], 'Rotate', '°')}
-					${field(STATE_FIELDS[5], 'Alpha', '%')}
-				</fieldset>
-				<div class="border-top pt-2">
-					<div class="form-check form-switch mb-1">
-						<input class="form-check-input" type="checkbox" id="propTween">
-						<label class="form-check-label" for="propTween">Motion tween</label>
-					</div>
-					<label class="form-label mb-0 d-flex justify-content-between" for="propEase">
-						<span>Ease</span><span id="propEaseValue" class="text-muted"></span>
-					</label>
-					<input type="range" class="form-range" id="propEase" min="-100" max="100" step="5">
-					<div class="d-flex justify-content-between text-muted" style="font-size:0.7rem"><span>in</span><span>out</span></div>
+			<form id="selectionForm" class="prop-form" autocomplete="off">
+				<div class="input-group input-group-sm prop-group mb-1">
+					<span class="input-group-text"><i class="bi bi-layers"></i></span>
+					<input type="text" class="form-control" id="propName" value="${escapeXml(layer.name)}" title="Layer name">
+					<button type="button" class="btn btn-outline-secondary" id="propDistribute" title="Put every object of this layer on its own layer"><i class="bi bi-distribute-vertical"></i></button>
 				</div>
-				<button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-2" id="propDistribute" title="Put every object of this layer on its own layer">Distribute to Layers</button>
+				<div id="propFrameInfo" class="prop-info text-muted mb-1"></div>
+				<fieldset id="propStateFields" class="row g-1">
+					${field('propX', 'X')}
+					${field('propY', 'Y')}
+					${field('propScaleX', 'W%')}
+					${field('propScaleY', 'H%')}
+					${field('propRotation', '↻°')}
+					${field('propAlpha', 'A%')}
+				</fieldset>
+				${this.appearanceMarkup(style)}
+				<div class="prop-divider d-flex align-items-center gap-2">
+					<div class="form-check form-switch m-0">
+						<input class="form-check-input" type="checkbox" id="propTween">
+						<label class="form-check-label prop-info" for="propTween">Tween</label>
+					</div>
+					<input type="range" class="form-range flex-grow-1" id="propEase" min="-100" max="100" step="5" title="Ease: left is ease in, right is ease out">
+					<span id="propEaseValue" class="text-muted prop-info" style="min-width:26px;text-align:right"></span>
+				</div>
 			</form>`;
 
-		const form = document.getElementById('selectionForm');
-		form.addEventListener('submit', (e) => e.preventDefault());
-		document.getElementById('propName').addEventListener('change', (e) => model.renameLayer(layer.id, e.target.value.trim()));
+		const el = (id) => document.getElementById(id);
+		el('selectionForm').addEventListener('submit', (e) => e.preventDefault());
+		el('propName').addEventListener('change', (e) => model.renameLayer(layer.id, e.target.value.trim()));
+		el('propDistribute').addEventListener('click', () => model.distributeToLayers(layer.id));
 		for (const [id, key, factor] of STATE_FIELDS) {
-			document.getElementById(id).addEventListener('change', (e) => {
+			el(id).addEventListener('change', (e) => {
 				let value = Number(e.target.value) / factor;
 				if (!Number.isFinite(value)) return;
 				if (key === 'alpha') value = Math.max(0, Math.min(1, value));
 				model.setLayerProps(layer.id, { [key]: value });
 			});
 		}
-		document.getElementById('propTween').addEventListener('change', (e) => model.setTween({ tween: e.target.checked }));
-		const ease = document.getElementById('propEase');
-		ease.addEventListener('input', () => { document.getElementById('propEaseValue').textContent = ease.value; });
+		el('propTween').addEventListener('change', (e) => model.setTween({ tween: e.target.checked }));
+		const ease = el('propEase');
+		ease.addEventListener('input', () => { el('propEaseValue').textContent = ease.value; });
 		ease.addEventListener('change', () => model.setTween({ ease: Number(ease.value) }));
-		document.getElementById('propDistribute').addEventListener('click', () => model.distributeToLayers(layer.id));
 
+		this.bindAppearance(layer, style);
 		this.refresh();
+	}
+
+	/** Fill, stroke, line width, font size and text content of the layer artwork. */
+	appearanceMarkup(style) {
+		if (!style) return '';
+		const paint = (id, label, color, none) => `
+			<div class="d-flex align-items-center gap-1">
+				<span class="prop-info text-muted" style="width:34px">${label}</span>
+				<input type="color" class="form-control form-control-sm form-control-color" id="${id}" value="${color}">
+				<div class="form-check m-0">
+					<input class="form-check-input" type="checkbox" id="${id}None" ${none ? 'checked' : ''}>
+					<label class="form-check-label prop-info" for="${id}None">none</label>
+				</div>
+			</div>`;
+		return `
+			<div class="prop-divider">
+				<div class="row g-1">
+					${style.hasFill ? `<div class="col-12">${paint('propFill', 'Fill', style.fill, style.fillNone)}</div>` : ''}
+					<div class="col-12">${paint('propStroke', 'Line', style.stroke, style.strokeNone)}</div>
+					${field('propStrokeWidth', 'W', 0.5)}
+					${style.isText ? field('propFontSize', 'Size', 1) : ''}
+				</div>
+				${style.text === null ? '' : `
+				<div class="input-group input-group-sm prop-group mt-1">
+					<span class="input-group-text"><i class="bi bi-fonts"></i></span>
+					<input type="text" class="form-control" id="propText" value="${escapeXml(style.text)}" title="Text content">
+				</div>`}
+			</div>`;
+	}
+
+	bindAppearance(layer, style) {
+		if (!style) return;
+		const model = new Model();
+		const el = (id) => document.getElementById(id);
+		const bindPaint = (id, key) => {
+			const color = el(id);
+			const none = el(`${id}None`);
+			if (!color) return;
+			const apply = () => {
+				color.disabled = none.checked;
+				model.setLayerStyle(layer.id, { [key]: none.checked ? 'none' : color.value });
+			};
+			color.addEventListener('change', apply);
+			none.addEventListener('change', apply);
+			color.disabled = none.checked;
+		};
+		bindPaint('propFill', 'fill');
+		bindPaint('propStroke', 'stroke');
+
+		const width = el('propStrokeWidth');
+		width.value = style.strokeWidth;
+		width.addEventListener('change', () => model.setLayerStyle(layer.id, { strokeWidth: Math.max(0, Number(width.value) || 0) }));
+
+		const size = el('propFontSize');
+		if (size) {
+			size.value = style.fontSize;
+			size.addEventListener('change', () => {
+				const v = Number(size.value);
+				if (v > 0) model.setLayerStyle(layer.id, { fontSize: v });
+			});
+		}
+		el('propText')?.addEventListener('change', (e) => model.setLayerText(layer.id, e.target.value));
 	}
 
 	/** Update values for the current frame without rebuilding (runs during playback). */
@@ -111,9 +176,9 @@ export class Properties {
 		}
 
 		let info = `Frame ${frame}: `;
-		if (!state) info += 'no content here (F6 inserts a keyframe)';
+		if (!state) info += 'empty (F6 inserts a keyframe)';
 		else if (kf) info += 'keyframe';
-		else info += span?.tween ? 'tweened frame, edits add a keyframe' : 'held frame, edits add a keyframe';
+		else info += span?.tween ? 'tweened, edits add a keyframe' : 'held, edits add a keyframe';
 		if (layer.locked) info += ' (locked)';
 		document.getElementById('propFrameInfo').textContent = info;
 
@@ -129,39 +194,46 @@ export class Properties {
 		const p = ProjectVars;
 		const model = new Model();
 		this.documentEl.innerHTML = `
-			<form id="projectDetailsForm" class="small" autocomplete="off">
-				<label class="form-label mb-0" for="docProjectName">Project name</label>
-				<input type="text" class="form-control form-control-sm mb-1" id="docProjectName" value="${escapeXml(p.projectName)}">
-				<label class="form-label mb-0" for="docExportName">File name</label>
-				<input type="text" class="form-control form-control-sm mb-1" id="docExportName" value="${escapeXml(p.exportName)}">
-				<div class="row g-1 mb-1">
-					<div class="col-6"><label class="form-label mb-0" for="docWidth">W</label>
-						<input type="number" min="1" class="form-control form-control-sm" id="docWidth" value="${p.width}"></div>
-					<div class="col-6"><label class="form-label mb-0" for="docHeight">H</label>
-						<input type="number" min="1" class="form-control form-control-sm" id="docHeight" value="${p.height}"></div>
-					<div class="col-6"><label class="form-label mb-0" for="docFrameRate">FPS</label>
-						<input type="number" min="1" class="form-control form-control-sm" id="docFrameRate" value="${p.frameRate}"></div>
-					<div class="col-6"><label class="form-label mb-0" for="docFrameLength">Frames</label>
-						<input type="number" min="1" class="form-control form-control-sm" id="docFrameLength" value="${p.frameLength}"></div>
+			<form id="projectDetailsForm" class="prop-form" autocomplete="off">
+				<div class="input-group input-group-sm prop-group mb-1">
+					<span class="input-group-text">Name</span>
+					<input type="text" class="form-control" id="docProjectName" value="${escapeXml(p.projectName)}">
 				</div>
-				<div class="d-flex align-items-center gap-2 mb-2">
-					<label class="form-label mb-0" for="docBackground">Background</label>
-					<input type="color" class="form-control form-control-sm form-control-color" id="docBackground" value="${escapeXml(p.background)}">
+				<div class="input-group input-group-sm prop-group mb-1">
+					<span class="input-group-text">File</span>
+					<input type="text" class="form-control" id="docExportName" value="${escapeXml(p.exportName)}">
 				</div>
-				<button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
+				<div class="row g-1">
+					${field('docWidth', 'W')}
+					${field('docHeight', 'H')}
+					${field('docFrameRate', 'FPS')}
+					${field('docFrameLength', '#')}
+					<div class="col-6">
+						<div class="input-group input-group-sm prop-group">
+							<span class="input-group-text">BG</span>
+							<input type="color" class="form-control form-control-color" id="docBackground" value="${escapeXml(p.background)}">
+						</div>
+					</div>
+					<div class="col-6"><button type="submit" class="btn btn-primary btn-sm w-100">Apply</button></div>
+				</div>
 			</form>`;
+
+		const v = (id) => document.getElementById(id);
+		v('docWidth').value = p.width;
+		v('docHeight').value = p.height;
+		v('docFrameRate').value = p.frameRate;
+		v('docFrameLength').value = p.frameLength;
 
 		document.getElementById('projectDetailsForm').addEventListener('submit', (e) => {
 			e.preventDefault();
-			const v = (id) => document.getElementById(id).value;
 			model.setDocument({
-				projectName: v('docProjectName'),
-				exportName: v('docExportName').trim().replace(/[\\/:*?"<>|]/g, '-') || 'spark-project',
-				width: v('docWidth'),
-				height: v('docHeight'),
-				frameRate: v('docFrameRate'),
-				frameLength: v('docFrameLength'),
-				background: v('docBackground'),
+				projectName: v('docProjectName').value,
+				exportName: v('docExportName').value.trim().replace(/[\\/:*?"<>|]/g, '-') || 'spark-project',
+				width: v('docWidth').value,
+				height: v('docHeight').value,
+				frameRate: v('docFrameRate').value,
+				frameLength: v('docFrameLength').value,
+				background: v('docBackground').value,
 			});
 		});
 	}

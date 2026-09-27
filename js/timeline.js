@@ -1,5 +1,5 @@
 import { Model, ProjectVars } from './model/model.js';
-import { escapeXml } from './model/project.js';
+import { escapeXml, governingKeyframe, keyframeAt } from './model/project.js';
 
 const TYPE_ICONS = {
 	rect: 'bi-square', circle: 'bi-circle', ellipse: 'bi-circle', text: 'bi-fonts', image: 'bi-image',
@@ -12,6 +12,7 @@ export class Timeline {
 	IS_DEBUG = false;
 
 	scrubbing = false;
+	contextMenu = null;
 
 	constructor() {
 		if (Timeline.instance) return Timeline.instance;
@@ -39,6 +40,7 @@ export class Timeline {
 		document.getElementById('timeLineTotalFrames').addEventListener('change', (e) => model.setDocument({ frameLength: e.target.value }));
 
 		this.table.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+		this.table.addEventListener('contextmenu', (e) => this.onContextMenu(e));
 		window.addEventListener('pointermove', (e) => this.onPointerMove(e));
 		window.addEventListener('pointerup', () => { this.scrubbing = false; });
 		this.tbody.addEventListener('dblclick', (e) => {
@@ -139,6 +141,93 @@ export class Timeline {
 		if (!this.scrubbing) return;
 		const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('#timelineWrapper [data-frame]');
 		if (el) new Model().setFrame(Number(el.dataset.frame));
+	}
+
+	// ____________________________________ context menu ____________________________________
+
+	/** Right-click a frame cell: the Flash frame menu (keyframes, tween, ease, layer actions). */
+	onContextMenu(e) {
+		const row = e.target.closest('tr[data-layer-id]');
+		if (!row) return;
+		e.preventDefault();
+		const model = new Model();
+		model.stop();
+		model.select(row.dataset.layerId);
+		const frameEl = e.target.closest('[data-frame]');
+		if (frameEl) model.setFrame(Number(frameEl.dataset.frame));
+		this.openContextMenu(e.clientX, e.clientY);
+	}
+
+	contextMenuItems() {
+		const model = new Model();
+		const layer = model.getLayer();
+		const frame = model.currentFrame;
+		const kf = layer && keyframeAt(layer, frame);
+		const span = layer && governingKeyframe(layer, frame);
+		const tweenable = !!span && !span.blank;
+		const ease = (value, label) => ({
+			label,
+			disabled: !tweenable || !span.tween,
+			checked: !!span?.tween && (span.ease || 0) === value,
+			run: () => model.setTween({ ease: value }),
+		});
+		return [
+			{ label: 'Insert Keyframe', shortcut: 'F6', disabled: !layer || (!!kf && !kf.blank), run: () => model.insertKeyframe() },
+			{ label: 'Insert Blank Keyframe', shortcut: 'F7', disabled: !layer || (!!kf && kf.blank), run: () => model.insertKeyframe({ blank: true }) },
+			{ label: 'Clear Keyframe', shortcut: '⇧F6', disabled: !kf || layer.keyframes.length <= 1, run: () => model.clearKeyframe() },
+			{ separator: true },
+			{ label: span?.tween ? 'Remove Motion Tween' : 'Create Motion Tween', disabled: !tweenable, run: () => model.toggleTween() },
+			ease(-100, 'Ease In'),
+			ease(100, 'Ease Out'),
+			ease(0, 'No Ease'),
+			{ separator: true },
+			{ label: 'New Layer', run: () => model.addLayer() },
+			{ label: 'Duplicate Layer', shortcut: '⌘D', disabled: !layer, run: () => model.duplicateLayer() },
+			{ label: 'Delete Layer', shortcut: '⌫', disabled: ProjectVars.layers.length <= 1, run: () => model.deleteLayer() },
+			{ label: 'Distribute to Layers', disabled: !layer, run: () => model.distributeToLayers() },
+		];
+	}
+
+	openContextMenu(clientX, clientY) {
+		this.closeContextMenu();
+		const menu = document.createElement('div');
+		menu.className = 'dropdown-menu show spark-context-menu';
+		menu.innerHTML = this.contextMenuItems().map((item, i) => {
+			if (item.separator) return '<hr class="dropdown-divider">';
+			const check = item.checked ? '<i class="bi bi-check2"></i>' : '';
+			const shortcut = item.shortcut ? `<span class="opacity-50 ms-3">${item.shortcut}</span>` : '';
+			return `<button type="button" class="dropdown-item d-flex justify-content-between align-items-center" data-index="${i}"${item.disabled ? ' disabled' : ''}>` +
+				`<span><span class="spark-context-menu__mark">${check}</span>${escapeXml(item.label)}</span>${shortcut}</button>`;
+		}).join('');
+		document.body.appendChild(menu);
+
+		const rect = menu.getBoundingClientRect();
+		menu.style.left = `${Math.max(4, Math.min(clientX, window.innerWidth - rect.width - 4))}px`;
+		menu.style.top = `${Math.max(4, Math.min(clientY, window.innerHeight - rect.height - 4))}px`;
+
+		menu.addEventListener('click', (e) => {
+			const button = e.target.closest('[data-index]');
+			if (!button) return;
+			const item = this.contextMenuItems()[Number(button.dataset.index)];
+			this.closeContextMenu();
+			item?.run?.();
+		});
+
+		this.contextMenu = menu;
+		this.closeMenuOnPointer = (e) => { if (!menu.contains(e.target)) this.closeContextMenu(); };
+		this.closeMenuOnKey = (e) => { if (e.key === 'Escape') this.closeContextMenu(); };
+		setTimeout(() => {
+			document.addEventListener('pointerdown', this.closeMenuOnPointer, true);
+			document.addEventListener('keydown', this.closeMenuOnKey, true);
+		});
+	}
+
+	closeContextMenu() {
+		if (!this.contextMenu) return;
+		document.removeEventListener('pointerdown', this.closeMenuOnPointer, true);
+		document.removeEventListener('keydown', this.closeMenuOnKey, true);
+		this.contextMenu.remove();
+		this.contextMenu = null;
 	}
 
 	startRename(cell) {
