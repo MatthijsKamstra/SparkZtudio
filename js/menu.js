@@ -1,5 +1,5 @@
-import { CanvasMenu } from './canvas-menu.js';
 import { readImageFile } from './assets.js';
+import { CanvasMenu } from './canvas-menu.js';
 import { LocalStorageHandler } from './local-storage.js';
 import { Model } from './model/model.js';
 

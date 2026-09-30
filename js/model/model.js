@@ -1,3 +1,4 @@
+import { fetchGoogleFont, injectProjectFonts } from '../assets.js';
 import { CanvasMenu } from '../canvas-menu.js';
 import { Canvas } from '../canvas.js';
 import { ExportVideo } from '../export-video.js';
@@ -11,7 +12,6 @@ import { Properties } from '../properties.js';
 import { Shortcuts } from '../shortcuts.js';
 import { Timeline } from '../timeline.js';
 import { Tools } from '../tools.js';
-import { fetchGoogleFont, injectProjectFonts } from '../assets.js';
 import {
 	applyLayerStyle, createDemoProject, createKeyframe, createLayer, createProject, DEFAULT_STATE, escapeXml, getLayerState,
 	governingKeyframe, importSvgProject, keyframeAt, normalizeProject, pickState, setLayerTextContent,
