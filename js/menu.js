@@ -1,4 +1,5 @@
 import { CanvasMenu } from './canvas-menu.js';
+import { readImageFile } from './assets.js';
 import { LocalStorageHandler } from './local-storage.js';
 import { Model } from './model/model.js';
 
@@ -26,12 +27,34 @@ export class Menu {
 		wire('exportMovie', () => model.exportMovie());
 		wire('labelOpenFile', () => model.openFile());
 		wire('importFileLabel', () => model.importFile());
+		wire('addGoogleFont', async () => {
+			const url = prompt('Google Fonts stylesheet URL', 'https://fonts.googleapis.com/css2?family=Kenia&display=swap');
+			if (!url) return;
+			try {
+				const families = await model.addGoogleFont(url.trim());
+				alert(`Added ${families.join(', ')}. Select a text layer to use it.`);
+			} catch (e) {
+				alert(`Could not add font: ${e.message}`);
+			}
+		});
 
 		document.getElementById('openFileInput3').addEventListener('change', (e) => {
 			this.readFile(e.target, (text) => model.openProjectText(text));
 		});
 		document.getElementById('importFile3').addEventListener('change', (e) => {
 			this.readFile(e.target, (text, file) => model.importSvgText(text, file.name));
+		});
+		document.getElementById('placeImageInput').addEventListener('change', async (e) => {
+			const input = e.target;
+			const file = input.files[0];
+			if (!file) return;
+			try {
+				model.placeImage(await readImageFile(file));
+			} catch (error) {
+				alert(`Could not place image: ${error.message}`);
+			} finally {
+				input.value = '';
+			}
 		});
 
 		document.getElementById('createSvgButton').addEventListener('click', () => {

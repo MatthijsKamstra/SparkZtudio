@@ -43,8 +43,24 @@ export function createProject(opts = {}) {
 		frameRate: Math.max(1, Math.round(num(opts.frameRate, 24))),
 		frameLength: Math.max(1, Math.round(num(opts.frameLength, 48))),
 		defs: opts.defs || '',
+		fonts: normalizeProjectFonts(opts.fonts),
 		layers: opts.layers || [createLayer({ name: 'Layer 1' })],
 	};
+}
+
+export function normalizeProjectFonts(fonts = []) {
+	if (!Array.isArray(fonts)) return [];
+	return fonts.flatMap((font) => {
+		if (!font || typeof font !== 'object') return [];
+		const source = String(font.source || '');
+		const css = String(font.css || '');
+		const families = Array.isArray(font.families)
+			? font.families.map(String).filter((family) => family && !/[<>]/.test(family))
+			: [];
+		const trustedSource = /^https:\/\/fonts\.googleapis\.com\/css2?(?:\?|$)/.test(source);
+		const selfContainedCss = css && !/[<>]/.test(css) && !/@import/i.test(css) && !/url\(\s*['"]?https?:/i.test(css);
+		return trustedSource && selfContainedCss && families.length ? [{ source, families, css }] : [];
+	});
 }
 
 export function createLayer({ name = 'Layer', content = '', frame = 1, state = {}, cx = null, cy = null } = {}) {
@@ -145,7 +161,9 @@ export function renderFrameSvg(project, frame) {
 		body += `<g transform="${layerTransform(layer, s)}" opacity="${round(s.alpha)}">${layer.content}</g>`;
 	}
 	const bg = `<rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" fill="${escapeXml(project.background)}"/>`;
-	return `<svg xmlns="${SVG_NS}" xmlns:xlink="${XLINK_NS}" width="${project.width}" height="${project.height}" viewBox="${vx} ${vy} ${vw} ${vh}">${project.defs}${bg}${body}</svg>`;
+	const fontCss = normalizeProjectFonts(project.fonts).map((font) => font.css).join('\n').replace(/&/g, '&amp;');
+	const fontStyle = fontCss ? `<style type="text/css">${fontCss}</style>` : '';
+	return `<svg xmlns="${SVG_NS}" xmlns:xlink="${XLINK_NS}" width="${project.width}" height="${project.height}" viewBox="${vx} ${vy} ${vw} ${vh}">${project.defs}${fontStyle}${bg}${body}</svg>`;
 }
 
 // ____________________________________ SVG parsing & sanitizing ____________________________________
@@ -296,6 +314,7 @@ export function readLayerStyle(content) {
 		strokeWidth: num(readPaint(first, 'stroke-width'), 0),
 		isText: texts.length > 0,
 		fontSize: texts.length ? num(readPaint(texts[0], 'font-size'), 16) : null,
+		fontFamily: texts.length ? readPaint(texts[0], 'font-family') || 'Arial, sans-serif' : null,
 		text: editableText ? editableText.textContent : null,
 	};
 }
@@ -310,6 +329,7 @@ export function applyLayerStyle(content, props) {
 		if (props.stroke !== undefined) writePaint(el, 'stroke', props.stroke);
 		if (props.strokeWidth !== undefined) writePaint(el, 'stroke-width', String(props.strokeWidth));
 		if (props.fontSize !== undefined && el.localName === 'text') writePaint(el, 'font-size', String(props.fontSize));
+		if (props.fontFamily !== undefined && el.localName === 'text') writePaint(el, 'font-family', String(props.fontFamily));
 	}
 	return serializeChildren(doc.documentElement);
 }

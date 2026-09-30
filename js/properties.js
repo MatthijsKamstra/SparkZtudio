@@ -96,7 +96,7 @@ export class Properties {
 		this.refresh();
 	}
 
-	/** Fill, stroke, line width, font size and text content of the layer artwork. */
+	/** Fill, stroke, line width, font and text content of the layer artwork. */
 	appearanceMarkup(style) {
 		if (!style) return '';
 		const paint = (id, label, color, none) => `
@@ -116,6 +116,16 @@ export class Properties {
 					${field('propStrokeWidth', 'W', 0.5)}
 					${style.isText ? field('propFontSize', 'Size', 1) : ''}
 				</div>
+				${style.isText ? `
+				<div class="input-group input-group-sm prop-group mt-1">
+					<span class="input-group-text">Font</span>
+					<input type="text" class="form-control" id="propFontFamily" list="projectFontFamilies" value="${escapeXml(style.fontFamily)}">
+					<datalist id="projectFontFamilies">
+						<option value="Arial, sans-serif"></option>
+						<option value="Georgia, serif"></option>
+						${(ProjectVars.fonts || []).flatMap((font) => font.families).map((family) => `<option value="${escapeXml(family)}"></option>`).join('')}
+					</datalist>
+				</div>` : ''}
 				${style.text === null ? '' : `
 				<div class="input-group input-group-sm prop-group mt-1">
 					<span class="input-group-text"><i class="bi bi-fonts"></i></span>
@@ -155,6 +165,10 @@ export class Properties {
 				if (v > 0) model.setLayerStyle(layer.id, { fontSize: v });
 			});
 		}
+		el('propFontFamily')?.addEventListener('change', (e) => {
+			const family = e.target.value.trim();
+			if (family) model.setLayerStyle(layer.id, { fontFamily: family });
+		});
 		el('propText')?.addEventListener('change', (e) => model.setLayerText(layer.id, e.target.value));
 	}
 

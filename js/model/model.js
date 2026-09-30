@@ -11,8 +11,9 @@ import { Properties } from '../properties.js';
 import { Shortcuts } from '../shortcuts.js';
 import { Timeline } from '../timeline.js';
 import { Tools } from '../tools.js';
+import { fetchGoogleFont, injectProjectFonts } from '../assets.js';
 import {
-	applyLayerStyle, createDemoProject, createKeyframe, createLayer, createProject, DEFAULT_STATE, getLayerState,
+	applyLayerStyle, createDemoProject, createKeyframe, createLayer, createProject, DEFAULT_STATE, escapeXml, getLayerState,
 	governingKeyframe, importSvgProject, keyframeAt, normalizeProject, pickState, setLayerTextContent,
 	sortKeyframes, splitLayerContent,
 } from './project.js';
@@ -71,6 +72,7 @@ export class Model {
 	load(project, { remember = true } = {}) {
 		this.stop();
 		ProjectVars = project;
+		injectProjectFonts(ProjectVars.fonts);
 		this.currentFrame = 1;
 		this.selectedLayerId = null;
 		this.undoStack = [];
@@ -288,6 +290,20 @@ export class Model {
 		this.addLayer({ name: this.nextLayerName(name), content: markup });
 	}
 
+	placeImage({ name, dataUrl, width, height }) {
+		const [vx, vy, stageWidth, stageHeight] = ProjectVars.viewBox;
+		const scale = Math.min(1, stageWidth * 0.8 / width, stageHeight * 0.8 / height);
+		const displayWidth = Math.round(width * scale * 100) / 100;
+		const displayHeight = Math.round(height * scale * 100) / 100;
+		const x = Math.round((vx + (stageWidth - displayWidth) / 2) * 100) / 100;
+		const y = Math.round((vy + (stageHeight - displayHeight) / 2) * 100) / 100;
+		const layerName = String(name || 'Image').replace(/\.[^.]+$/, '');
+		this.addLayer({
+			name: this.nextLayerName(layerName),
+			content: `<image href="${escapeXml(dataUrl)}" x="${x}" y="${y}" width="${displayWidth}" height="${displayHeight}"/>`,
+		});
+	}
+
 	deleteLayer(id = this.selectedLayerId) {
 		const index = ProjectVars.layers.findIndex((l) => l.id === id);
 		if (index < 0 || ProjectVars.layers.length <= 1) return;
@@ -465,6 +481,16 @@ export class Model {
 		this.currentFrame = Math.min(this.currentFrame, p.frameLength);
 		this.updateTitle();
 		this.changed('structure');
+	}
+
+	async addGoogleFont(url) {
+		const font = await fetchGoogleFont(url);
+		this.snapshot();
+		ProjectVars.fonts = (ProjectVars.fonts || []).filter((item) => item.source !== font.source);
+		ProjectVars.fonts.push(font);
+		await injectProjectFonts(ProjectVars.fonts);
+		this.changed('structure');
+		return font.families;
 	}
 
 	// ____________________________________ file menu ____________________________________

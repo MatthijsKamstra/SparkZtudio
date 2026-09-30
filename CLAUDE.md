@@ -59,6 +59,7 @@ Muteer `ProjectVars` nooit buiten Model. Lees `ProjectVars` altijd vers: undo en
   viewBox: [0, 0, 600, 400], background: '#ffffff',
   frameRate: 24, frameLength: 48,
   defs: '<defs>...</defs>',            // gedeelde gradients/styles uit geimporteerde SVG
+  fonts: [{ source, families, css }],   // Google Fonts als ingebedde @font-face data
   layers: [                             // index 0 = bovenste laag (voorgrond), zoals in Flash
     { id, name, visible, locked,
       content: '<rect .../>',           // SVG-markup van de laag, statisch
@@ -80,6 +81,7 @@ Een laag is zichtbaar vanaf zijn eerste keyframe. `tween: true` interpoleert naa
 - [x] Motion tween op x, y, schaal, rotatie, alpha, met ease
 - [x] Slepen op stage maakt automatisch een keyframe en tween
 - [x] Property panel gekoppeld aan laag en document
+- [x] Rasterafbeeldingen plaatsen als ingebedde data-URL en Google Fonts inbedden
 - [x] Undo/redo (snapshots)
 - [x] Video-export MP4 (H.264) en WebM (VP9/VP8), frame-exact
 - [x] Autosave naar localStorage, Open Recent
@@ -95,7 +97,7 @@ Een laag is zichtbaar vanaf zijn eerste keyframe. `tween: true` interpoleert naa
 
 ### 🐛 Aandachtspunten
 
-1. Externe fonts en externe `<image href>` renderen niet in video-export (SVG als image laadt geen externe bronnen)
+1. Externe bronnen in geimporteerde SVG (`<image href="https://...">` of externe fonts) renderen niet in video-export. Gebruik Place Image en Add Google Font om bronnen in het project in te bedden.
 2. `node/export.js` genereert nog v1-projecten; die worden bij openen omgezet
 3. Content uit SVG en projectbestanden gaat door `sanitizeSvgMarkup` (geen scripts, event handlers, `javascript:` links)
 
